@@ -165,21 +165,21 @@ export function stringArrayToTraits(stringArray) {
 }
 
 export function traitsToStringArray(traits) {
-	let stringArray = [];
-	if (traits.incBrawler) stringArray.push("Brawler");
-	if (traits.incCreature) stringArray.push("Creature");
-	if (traits.incDroid) stringArray.push("Droid");
-	if (traits.incForceUser) stringArray.push("ForceUser");
-	if (traits.incGuardian) stringArray.push("Guardian");
-	if (traits.incHeavyWeapon) stringArray.push("HeavyWeapon");
-	if (traits.incHunter) stringArray.push("Hunter");
-	if (traits.incLeader) stringArray.push("Leader");
-	if (traits.incSmuggler) stringArray.push("Smuggler");
-	if (traits.incSpy) stringArray.push("Spy");
-	if (traits.incTrooper) stringArray.push("Trooper");
-	if (traits.incWookiee) stringArray.push("Wookiee");
-	if (traits.incVehicle) stringArray.push("Vehicle");
-	return stringArray;
+  let stringArray = [];
+  if (traits.incBrawler) stringArray.push("Brawler");
+  if (traits.incCreature) stringArray.push("Creature");
+  if (traits.incDroid) stringArray.push("Droid");
+  if (traits.incForceUser) stringArray.push("ForceUser");
+  if (traits.incGuardian) stringArray.push("Guardian");
+  if (traits.incHeavyWeapon) stringArray.push("HeavyWeapon");
+  if (traits.incHunter) stringArray.push("Hunter");
+  if (traits.incLeader) stringArray.push("Leader");
+  if (traits.incSmuggler) stringArray.push("Smuggler");
+  if (traits.incSpy) stringArray.push("Spy");
+  if (traits.incTrooper) stringArray.push("Trooper");
+  if (traits.incWookiee) stringArray.push("Wookiee");
+  if (traits.incVehicle) stringArray.push("Vehicle");
+  return stringArray;
 }
 
 export const PriorityTraits = [
@@ -217,6 +217,17 @@ export const DeploymentColors = [
 				new( "LightBlue", ColorFromFloats( 0, 164f / 255f, 1 ) )
 */
 ];
+
+export const DeploymentColorMap = new Map([
+  ["Gray", "gray"],
+  ["Purple", "#ad00ff"],
+  ["Black", "black"],
+  ["Blue", "#0054ff"],
+  ["Green", "green"],
+  ["Red", "red"],
+  ["Yellow", "yellow"],
+  ["LightBlue", "#00a4ff"],
+]);
 
 //enumeration equivalents
 export const CustomInstructionType = { Top: 0, Bottom: 1, Replace: 2 };

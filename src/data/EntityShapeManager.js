@@ -1,5 +1,5 @@
 import Two from "two.js";
-import { EntityType } from "../lib/core";
+import { EntityType, DeploymentColorMap } from "../lib/core";
 
 class ShapeManager {
   constructor(two, drawingGroup, zui) {
@@ -50,7 +50,7 @@ class ShapeManager {
     const shape = new Two.Rectangle(0, 0, 10, 10);
     //set origin to upper left corner
     shape.origin = new Two.Vector(-5, -5);
-    shape.fill = entity.entityProperties.entityColor;
+    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
     shape.stroke = "black";
     shape.linewidth = 1;
 
@@ -78,7 +78,7 @@ class ShapeManager {
     return shape;
   };
 
-	addTerminal = (entity) => {
+  addTerminal = (entity) => {
     const [x, y] = entity.entityPosition.split(",");
     const position = { x: parseFloat(x), y: parseFloat(y) };
 
@@ -88,7 +88,7 @@ class ShapeManager {
     const shape = new Two.Rectangle(0, 0, 10, 10);
     //set origin to upper left corner
     shape.origin = new Two.Vector(-5, -5);
-    shape.fill = entity.entityProperties.entityColor;
+    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
     shape.stroke = "black";
     shape.linewidth = 1;
 
@@ -114,7 +114,7 @@ class ShapeManager {
     });
 
     return shape;
-	};
+  };
 
   addDoor = (entity) => {
     const [x, y] = entity.entityPosition.split(",");
@@ -157,6 +157,101 @@ class ShapeManager {
     this.shapeProps.set(entity.GUID, {
       type: EntityType.Door,
       canRotate: true,
+    });
+
+    return shape;
+  };
+
+  addDeploymentPoint = (entity) => {
+    const [x, y] = entity.entityPosition.split(",");
+    const position = { x: parseFloat(x), y: parseFloat(y) };
+
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(position.x, position.y);
+    //main shape
+    const shape = new Two.Circle(5, 5, 5, 10);
+    //set origin to upper left corner
+    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.stroke = "black";
+    shape.linewidth = 1;
+
+    //add the letter C text to the crate
+    const text = new Two.Text(
+      "DP",
+      5, //half the width
+      5 + 0.5
+    );
+    text.fill = "white";
+
+    text.size = 5;
+    text.family = "Arial";
+    text.alignment = "center";
+
+    parentGroup.add(shape);
+    parentGroup.add(text);
+    this.drawingGroup.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, parentGroup);
+    this.shapeProps.set(entity.GUID, {
+      type: EntityType.Crate,
+      canRotate: false,
+    });
+
+    return shape;
+  };
+
+  addToken = (entity) => {
+    const [x, y] = entity.entityPosition.split(",");
+    const position = { x: parseFloat(x), y: parseFloat(y) };
+
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(position.x, position.y);
+    //main shape
+    const shape = new Two.Circle(5, 5, 5, 10);
+    //set origin to upper left corner
+    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.stroke = "black";
+    shape.linewidth = 1;
+
+    parentGroup.add(shape);
+    this.drawingGroup.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, parentGroup);
+    this.shapeProps.set(entity.GUID, {
+      type: EntityType.Crate,
+      canRotate: false,
+    });
+
+    return shape;
+  };
+
+  addHightlight = (entity) => {
+    const [x, y] = entity.entityPosition.split(",");
+    const position = { x: parseFloat(x), y: parseFloat(y) };
+
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(position.x, position.y);
+    //main shape
+    const shape = new Two.Rectangle(0, 0, 10, 10);
+    //set origin to upper left corner
+    shape.origin = new Two.Vector(-5, -5);
+    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.stroke = "transparent";
+    shape.linewidth = 0;
+    shape.opacity = 0.5;
+
+    //solid outline, otherwise it's transparent
+    const outlineShape = new Two.Rectangle(0, 0, 10, 10);
+    outlineShape.origin = new Two.Vector(-5, -5);
+    outlineShape.fill = "transparent";
+    outlineShape.stroke = "black";
+    outlineShape.linewidth = 1;
+
+    parentGroup.add(outlineShape);
+    parentGroup.add(shape);
+    this.drawingGroup.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, parentGroup);
+    this.shapeProps.set(entity.GUID, {
+      type: EntityType.Crate,
+      canRotate: false,
     });
 
     return shape;
@@ -287,7 +382,7 @@ class ShapeManager {
   removeShape = (entityGUID) => {
     const shape = this.shapeGroups.get(entityGUID);
     if (shape) {
-      console.log("🚀 ~ ShapeManager ~ REMOVING:", shape);
+      // console.log("🚀 ~ ShapeManager ~ REMOVING:", shape);
       this.shapeGroups.delete(entityGUID);
       this.shapeProps.delete(entityGUID);
       this.drawingGroup.remove(shape);

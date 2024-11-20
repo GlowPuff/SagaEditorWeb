@@ -14,7 +14,16 @@ import ShapeManager from "../../data/EntityShapeManager";
 
 //mapEntities is an array of simplified entities {color,position,GUID}
 const MapEditor = forwardRef(
-  ({ mapEntities, onSelectEntity, onUpdateEntityPosition, children }, ref) => {
+  (
+    {
+      mapEntities,
+      onSelectEntity,
+      onUpdateEntityPosition,
+      onRotateEntity,
+      children,
+    },
+    ref
+  ) => {
     //console.log("EDITOR INSTANCE CREATED");
     const containerRef = useRef(null);
     const twoRef = useRef(null);
@@ -214,7 +223,7 @@ const MapEditor = forwardRef(
       };
     }, []);
 
-		//setup shape manager
+    //setup shape manager
     useEffect(() => {
       console.log("🚀 ~ useEffect ~ INIT SHAPE MANAGER");
       if (!twoRef.current || !drawingGroupRef.current || !zuiRef.current)
@@ -236,18 +245,7 @@ const MapEditor = forwardRef(
       if (selectedShapeGUIDRef.current)
         shapeManagerRef.current.selectShape(selectedShapeGUIDRef.current);
 
-      // console.log(
-      //   "🚀 ~ adding entity shapes to canvas, mapEntities found: ",
-      //   mapEntities.length
-      // );
-      // console.log(
-      //   "🚀 ~ shape manager count:",
-      //   shapeManagerRef.current.shapeGroups
-      // );
-      // console.log(
-      //   "🚀 ~ useEffect ~ drawing surface shape count:",
-      //   drawingGroupRef.current.children.length
-      // );
+      // logMap();
 
       twoRef.current.update();
 
@@ -267,19 +265,34 @@ const MapEditor = forwardRef(
       const container = containerRef.current;
 
       const handleMouseDown = (e) => {
+        e.preventDefault();
         if (e.target === containerRef.current.querySelector("canvas")) {
           const { x: mouseX, y: mouseY } = mouse2Surface(e);
-          let { selected, guid } = shapeManagerRef.current.onMouseDown({
-            mouseX,
-            mouseY,
-          });
+          //left or right click
+          if (e.button === 0 || e.button === 2) {
+            let { selected, guid } = shapeManagerRef.current.onMouseDown({
+              mouseX,
+              mouseY,
+            });
 
-          if (!selected) {
+            //left click or middle click
+            if (!selected && e.button === 0) {
+              lastPosition = { x: e.clientX, y: e.clientY };
+              isPanning = true;
+            } else {
+              selectedShapeGUIDRef.current = guid;
+              onSelectEntity(selectedShapeGUIDRef.current);
+            }
+
+            //right click
+            if (selected && e.button === 2) {
+              onRotateEntity();
+            }
+          }
+          //middle click
+          else if (e.button === 1) {
             lastPosition = { x: e.clientX, y: e.clientY };
             isPanning = true;
-          } else {
-            selectedShapeGUIDRef.current = guid;
-            onSelectEntity(selectedShapeGUIDRef.current);
           }
 
           twoRef.current.update();
@@ -314,11 +327,10 @@ const MapEditor = forwardRef(
       };
 
       const handleMouseMove = (e) => {
-        //handle shape movement
-        if (!isPanning && selectedShapeGUIDRef.current) {
+        //handle shape movement on left click
+        if (!isPanning && selectedShapeGUIDRef.current && e.button === 0) {
           const { x: mouseX, y: mouseY } = mouse2Surface(e);
           shapeManagerRef.current.onMouseMove({
-            // guid: selectedShapeGUIDRef.current,
             mouseX,
             mouseY,
           });
@@ -372,6 +384,7 @@ const MapEditor = forwardRef(
       container.addEventListener("mouseup", handleMouseUp);
       container.addEventListener("mousemove", handleMouseMove);
       container.addEventListener("wheel", handleWheel);
+      container.addEventListener("contextmenu", (e) => e.preventDefault());
 
       //cleanup
       return () => {
@@ -379,6 +392,7 @@ const MapEditor = forwardRef(
         container.removeEventListener("mouseup", handleMouseUp);
         container.removeEventListener("mousemove", handleMouseMove);
         container.removeEventListener("wheel", handleWheel);
+        container.removeEventListener("contextmenu", (e) => e.preventDefault());
       };
     });
 
@@ -419,7 +433,8 @@ const MapEditor = forwardRef(
         if (shapeManagerRef.current)
           shapeManagerRef.current.removeShape(entityGUID);
       },
-      selectMapEntity: (entityGUID) => {//highlight the selected entity
+      selectMapEntity: (entityGUID) => {
+        //highlight the selected entity
         // console.log(
         //   "🚀 ~ useImperativeHandle::selectMapEntity ~ guid:",
         //   entityGUID
@@ -435,6 +450,22 @@ const MapEditor = forwardRef(
       centerMap: centerMap,
       centerEntity: centerEntity,
     }));
+
+    // eslint-disable-next-line no-unused-vars
+    function logMap() {
+      console.log(
+        "🚀 ~ adding entity shapes to canvas, mapEntities found: ",
+        mapEntities.length
+      );
+      console.log(
+        "🚀 ~ shape manager count:",
+        shapeManagerRef.current.shapeGroups
+      );
+      console.log(
+        "🚀 ~ useEffect ~ drawing surface shape count:",
+        drawingGroupRef.current.children.length
+      );
+    }
 
     return (
       <div ref={containerRef} className="canvas">
@@ -453,6 +484,7 @@ MapEditor.propTypes = {
   mapEntities: PropTypes.array,
   addEntity: PropTypes.func,
   onUpdateEntityPosition: PropTypes.func,
+  onRotateEntity: PropTypes.func,
 
   children: PropTypes.node,
 };

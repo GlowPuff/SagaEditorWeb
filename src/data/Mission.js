@@ -861,6 +861,24 @@ export class DeploymentPointEntity extends MapEntity {
   }
 }
 
+export class TokenEntity extends MapEntity {
+  constructor(ownerGUID) {
+    super(ownerGUID);
+    this.name = "New Marker";
+    this.entityType = core.EntityType.Token;
+    this.deploymentColor = "Gray";
+  }
+}
+
+export class HighlightEntity extends MapEntity {
+	constructor(ownerGUID) {
+		super(ownerGUID);
+		this.name = "New Highlight";
+		this.entityType = core.EntityType.Highlight;
+		this.deploymentColor = "Green";
+	}
+}
+
 export class CampaignSkill {
   constructor(name, cost) {
     this.owner = core.createGUID();
