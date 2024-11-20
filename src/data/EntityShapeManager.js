@@ -6,8 +6,9 @@ class ShapeManager {
     this.two = two;
     this.drawingGroup = drawingGroup;
     this.zui = zui;
-    this.shapeGroups = new Map(); // GUID -> Two.js shape
-    this.selectedShape = null; // { guid, shape, twoID }, shape is usually a group
+    this.shapeGroups = new Map(); // entityGUID -> Two.js shape
+    this.shapeProps = new Map(); // entityGUID -> {type, canRotate}
+    this.selectedShape = null; // { entityGUID, shape, twoID }, shape is usually a group
     this.isDraggingShape = false;
     this.dragOffset = { x: 0, y: 0 };
   }
@@ -23,7 +24,7 @@ class ShapeManager {
         this.addDoor(entity);
         break;
       case EntityType.Console:
-        this.addConsole(entity);
+        this.addTerminal(entity);
         break;
       case EntityType.DeploymentPoint:
         this.addDeploymentPoint(entity);
@@ -43,14 +44,12 @@ class ShapeManager {
     const [x, y] = entity.entityPosition.split(",");
     const position = { x: parseFloat(x), y: parseFloat(y) };
 
-    // console.log("🚀 ~ ShapeManager ~ addCrate ~");
-    const crateGroup = new Two.Group();
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(position.x, position.y);
+    //main shape
     const shape = new Two.Rectangle(0, 0, 10, 10);
-    crateGroup.position = new Two.Vector(position.x, position.y);
-
     //set origin to upper left corner
     shape.origin = new Two.Vector(-5, -5);
-
     shape.fill = entity.entityProperties.entityColor;
     shape.stroke = "black";
     shape.linewidth = 1;
@@ -58,7 +57,7 @@ class ShapeManager {
     //add the letter C text to the crate
     const text = new Two.Text(
       "C",
-      5, //half the width of the crate
+      5, //half the width
       1 + 5
     );
     text.fill = "white";
@@ -66,19 +65,101 @@ class ShapeManager {
     text.size = 10;
     text.family = "Arial";
     text.alignment = "center";
-    text.baseline = "middle";
 
-    crateGroup.add(shape);
-    crateGroup.add(text);
-    this.drawingGroup.add(crateGroup);
-    this.shapeGroups.set(entity.GUID, crateGroup);
+    parentGroup.add(shape);
+    parentGroup.add(text);
+    this.drawingGroup.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, parentGroup);
+    this.shapeProps.set(entity.GUID, {
+      type: EntityType.Crate,
+      canRotate: false,
+    });
 
     return shape;
   };
 
+	addTerminal = (entity) => {
+    const [x, y] = entity.entityPosition.split(",");
+    const position = { x: parseFloat(x), y: parseFloat(y) };
+
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(position.x, position.y);
+    //main shape
+    const shape = new Two.Rectangle(0, 0, 10, 10);
+    //set origin to upper left corner
+    shape.origin = new Two.Vector(-5, -5);
+    shape.fill = entity.entityProperties.entityColor;
+    shape.stroke = "black";
+    shape.linewidth = 1;
+
+    //add the letter C text to the crate
+    const text = new Two.Text(
+      "T",
+      5, //half the width
+      1 + 5
+    );
+    text.fill = "white";
+
+    text.size = 10;
+    text.family = "Arial";
+    text.alignment = "center";
+
+    parentGroup.add(shape);
+    parentGroup.add(text);
+    this.drawingGroup.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, parentGroup);
+    this.shapeProps.set(entity.GUID, {
+      type: EntityType.Crate,
+      canRotate: false,
+    });
+
+    return shape;
+	};
+
   addDoor = (entity) => {
     const [x, y] = entity.entityPosition.split(",");
     const position = { x: parseFloat(x), y: parseFloat(y) };
+
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(position.x, position.y);
+    //main shape
+    const shape = new Two.Rectangle(0, 0, 20, 20);
+    //set origin to upper left corner
+    shape.origin = new Two.Vector(-10, -10);
+    shape.fill = "transparent";
+    shape.stroke = "transparent";
+    shape.linewidth = 0;
+
+    const textGroup = new Two.Group();
+    textGroup.position = new Two.Vector(10, 10);
+    const innerShape = new Two.Rectangle(0, 0, 20, 6);
+    innerShape.fill = "#01b5ff";
+    innerShape.stroke = "black";
+    innerShape.linewidth = 1;
+
+    //add DOOR text to the door
+    const text = new Two.Text("DOOR", 0, 0 + 0.5);
+    text.fill = "black";
+
+    text.size = 5;
+    text.family = "Arial";
+    text.alignment = "center";
+
+    textGroup.add(innerShape);
+    textGroup.add(text);
+    textGroup.rotation = (entity.entityRotation * Math.PI) / 180;
+
+    parentGroup.add(shape);
+    parentGroup.add(textGroup);
+
+    this.drawingGroup.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, parentGroup);
+    this.shapeProps.set(entity.GUID, {
+      type: EntityType.Door,
+      canRotate: true,
+    });
+
+    return shape;
   };
 
   //mouse position are in surface coordinates
@@ -139,7 +220,6 @@ class ShapeManager {
     }
     this.isDraggingShape = false;
 
-    // return isShapeSelected;
     return {
       selected: isShapeSelected,
       newPosition,
@@ -156,18 +236,18 @@ class ShapeManager {
     }
   };
 
-  getShapeFromGUID = (guid) => {
-    return this.shapeGroups.get(guid);
+  getShapeFromGUID = (entityGUID) => {
+    return this.shapeGroups.get(entityGUID);
   };
 
   //explicitly select a shape
-  selectShape = (guid) => {
+  selectShape = (entityGUID) => {
     this.unselectAll();
-    if (!guid) return;
+    if (!entityGUID) return;
 
     //console.log("🚀 ~ ShapeManager ~ finding guid:", guid);
 
-    let group = this.shapeGroups.get(guid);
+    let group = this.shapeGroups.get(entityGUID);
     if (group) {
       //console.log("🚀 ~ ShapeManager ~ select shape:", group);
       //move selectd shape to the top of the drawing group
@@ -182,10 +262,15 @@ class ShapeManager {
   };
 
   unselectAll = () => {
-    for (const [, group] of this.shapeGroups) {
+    for (const [guid, group] of this.shapeGroups) {
       let shape = group.children[0];
       shape.linewidth = 1;
       shape.stroke = "black";
+      const { type } = this.shapeProps.get(guid);
+      if (type === EntityType.Door) {
+        shape.linewidth = 0;
+        shape.stroke = "transparent";
+      }
     }
   };
 
@@ -199,20 +284,12 @@ class ShapeManager {
     });
   };
 
-  // updateShape(entity) {
-  //   const shape = this.shapes.get(entity.GUID);
-  //   if (shape) {
-  //     shape.translation.set(entity.position.x, entity.position.y);
-  //     shape.rotation = entity.rotation || 0;
-  //   }
-  //   this.two.update();
-  // }
-
-  removeShape = (guid) => {
-    const shape = this.shapeGroups.get(guid);
+  removeShape = (entityGUID) => {
+    const shape = this.shapeGroups.get(entityGUID);
     if (shape) {
       console.log("🚀 ~ ShapeManager ~ REMOVING:", shape);
-      this.shapeGroups.delete(guid);
+      this.shapeGroups.delete(entityGUID);
+      this.shapeProps.delete(entityGUID);
       this.drawingGroup.remove(shape);
       this.two.release(shape);
     }

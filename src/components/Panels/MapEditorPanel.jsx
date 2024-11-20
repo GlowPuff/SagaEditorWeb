@@ -17,33 +17,30 @@ import ListItem from "@mui/material/ListItem";
 //icons
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
+import SquareIcon from "@mui/icons-material/Square";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import ComputerIcon from "@mui/icons-material/Computer";
+import DoorSlidingIcon from "@mui/icons-material/DoorSliding";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import TokenIcon from "@mui/icons-material/Token";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import GpsFixedIcon from "@mui/icons-material/GpsFixed";
+import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 //data
 import { EntityType } from "../../lib/core";
-import { MapSection } from "../../data/Mission";
+import {
+  MapSection,
+  CrateEntity,
+  TerminalEntity,
+  DoorEntity,
+} from "../../data/Mission";
 import { useMapSectionsStore, useMapEntitiesStore } from "../../data/dataStore";
 //components
 import MapEditor from "../SubComponents/MapEditor";
 import { Tooltip, Typography } from "@mui/material";
 //map components
 import CrateProps from "../MapComponents/CrateProps";
-
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
-//*****************TODO move entity store here instead of in the map editor!!!!!!!!!!!!
 
 // Define components map outside the component to avoid recreating it on each render
 const ENTITY_COMPONENTS = {
@@ -62,45 +59,187 @@ export default function MapEditorPanel({ value, index }) {
   );
   //map entity store
   const mapEntities = useMapEntitiesStore((state) => state.mapEntities);
-
+  const addMapEntity = useMapEntitiesStore((state) => state.addEntity);
+  const updateMapEntityPosition = useMapEntitiesStore(
+    (state) => state.updateEntityPosition
+  );
+  const rotateMapEntity = useMapEntitiesStore((state) => state.rotateEntity);
+  const removeMapEntity = useMapEntitiesStore((state) => state.removeEntity);
+  const updateMapEntity = useMapEntitiesStore((state) => state.updateEntity);
+  //state
   const [selectedEntity, setSelectedEntity] = useState(null);
+  //refs
   const mapRef = useRef(null);
-  // const [refresh, forceUpdate] = useReducer((x) => x + 1, 0);
+  const isProcessingRef = useRef(false);
 
+  //select the entity in the map on mount
   useEffect(() => {
     if (mapRef.current && selectedEntity) {
       mapRef.current.selectMapEntity(selectedEntity.GUID);
     }
   });
 
-  //called by the entity component to update the entity
-  const updateEntity = useCallback((entity) => {
-    console.log("🚀 ~ updateEntity ~ entity:", entity);
-    // setSelectedEntity(entity);
-    mapRef.current.updateMapEntity(entity);
-    // forceUpdate();
+  //******** toolbar actions
+  const centerMap = useCallback(() => {
+    mapRef.current.centerMap();
   }, []);
 
-  const handleEntitySelect = useCallback((entity) => {
-    console.log("🚀 ~ handleEntitySelect ~ entity:", entity);
-    let selected = mapEntities.find((x) => x.GUID === entity.GUID);
-    if (selected) {
-      setSelectedEntity(selected);
-    } else setSelectedEntity(null);
-  }, [ mapEntities ]);
+  const centerEntity = useCallback(() => {
+    if (selectedEntity !== null) {
+      mapRef.current.centerEntity(selectedEntity);
+    }
+  }, [selectedEntity]);
+
+  const addCrateEntity = useCallback(() => {
+    let newEntity = new CrateEntity(activeMapSection.GUID);
+    addMapEntity(newEntity);
+    mapRef.current.addMapEntity(newEntity);
+    mapRef.current.selectMapEntity(newEntity.GUID);
+    setSelectedEntity(newEntity);
+  }, [activeMapSection, addMapEntity]);
+
+  const addTerminalEntity = useCallback(() => {
+    let newEntity = new TerminalEntity(activeMapSection.GUID);
+    addMapEntity(newEntity);
+    mapRef.current.addMapEntity(newEntity);
+    mapRef.current.selectMapEntity(newEntity.GUID);
+    setSelectedEntity(newEntity);
+  }, [activeMapSection, addMapEntity]);
+
+  const addDoorEntity = useCallback(() => {
+    let newEntity = new DoorEntity(activeMapSection.GUID);
+    addMapEntity(newEntity);
+    mapRef.current.addMapEntity(newEntity);
+    mapRef.current.selectMapEntity(newEntity.GUID);
+    setSelectedEntity(newEntity);
+  }, [activeMapSection, addMapEntity]);
+
+  const handleEntitySelect = useCallback(
+    (entityGUID) => {
+      // console.log("🚀 ~ handleEntitySelect ~ entityGUID:", entityGUID);
+      let selected = mapEntities.find((x) => x.GUID === entityGUID);
+      // console.log("🚀 ~ MapEditorPanel ~ selected:", selected);
+      if (selected) {
+        setSelectedEntity(selected);
+        //select it in the map
+        mapRef.current.selectMapEntity(selected.GUID);
+      } else setSelectedEntity(null);
+    },
+    [mapEntities]
+  );
+
+  //setup keyboard handler
+  useEffect(() => {
+    // Keyboard shortcuts
+    const handleKeyDown = (e) => {
+      e.stopPropagation();
+
+      if (isProcessingRef.current) {
+        return;
+      }
+
+      // Handle the combos
+      if (e.ctrlKey && e.key === "m") {
+        isProcessingRef.current = true;
+        console.log("🚀 ~ centerMap");
+        centerMap();
+      }
+      if (e.ctrlKey && e.key === "e") {
+        e.preventDefault();
+        console.log("🚀 ~ centerEntity");
+        isProcessingRef.current = true;
+        centerEntity();
+      }
+      if (e.ctrlKey && e.key === "2") {
+        e.preventDefault();
+        isProcessingRef.current = true;
+        addCrateEntity();
+      }
+      if (e.ctrlKey && e.key === "3") {
+        e.preventDefault();
+        isProcessingRef.current = true;
+        addTerminalEntity();
+      }
+      if (e.ctrlKey && e.key === "4") {
+        e.preventDefault();
+        isProcessingRef.current = true;
+        addDoorEntity();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === "X") {
+        isProcessingRef.current = true;
+        mapRef.current.removeMapEntity(selectedEntity.GUID);
+        removeMapEntity(selectedEntity.GUID);
+        handleEntitySelect(null);
+      }
+      if (e.key === "[" && selectedEntity) {
+        if (selectedEntity.entityType === EntityType.Door)
+          rotateMapEntity(selectedEntity.GUID, -1);
+      }
+      if (e.key === "]" && selectedEntity) {
+        if (selectedEntity.entityType === EntityType.Door)
+          rotateMapEntity(selectedEntity.GUID, 1);
+      }
+    };
+
+    const handleKeyUp = () => {
+      isProcessingRef.current = false;
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    //cleanup
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [
+    centerEntity,
+    centerMap,
+    addCrateEntity,
+    addTerminalEntity,
+    addDoorEntity,
+    handleEntitySelect,
+    rotateMapEntity,
+    removeMapEntity,
+    selectedEntity,
+  ]);
+
+  //called by the entity component to update the entity
+  const updateEntity = useCallback(
+    (entity) => {
+      // console.log("🚀 ~ updateEntity ~ entity:", entity);
+      updateMapEntity(entity);
+      setSelectedEntity(entity);
+    },
+    [updateMapEntity]
+  );
 
   const handleRemoveEntity = () => {
     // console.log("🚀 ~ handleRemoveEntity ~ mapRef.current:", mapRef.current);
     if (selectedEntity !== null) {
       // console.log("🚀 ~ handleRemoveEntity ~ selectedEntity:", selectedEntity);
-      mapRef.current.removeMapEntity(selectedEntity);
-      setSelectedEntity(null);
+      mapRef.current.removeMapEntity(selectedEntity.GUID);
+      removeMapEntity(selectedEntity.GUID);
+      handleEntitySelect(null);
     }
   };
 
+  const handleUpdateEntityPosition = useCallback(
+    (entityGUID, position) => {
+      // console.log(
+      //   "🚀 ~ handleUpdateEntityPosition ~ entityGUID, position",
+      //   entityGUID,
+      //   position
+      // );
+      updateMapEntityPosition(entityGUID, position);
+    },
+    [updateMapEntityPosition]
+  );
+
   const entityPropsChooser = useCallback(() => {
-    console.log("🚀 ~ entityPropsChooser ~ entityPropsChooser", selectedEntity);
     if (selectedEntity === null) {
+      console.log("🚀 ~ entityPropsChooser ~ NOTHING SELECTED");
       return (
         <>
           <Typography>Select an entity to view its properties.</Typography>
@@ -108,6 +247,7 @@ export default function MapEditorPanel({ value, index }) {
       );
     }
 
+    // console.log("🚀 ~ entityPropsChooser: ", selectedEntity.name);
     const EntityComponent = ENTITY_COMPONENTS[selectedEntity.entityType];
 
     if (!EntityComponent) {
@@ -116,7 +256,7 @@ export default function MapEditorPanel({ value, index }) {
 
     return (
       <EntityComponent
-        // key={refresh}
+        key={selectedEntity.GUID}
         entity={selectedEntity}
         onUpdateEntity={updateEntity}
       />
@@ -150,9 +290,108 @@ export default function MapEditorPanel({ value, index }) {
             >
               <MapEditor
                 ref={mapRef}
+                mapEntities={mapEntities}
                 onSelectEntity={handleEntitySelect}
-                //onUpdateEntityPosition={handleUpdateEntityPosition}
-              />
+                addEntity={addMapEntity}
+                onUpdateEntityPosition={handleUpdateEntityPosition}
+              >
+                {/* actions toolbar */}
+                <div className="mapToolBar">
+                  <Tooltip title="Add a Tile (Control + 1)" placement="right">
+                    <IconButton>
+                      <SquareIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Add a Crate (Control + 2)" placement="right">
+                    <IconButton onClick={addCrateEntity}>
+                      <Inventory2Icon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title="Add a Terminal (Control + 3)"
+                    placement="right"
+                  >
+                    <IconButton onClick={addTerminalEntity}>
+                      <ComputerIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Add a Door (Control + 4)" placement="right">
+                    <IconButton onClick={addDoorEntity}>
+                      <DoorSlidingIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title="Add a Deployment Point (Control + 5)"
+                    placement="right"
+                  >
+                    <IconButton>
+                      <PersonAddIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title="Add a Mission Marker (Control + 6)"
+                    placement="right"
+                  >
+                    <IconButton>
+                      <TokenIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title="Add a Space Highlight (Control + 7)"
+                    placement="right"
+                  >
+                    <IconButton>
+                      <PriorityHighIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <div className="mapToolBarDivider"></div>
+
+                  <Tooltip title="Center Map (Control + M)" placement="right">
+                    <IconButton onClick={centerMap}>
+                      <GpsFixedIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title="Center Selected Entity (Control + E)"
+                    placement="right"
+                  >
+                    <IconButton onClick={centerEntity}>
+                      <ModeStandbyIcon fontSize="medium" />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+
+                {/* hotkey toolbar */}
+                <div className="hotkeyToolBar">
+                  <div className="hotkeyItem" style={{ marginLeft: "auto" }}>
+                    <Typography variant="button">Ctrl + T</Typography>
+                    <div className="hotkeyDefinition">Add Tile</div>
+                  </div>
+
+                  <FiberManualRecordIcon
+                    sx={{ width: "10px", height: "10px", color: "#702da0" }}
+                  />
+
+                  <div className="hotkeyItem">
+                    <Typography variant="button">Ctrl + Shift + D</Typography>
+                    <div className="hotkeyDefinition">
+                      Duplicate Selected Entity
+                    </div>
+                  </div>
+
+                  <FiberManualRecordIcon
+                    sx={{ width: "10px", height: "10px", color: "#702da0" }}
+                  />
+
+                  <div className="hotkeyItem" style={{ marginRight: "auto" }}>
+                    <Typography variant="button">Ctrl + Shift + X</Typography>
+                    <div className="hotkeyDefinition">
+                      Delete Selected Entity
+                    </div>
+                  </div>
+                </div>
+              </MapEditor>
             </div>
           </Paper>
 
@@ -293,8 +532,10 @@ export default function MapEditorPanel({ value, index }) {
                         <ListItem disablePadding key={index}>
                           <ListItemButton
                             selected={selectedEntity?.GUID === entity.GUID}
-                            onClick={() => handleEntitySelect(entity)}
-                            onDoubleClick={() => handleEntitySelect(entity)}
+                            onClick={() => handleEntitySelect(entity.GUID)}
+                            onDoubleClick={() =>
+                              handleEntitySelect(entity.GUID)
+                            }
                           >
                             {entity.name}
                           </ListItemButton>

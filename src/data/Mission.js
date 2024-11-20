@@ -828,8 +828,26 @@ export class CrateEntity extends MapEntity {
   constructor(ownerGUID) {
     super("New Crate", ownerGUID);
     this.name = "New Crate";
-    this.entityProperties.name = "New Crate";//??????
+    this.entityProperties.name = "New Crate"; //??????
     this.entityType = core.EntityType.Crate;
+    this.deploymentColor = "Gray";
+  }
+}
+
+export class TerminalEntity extends MapEntity {
+  constructor(ownerGUID) {
+    super(ownerGUID);
+    this.name = "New Terminal";
+    this.entityType = core.EntityType.Console;
+    this.deploymentColor = "Gray";
+  }
+}
+
+export class DoorEntity extends MapEntity {
+  constructor(ownerGUID) {
+    super(ownerGUID);
+    this.name = "New Door";
+    this.entityType = core.EntityType.Door;
     this.deploymentColor = "Gray";
   }
 }

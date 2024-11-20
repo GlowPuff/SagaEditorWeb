@@ -186,6 +186,18 @@ export const useMapEntitiesStore = create((set) => ({
         } else return item;
       }),
     })),
+  rotateEntity: (guid, direction) =>
+    set((state) => ({
+      mapEntities: state.mapEntities.map((item) => {
+        if (item.GUID === guid) {
+          item.entityRotation = (item.entityRotation + 90 * direction) % 360;
+          if (item.entityRotation < 0) {
+            item.entityRotation += 360;
+          }
+          return item;
+        } else return item;
+      }),
+    })),
   getEntityByGUID: (guid) => {
     let entity = null;
     set((state) => {

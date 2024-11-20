@@ -1,5 +1,5 @@
 // import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 //mui
 import TextField from "@mui/material/TextField";
@@ -16,9 +16,9 @@ const CrateProps = ({ entity, onUpdateEntity }) => {
   const [checked, setChecked] = useState(entity.entityProperties.isActive);
   const mapSections = useMapSectionsStore((state) => state.mapSections);
 
-  useEffect(() => {
-    console.log("CrateProps ~ INIT", entity);
-  });
+  // useEffect(() => {
+  //   console.log("CrateProps ~ INIT", entity);
+  // });
 
   function updateEntity(prop, value) {
     let updated = { ...entity };

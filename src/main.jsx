@@ -33,13 +33,13 @@ const router = createBrowserRouter([
 const darkTheme = createTheme(createTranslatorTheme);
 
 createRoot(document.getElementById("root")).render(
-  // <StrictMode>
-  <div>
+  <StrictMode>
+    {/* <div> */}
     <MuiAriaFix rootSelector="#root" />
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <RouterProvider router={router} />
     </ThemeProvider>
-  </div>
-  // </StrictMode>
+    {/* </div> */}
+  </StrictMode>
 );
