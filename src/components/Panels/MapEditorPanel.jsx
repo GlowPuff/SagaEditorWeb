@@ -2,23 +2,8 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 //mui
 import Paper from "@mui/material/Paper";
-// import Accordion from "@mui/material/Accordion";
-// import AccordionSummary from "@mui/material/AccordionSummary";
-// import AccordionDetails from "@mui/material/AccordionDetails";
-// import Button from "@mui/material/Button";
-// import Select from "@mui/material/Select";
-// import MenuItem from "@mui/material/MenuItem";
-// import IconButton from "@mui/material/IconButton";
-// import FormControl from "@mui/material/FormControl";
-// import InputLabel from "@mui/material/InputLabel";
-// import List from "@mui/material/List";
-// import ListItemButton from "@mui/material/ListItemButton";
-// import ListItem from "@mui/material/ListItem";
-// import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 //icons
-// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// import AddIcon from "@mui/icons-material/Add";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 //data
 import { EntityType } from "../../lib/core";
