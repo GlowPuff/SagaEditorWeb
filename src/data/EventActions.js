@@ -201,7 +201,8 @@ export function EAFactoryActions(eaType, eventAction, callback) {
     }
     case EventActionType.M2: {
       eventAction =
-        eventAction === undefined ? new ModifyMapEntity() : eventAction;
+			eventAction === undefined ? new ModifyMapEntity() : eventAction;
+			// console.log("🚀 ~ EAFactoryActions ~ eventAction:", eventAction)
       ModifyMapEntityDialog.ShowDialog(eventAction, callback);
       break;
     }

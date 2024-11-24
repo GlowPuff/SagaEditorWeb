@@ -85,30 +85,33 @@ export default function App() {
             onTabChange={(index) => setTabIndex(index)}
           />
           <div className="display-panel">
-            <MissionPanel
-              missionProps={missionProps}
-              onSetProps={(name, text) => onSetMissionProps(name, text)}
-              value={tabIndex}
-              index={0}
-            />
-            <SectionsPanel value={tabIndex} index={1} />
-						<MapEditorPanel value={tabIndex} index={2} />
-            <EnemyGroupPanel
-              value={tabIndex}
-              index={3}
-              initialGroups={initialGroups}
-              onModifyEnemyGroups={onModifyEnemyGroups}
-            />
-            <PropertiesPanel
-              value={tabIndex}
-              index={4}
-              setPropValue={onSetMissionProps}
-              missionProps={missionProps}
-            />
-            <CustomToonPanel
-              value={tabIndex}
-              index={5}
-            />
+            {tabIndex === 0 && (
+              <MissionPanel
+                missionProps={missionProps}
+                onSetProps={(name, text) => onSetMissionProps(name, text)}
+                value={tabIndex}
+                index={0}
+              />
+            )}
+            {tabIndex === 1 && <SectionsPanel value={tabIndex} index={1} />}
+            {tabIndex === 2 && <MapEditorPanel value={tabIndex} index={2} />}
+            {tabIndex === 3 && (
+              <EnemyGroupPanel
+                value={tabIndex}
+                index={3}
+                initialGroups={initialGroups}
+                onModifyEnemyGroups={onModifyEnemyGroups}
+              />
+            )}
+            {tabIndex === 4 && (
+              <PropertiesPanel
+                value={tabIndex}
+                index={4}
+                setPropValue={onSetMissionProps}
+                missionProps={missionProps}
+              />
+            )}
+            {tabIndex === 5 && <CustomToonPanel value={tabIndex} index={5} />}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import { purple, blue } from "@mui/material/colors";
 
-export let createTranslatorTheme = {
+export const createTranslatorTheme = {
   components: {
     MuiButton: {
       variants: [
@@ -347,3 +347,5 @@ export const DiceColor = {
   Blue: 5,
   Grey: 6,
 };
+
+export const MarkerType = { Neutral: 0, Rebel: 1, Imperial: 2 };

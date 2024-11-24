@@ -36,93 +36,98 @@ export default function PriorityTargetDialog() {
   }
 
   return (
-    <Dialog
-      closeAfterTransition={false}
-      open={open}
-      maxWidth={"md"}
-      fullWidth={true}
-      scroll={"paper"}
-    >
-      <DialogTitle>Change Priority Target Traits</DialogTitle>
-      <DialogContent>
-        <Paper
-          sx={{
-            backgroundColor: "#201531",
-            padding: "1rem",
-            marginBottom: ".5rem",
-          }}
+    <>
+      {open && (
+        <Dialog
+          closeAfterTransition={false}
+          open={open}
+          maxWidth={"md"}
+          fullWidth={true}
+          scroll={"paper"}
         >
-          <Typography>
-            Priority Target Traits affect which types of Rebel traits this group
-            will prefer first when attacking.
-          </Typography>
-        </Paper>
-        {!hideUseDefault.current && (
-          <Paper
-            sx={{
-              backgroundColor: "#201531",
-              padding: "1rem",
-              marginBottom: ".5rem",
-            }}
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  radioGroup="useDefault"
-                  checked={traits && traits.useDefaultPriority}
-                  onChange={(e) => {
-                    modifyTraits("useDefaultPriority", e.target.checked);
-                  }}
+          <DialogTitle>Change Priority Target Traits</DialogTitle>
+          <DialogContent>
+            <Paper
+              sx={{
+                backgroundColor: "#201531",
+                padding: "1rem",
+                marginBottom: ".5rem",
+              }}
+            >
+              <Typography>
+                Priority Target Traits affect which types of Rebel traits this
+                group will prefer first when attacking.
+              </Typography>
+            </Paper>
+            {!hideUseDefault.current && (
+              <Paper
+                sx={{
+                  backgroundColor: "#201531",
+                  padding: "1rem",
+                  marginBottom: ".5rem",
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      radioGroup="useDefault"
+                      checked={traits && traits.useDefaultPriority}
+                      onChange={(e) => {
+                        modifyTraits("useDefaultPriority", e.target.checked);
+                      }}
+                    />
+                  }
+                  label="Use Group Default"
                 />
-              }
-              label="Use Group Default"
-            />
-          </Paper>
-        )}
-        <Paper
-          sx={{
-            backgroundColor: "#201531",
-            padding: "1rem",
-            marginBottom: ".5rem",
-          }}
-        >
-          <div
-            className="quad-column-grid"
-            style={{
-              opacity: traits && traits.useDefaultPriority ? ".5" : "1",
-              pointerEvents: traits && traits.useDefaultPriority ? "none" : "",
-            }}
-          >
-            {PriorityTraits.map((item, index) => (
-              <FormControlLabel
-                key={index}
-                control={
-                  <Checkbox
-                    radioGroup="useDefault"
-                    checked={traits && traits[item.propName]}
-                    onChange={(e) => {
-                      modifyTraits(item.propName, e.target.checked);
-                    }}
+              </Paper>
+            )}
+            <Paper
+              sx={{
+                backgroundColor: "#201531",
+                padding: "1rem",
+                marginBottom: ".5rem",
+              }}
+            >
+              <div
+                className="quad-column-grid"
+                style={{
+                  opacity: traits && traits.useDefaultPriority ? ".5" : "1",
+                  pointerEvents:
+                    traits && traits.useDefaultPriority ? "none" : "",
+                }}
+              >
+                {PriorityTraits.map((item, index) => (
+                  <FormControlLabel
+                    key={index}
+                    control={
+                      <Checkbox
+                        radioGroup="useDefault"
+                        checked={traits && traits[item.propName]}
+                        onChange={(e) => {
+                          modifyTraits(item.propName, e.target.checked);
+                        }}
+                      />
+                    }
+                    label={item.name}
                   />
-                }
-                label={item.name}
-              />
-            ))}
-          </div>
-        </Paper>
-      </DialogContent>
-      <DialogActions sx={{ paddingRight: "1rem", paddingBottom: "1rem" }}>
-        <Button variant="contained" onClick={() => onOK()}>
-          continue
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => setOpen(false)}
-          color="error"
-        >
-          cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
+                ))}
+              </div>
+            </Paper>
+          </DialogContent>
+          <DialogActions sx={{ paddingRight: "1rem", paddingBottom: "1rem" }}>
+            <Button variant="contained" onClick={() => onOK()}>
+              continue
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => setOpen(false)}
+              color="error"
+            >
+              cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </>
   );
 }

@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import PropTypes from "prop-types";
 //mui
 import Paper from "@mui/material/Paper";
@@ -19,64 +18,49 @@ import Tooltip from "@mui/material/Tooltip";
 //icons
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
-//data
-import { EntityType } from "../../lib/core";
 //map components
-import CrateProps from "./CrateProps";
-
-// Define components map outside the component to avoid recreating it on each render
-const ENTITY_COMPONENTS = {
-  [EntityType.Crate]: CrateProps,
-};
+import EntityProps from "./EntityProps";
 
 const MapPropsPanel = ({
   selectedEntity,
-  setActiveMapSection,
-  activeMapSection,
+  setActiveMapSectionGUID,
+  activeMapSectionGUID,
   mapSections,
   addMapSection,
   mapEntities,
   handleRemoveEntity,
   updateEntity,
   handleEntitySelect,
+  onEditPropertiesClick,
 }) => {
-  const entityPropsChooser = useCallback(() => {
-    if (selectedEntity === null) {
-      console.log("🚀 ~ entityPropsChooser ~ NOTHING SELECTED");
-      return (
-        <>
-          <Typography>Select an entity to view its properties.</Typography>
-        </>
-      );
-    }
-
-    // console.log("🚀 ~ entityPropsChooser: ", selectedEntity.name);
-    const EntityComponent = ENTITY_COMPONENTS[selectedEntity.entityType];
-
-    if (!EntityComponent) {
-      return null;
-    }
-
-    return (
-      <EntityComponent
-        key={selectedEntity.GUID}
-        entity={selectedEntity}
-        onUpdateEntity={updateEntity}
-      />
-    );
-  }, [selectedEntity, updateEntity]);
-
   return (
     <div className="map-props">
       <Paper
         sx={{
           padding: ".5rem",
-          overflow: "auto",
-          height: "100%",
+          overflowY: "auto",
           scrollbarColor: "#bc56ff #4c4561",
           scrollbarWidth: "thin",
+          height: "100%",
         }}
       >
+        <Paper
+          sx={{
+            padding: ".5rem",
+            marginBottom: ".5rem",
+            backgroundColor: "#281b40",
+          }}
+        >
+          <Typography sx={{ textAlign: "center" }}>
+            <span className="lime">Active Map Section:</span>
+          </Typography>
+          <Typography sx={{ textAlign: "center" }}>
+            {mapSections.find((x) => x.GUID === activeMapSectionGUID)?.name ||
+              "None"}
+          </Typography>
+        </Paper>
+
+        {/* ENTITY ACTIONS SECTION */}
         <Accordion
           defaultExpanded
           sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}
@@ -111,6 +95,7 @@ const MapPropsPanel = ({
           </AccordionDetails>
         </Accordion>
 
+        {/* MAP SECTIONS SECTION */}
         <Accordion sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} id="panel1-header">
             Map Sections
@@ -122,13 +107,13 @@ const MapPropsPanel = ({
                   <InputLabel>Set Active Map Section</InputLabel>
                   <Select
                     name="mapSections"
-                    value={activeMapSection || ""}
+                    value={activeMapSectionGUID || ""}
                     displayEmpty
                     sx={{ width: "100%" }}
-                    onChange={(e) => setActiveMapSection(e.target.value)}
+                    onChange={(e) => setActiveMapSectionGUID(e.target.value)}
                   >
                     {mapSections.map((item, index) => (
-                      <MenuItem key={index} value={item}>
+                      <MenuItem key={index} value={item.GUID}>
                         {item.name}
                       </MenuItem>
                     ))}
@@ -148,6 +133,9 @@ const MapPropsPanel = ({
                     variant="contained"
                     sx={{ width: "100%" }}
                     disabled={selectedEntity === null}
+                    onClick={() => {
+                      setActiveMapSectionGUID(selectedEntity.mapSectionOwner);
+                    }}
                   >
                     change active map section
                   </Button>
@@ -157,6 +145,7 @@ const MapPropsPanel = ({
           </AccordionDetails>
         </Accordion>
 
+        {/* TILES SECTION */}
         <Accordion sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} id="panel1-header">
             Tiles
@@ -164,6 +153,7 @@ const MapPropsPanel = ({
           <AccordionDetails></AccordionDetails>
         </Accordion>
 
+        {/* ENTITIES SECTION */}
         <Accordion
           defaultExpanded
           sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}
@@ -198,6 +188,7 @@ const MapPropsPanel = ({
           </AccordionDetails>
         </Accordion>
 
+        {/* SELECTED ENTITY PROPS SECTION */}
         <Accordion
           defaultExpanded
           sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}
@@ -205,7 +196,20 @@ const MapPropsPanel = ({
           <AccordionSummary expandIcon={<ExpandMoreIcon />} id="panel1-header">
             Selected Entity Properties
           </AccordionSummary>
-          <AccordionDetails>{entityPropsChooser()}</AccordionDetails>
+          <AccordionDetails>
+            {selectedEntity === null && (
+              <Typography>Select an entity to view its properties.</Typography>
+            )}
+            {selectedEntity !== null && (
+              <EntityProps
+                key={selectedEntity.GUID}
+                entity={selectedEntity}
+                onUpdateEntity={updateEntity}
+                activeMapSectionGUID={activeMapSectionGUID}
+                onEditPropertiesClick={onEditPropertiesClick}
+              />
+            )}
+          </AccordionDetails>
         </Accordion>
       </Paper>
     </div>
@@ -216,12 +220,13 @@ export default MapPropsPanel;
 
 MapPropsPanel.propTypes = {
   selectedEntity: PropTypes.object,
-  setActiveMapSection: PropTypes.func.isRequired,
-  activeMapSection: PropTypes.object.isRequired,
+  setActiveMapSectionGUID: PropTypes.func.isRequired,
+  activeMapSectionGUID: PropTypes.string,
   mapSections: PropTypes.array.isRequired,
   addMapSection: PropTypes.func.isRequired,
   mapEntities: PropTypes.array.isRequired,
   handleRemoveEntity: PropTypes.func.isRequired,
   updateEntity: PropTypes.func.isRequired,
   handleEntitySelect: PropTypes.func.isRequired,
+	onEditPropertiesClick: PropTypes.func.isRequired,
 };

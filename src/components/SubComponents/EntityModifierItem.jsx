@@ -55,10 +55,10 @@ export default function EntityModifierItem({
 
   return (
     <div
-      className="align-center"
+      className="quad-column-grid align-center"
       style={{
         width: "100%",
-        display: "flex",
+        // display: "flex",
         marginBottom: ".5rem",
         justifyContent: "space-between",
       }}

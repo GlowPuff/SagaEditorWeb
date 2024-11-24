@@ -48,7 +48,7 @@ export default function EditEntityProperties() {
   }
 
   function showDialog(ea, showWarning, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+    // console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEntityProp(ea);
     setWarning(showWarning);
@@ -187,7 +187,7 @@ export default function EditEntityProperties() {
                       key={refresh}
                       initialGUID={
                         missionTriggers.find((x) => x.GUID === item.triggerGUID)
-                          .GUID
+                          ?.GUID || emptyGUID
                       }
                       onItemChanged={(e) => onChangeTrigger(index, e)}
                     />
@@ -196,7 +196,7 @@ export default function EditEntityProperties() {
                       key={refresh + 1}
                       initialGUID={
                         missionEvents.find((x) => x.GUID === item.eventGUID)
-                          .GUID
+                          ?.GUID || emptyGUID
                       }
                       onItemChanged={(e) => onChangeEvent(index, e)}
                     />

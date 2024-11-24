@@ -828,8 +828,10 @@ export class CrateEntity extends MapEntity {
   constructor(ownerGUID) {
     super("New Crate", ownerGUID);
     this.name = "New Crate";
-    this.entityProperties.name = "New Crate"; //??????
+    this.entityProperties.name = this.name;
     this.entityType = core.EntityType.Crate;
+    this.entityProperties.entityColor = "Gray";
+    //crate specific properties
     this.deploymentColor = "Gray";
   }
 }
@@ -838,7 +840,10 @@ export class TerminalEntity extends MapEntity {
   constructor(ownerGUID) {
     super(ownerGUID);
     this.name = "New Terminal";
+    this.entityProperties.name = this.name;
     this.entityType = core.EntityType.Console;
+    this.entityProperties.entityColor = "Gray";
+    //terminal specific properties
     this.deploymentColor = "Gray";
   }
 }
@@ -847,8 +852,11 @@ export class DoorEntity extends MapEntity {
   constructor(ownerGUID) {
     super(ownerGUID);
     this.name = "New Door";
+    this.entityProperties.name = this.name;
     this.entityType = core.EntityType.Door;
-    this.deploymentColor = "Gray";
+    this.entityProperties.entityColor = "Gray";
+    //defaults NOT ACTIVE, unlike other entities
+    this.entityProperties.isActive = false;
   }
 }
 
@@ -856,8 +864,14 @@ export class DeploymentPointEntity extends MapEntity {
   constructor(ownerGUID) {
     super(ownerGUID);
     this.name = "New Deployment Point";
+    this.entityProperties.name = this.name;
     this.entityType = core.EntityType.DeploymentPoint;
+    this.entityProperties.entityColor = "Gray";
+    //defaults NOT ACTIVE, unlike other entities
+    this.entityProperties.isActive = false;
+    //deployment point specific properties
     this.deploymentColor = "Gray";
+    this.deploymentPointProps = new DeploymentPointProps();
   }
 }
 
@@ -865,18 +879,29 @@ export class TokenEntity extends MapEntity {
   constructor(ownerGUID) {
     super(ownerGUID);
     this.name = "New Marker";
+    this.entityProperties.name = this.name;
     this.entityType = core.EntityType.Token;
-    this.deploymentColor = "Gray";
+    this.entityProperties.entityColor = "Gray";
+    //token specific properties
+    this.markerType = core.MarkerType.Neutral; //MarkerType
   }
 }
 
 export class HighlightEntity extends MapEntity {
-	constructor(ownerGUID) {
-		super(ownerGUID);
-		this.name = "New Highlight";
-		this.entityType = core.EntityType.Highlight;
-		this.deploymentColor = "Green";
-	}
+  constructor(ownerGUID) {
+    super(ownerGUID);
+    this.name = "New Highlight";
+    this.entityProperties.name = this.name;
+    this.entityType = core.EntityType.Highlight;
+    this.entityProperties.entityColor = "Green";
+    //defaults NOT ACTIVE, unlike other entities
+    this.entityProperties.isActive = false;
+    //highlight specific properties
+    this.deploymentColor = "Green";
+    this.Duration = 0;
+    this.Width = 1;
+    this.Height = 1;
+  }
 }
 
 export class CampaignSkill {

@@ -49,21 +49,25 @@ export const useEntityGroupStore = create((set) => ({
 
 export const useMapSectionsStore = create((set) => ({
   mapSections: [startSection],
-  activeMapSection: startSection,
-  setActiveMapSection: (section) => set(() => ({ activeMapSection: section })),
+  // activeMapSection: startSection,
+  activeMapSectionGUID: startSection.GUID,
+  setActiveMapSectionGUID: (guid) =>
+    set(() => ({ activeMapSectionGUID: guid })),
+  // setActiveMapSection: (section) => set(() => ({ activeMapSection: section })),
+  //adds a pre-constructed section to the mapSections array
   addExistingSection: (section) =>
     set((state) => {
+      //state.setActiveMapSectionGUID(section.GUID);
+			state.activeMapSectionGUID = section.GUID;
       return { mapSections: [...state.mapSections, section] };
     }),
+  //constructs a new section and adds it to the mapSections array
   addSection: (name) =>
     set((state) => {
       var s = new MapSection();
       s.name = name;
       s.GUID = createGUID();
-      console.log("🚀 ~ set ~ [...state.mapSections, s]:", [
-        ...state.mapSections,
-        s,
-      ]);
+			state.activeMapSectionGUID = s.GUID;
       return { mapSections: [...state.mapSections, s] };
     }),
   modifySection: (action) =>
@@ -162,10 +166,10 @@ export const useMapEntitiesStore = create((set) => ({
     set((state) => ({
       mapEntities: state.mapEntities.map((item) => {
         if (item.GUID === entity.GUID) {
-          console.log(
-            "🚀 ~ UPDATED mapEntities:state.mapEntities.map ~ entity:",
-            entity
-          );
+          // console.log(
+          //   "🚀 ~ UPDATED mapEntities:state.mapEntities.map ~ entity:",
+          //   entity
+          // );
           return entity;
         } else return item;
       }),

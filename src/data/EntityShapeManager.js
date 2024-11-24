@@ -50,7 +50,7 @@ class ShapeManager {
     const shape = new Two.Rectangle(0, 0, 10, 10);
     //set origin to upper left corner
     shape.origin = new Two.Vector(-5, -5);
-    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.fill = DeploymentColorMap.get(entity.entityProperties.entityColor);
     shape.stroke = "black";
     shape.linewidth = 1;
 
@@ -88,7 +88,7 @@ class ShapeManager {
     const shape = new Two.Rectangle(0, 0, 10, 10);
     //set origin to upper left corner
     shape.origin = new Two.Vector(-5, -5);
-    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.fill = DeploymentColorMap.get(entity.entityProperties.entityColor);
     shape.stroke = "black";
     shape.linewidth = 1;
 
@@ -171,7 +171,7 @@ class ShapeManager {
     //main shape
     const shape = new Two.Circle(5, 5, 5, 10);
     //set origin to upper left corner
-    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.fill = DeploymentColorMap.get(entity.entityProperties.entityColor);
     shape.stroke = "black";
     shape.linewidth = 1;
 
@@ -208,7 +208,7 @@ class ShapeManager {
     //main shape
     const shape = new Two.Circle(5, 5, 5, 10);
     //set origin to upper left corner
-    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.fill = DeploymentColorMap.get(entity.entityProperties.entityColor);
     shape.stroke = "black";
     shape.linewidth = 1;
 
@@ -230,17 +230,27 @@ class ShapeManager {
     const parentGroup = new Two.Group();
     parentGroup.position = new Two.Vector(position.x, position.y);
     //main shape
-    const shape = new Two.Rectangle(0, 0, 10, 10);
+    const shape = new Two.Rectangle(
+      0,
+      0,
+      10 * entity.Width,
+      10 * entity.Height
+    );
     //set origin to upper left corner
-    shape.origin = new Two.Vector(-5, -5);
-    shape.fill = DeploymentColorMap.get(entity.deploymentColor);
+    shape.origin = new Two.Vector(-5 * entity.Width, -5 * entity.Height);
+    shape.fill = DeploymentColorMap.get(entity.entityProperties.entityColor);
     shape.stroke = "transparent";
     shape.linewidth = 0;
     shape.opacity = 0.5;
 
     //solid outline, otherwise it's transparent
-    const outlineShape = new Two.Rectangle(0, 0, 10, 10);
-    outlineShape.origin = new Two.Vector(-5, -5);
+    const outlineShape = new Two.Rectangle(
+      0,
+      0,
+      10 * entity.Width,
+      10 * entity.Height
+    );
+    outlineShape.origin = new Two.Vector(-5 * entity.Width, -5 * entity.Height);
     outlineShape.fill = "transparent";
     outlineShape.stroke = "black";
     outlineShape.linewidth = 1;
@@ -259,7 +269,7 @@ class ShapeManager {
 
   //mouse position are in surface coordinates
   //returns true if a shape was selected
-  onMouseDown = ({ mouseX, mouseY }) => {
+  onMouseDown = ({ mouseX, mouseY, checkDblClick }) => {
     for (let i = this.drawingGroup.children.length - 1; i >= 0; i--) {
       const group = this.drawingGroup.children[i];
       //first item is the shape, second is the text or other decorations
@@ -291,9 +301,11 @@ class ShapeManager {
 
         this.selectedShape = { guid, shape: group, twoID: group.id };
         // console.log("🚀 ~ selectedShape:", this.selectedShape);
-        this.isDraggingShape = true;
-        this.dragOffset.x = mouseX - group.position.x;
-        this.dragOffset.y = mouseY - group.position.y;
+        if (!checkDblClick) {
+          this.isDraggingShape = true;
+          this.dragOffset.x = mouseX - group.position.x;
+          this.dragOffset.y = mouseY - group.position.y;
+        }
 
         this.drawingGroup.children.splice(i, 1);
         this.drawingGroup.add(group);

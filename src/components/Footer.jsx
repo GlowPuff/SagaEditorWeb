@@ -17,6 +17,7 @@ export default function Footer({ languageID, onSetLanguage }) {
       "Magyar (HU)",
       "Norwegian (NO)",
       "Russian (RU)",
+      "Dutch (NL)",
     ];
     return languages.map((item, index) => (
       <MenuItem key={index} value={item}>
@@ -35,7 +36,7 @@ export default function Footer({ languageID, onSetLanguage }) {
           {/* <div>Mission Format Version: 22</div> */}
           <div></div>
           <Select
-            sx={{ justifySelf: "right", marginRight:".5rem" }}
+            sx={{ justifySelf: "right", marginRight: ".5rem" }}
             value={languageID}
             onChange={handleChange}
             displayEmpty

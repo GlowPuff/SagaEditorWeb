@@ -20,6 +20,7 @@ const MapEditor = forwardRef(
       onSelectEntity,
       onUpdateEntityPosition,
       onRotateEntity,
+			onDoubleClick,
       children,
     },
     ref
@@ -47,6 +48,7 @@ const MapEditor = forwardRef(
             };
       })()
     );
+    const lastClickTime = useRef(0);
 
     const centerEntity = useCallback(() => {
       if (!selectedShapeGUIDRef.current) return;
@@ -56,7 +58,7 @@ const MapEditor = forwardRef(
       const shape = shapeManagerRef.current.getShapeFromGUID(
         selectedShapeGUIDRef.current
       );
-      console.log("🚀 ~ centerEntity ~ shape:", shape.position);
+      //console.log("🚀 ~ centerEntity ~ shape:", shape.position);
       //or retain the current zoom level
       const gridExtent = 2000;
       const zoom = 3.5; //zui.scale;
@@ -101,7 +103,7 @@ const MapEditor = forwardRef(
 
     //setup the grid, event handlers, two.js, and zui
     useEffect(() => {
-      console.log("🚀 ~ useEffect ~ INIT TWO/ZUI");
+      // console.log("🚀 ~ useEffect ~ INIT TWO/ZUI");
 
       // Clean up any existing canvas elements
       const container = containerRef.current;
@@ -147,7 +149,12 @@ const MapEditor = forwardRef(
         );
       } else {
         //default to middle of the map
-        zui.translateSurface(two.width / 2, two.height / 2);
+        const newCenter = {
+          x: two.width / 2 - 3500,
+          y: two.height / 2 - 3500,
+        };
+        zui.translateSurface(newCenter.x, newCenter.y);
+        zui.zoomSet(3.5, newCenter.x, newCenter.y);
       }
 
       //zoom text display
@@ -225,7 +232,7 @@ const MapEditor = forwardRef(
 
     //setup shape manager
     useEffect(() => {
-      console.log("🚀 ~ useEffect ~ INIT SHAPE MANAGER");
+      // console.log("🚀 ~ useEffect ~ INIT SHAPE MANAGER");
       if (!twoRef.current || !drawingGroupRef.current || !zuiRef.current)
         return;
       if (!shapeManagerRef.current)
@@ -264,15 +271,42 @@ const MapEditor = forwardRef(
       let hasPanned = false;
       const container = containerRef.current;
 
-      const handleMouseDown = (e) => {
+      const handleDoubleClick = (e) => {
         e.preventDefault();
         if (e.target === containerRef.current.querySelector("canvas")) {
+          const { x: mouseX, y: mouseY } = mouse2Surface(e);
+          let { selected, guid } = shapeManagerRef.current.onMouseDown({
+            mouseX,
+            mouseY,
+            checkDblClick: true,
+          });
+
+          if (selected) {
+            selectedShapeGUIDRef.current = guid;
+            onSelectEntity(selectedShapeGUIDRef.current);
+						onDoubleClick();
+          }
+        }
+      };
+
+      const handleMouseDown = (e) => {
+				e.preventDefault();
+        if (e.target === containerRef.current.querySelector("canvas")) {
+          const currentTime = new Date().getTime();
+          const timeDiff = currentTime - lastClickTime.current;
+          // If this is a double click, don't process the mouse down
+          if (timeDiff < 300) {
+            return;
+          }
+					lastClickTime.current = currentTime;
+
           const { x: mouseX, y: mouseY } = mouse2Surface(e);
           //left or right click
           if (e.button === 0 || e.button === 2) {
             let { selected, guid } = shapeManagerRef.current.onMouseDown({
               mouseX,
               mouseY,
+              checkDblClick: false,
             });
 
             //left click or middle click
@@ -380,6 +414,7 @@ const MapEditor = forwardRef(
         twoRef.current.update();
       };
 
+      container.addEventListener("dblclick", handleDoubleClick);
       container.addEventListener("mousedown", handleMouseDown);
       container.addEventListener("mouseup", handleMouseUp);
       container.addEventListener("mousemove", handleMouseMove);
@@ -388,6 +423,7 @@ const MapEditor = forwardRef(
 
       //cleanup
       return () => {
+        container.removeEventListener("dblclick", handleDoubleClick);
         container.removeEventListener("mousedown", handleMouseDown);
         container.removeEventListener("mouseup", handleMouseUp);
         container.removeEventListener("mousemove", handleMouseMove);
@@ -485,6 +521,7 @@ MapEditor.propTypes = {
   addEntity: PropTypes.func,
   onUpdateEntityPosition: PropTypes.func,
   onRotateEntity: PropTypes.func,
+	onDoubleClick: PropTypes.func,
 
   children: PropTypes.node,
 };

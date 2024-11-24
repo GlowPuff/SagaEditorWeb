@@ -19,22 +19,23 @@ import {
 import { useMapSectionsStore, useMapEntitiesStore } from "../../data/dataStore";
 //components
 import MapEditor from "../SubComponents/MapEditor";
+import EditEntityProperties from "../EventActionDialogs/EditEntityProperties";
+import DeploymentGroupProperties from "../Dialogs/DeploymentGroupProperties";
 //map components
-// import CrateProps from "../MapComponents/CrateProps";
 import MapActionsToolbar from "../MapComponents/MapActionsToolbar";
 import MapPropsPanel from "../MapComponents/MapPropsPanel";
-
 
 export default function MapEditorPanel({ value, index }) {
   //map section store
   const mapSections = useMapSectionsStore((state) => state.mapSections);
-  const setActiveMapSection = useMapSectionsStore(
-    (state) => state.setActiveMapSection
+  const setActiveMapSectionGUID = useMapSectionsStore(
+    (state) => state.setActiveMapSectionGUID
   );
   const addSection = useMapSectionsStore((state) => state.addExistingSection);
-  const activeMapSection = useMapSectionsStore(
-    (state) => state.activeMapSection
+  const activeMapSectionGUID = useMapSectionsStore(
+    (state) => state.activeMapSectionGUID
   );
+
   //map entity store
   const mapEntities = useMapEntitiesStore((state) => state.mapEntities);
   const addMapEntity = useMapEntitiesStore((state) => state.addEntity);
@@ -48,14 +49,33 @@ export default function MapEditorPanel({ value, index }) {
   const [selectedEntity, setSelectedEntity] = useState(null);
   //refs
   const mapRef = useRef(null);
+  const mapContainerRef = useRef(null);
   const isProcessingRef = useRef(false);
 
-  //select the entity in the map on mount
+  //select the entity in the map on mount, set the max size of the map container
   useEffect(() => {
     if (mapRef.current && selectedEntity) {
       mapRef.current.selectMapEntity(selectedEntity.GUID);
     }
-  });
+    let lp = document.querySelector(".left-panel");
+    let lpHeight = lp ? lp.offsetHeight : 0;
+    let footer = document.querySelector(".footer").offsetHeight;
+    mapContainerRef.current.style.maxHeight = `calc(${lpHeight}px - 1px - ${footer}px - 0.5rem)`;
+
+    const handleResize = () => {
+      let lp = document.querySelector(".left-panel");
+      let lpHeight = lp ? lp.offsetHeight : 0;
+      let footer = document.querySelector(".footer").offsetHeight;
+      mapContainerRef.current.style.maxHeight = `calc(${lpHeight}px - 1px - ${footer}px - 0.5rem)`;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    //cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [selectedEntity]);
 
   //******** toolbar actions
   const centerMap = useCallback(() => {
@@ -69,52 +89,52 @@ export default function MapEditorPanel({ value, index }) {
   }, [selectedEntity]);
 
   const addCrateEntity = useCallback(() => {
-    let newEntity = new CrateEntity(activeMapSection.GUID);
+    let newEntity = new CrateEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
     mapRef.current.addMapEntity(newEntity);
     mapRef.current.selectMapEntity(newEntity.GUID);
     setSelectedEntity(newEntity);
-  }, [activeMapSection, addMapEntity]);
+  }, [activeMapSectionGUID, addMapEntity]);
 
   const addTerminalEntity = useCallback(() => {
-    let newEntity = new TerminalEntity(activeMapSection.GUID);
+    let newEntity = new TerminalEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
     mapRef.current.addMapEntity(newEntity);
     mapRef.current.selectMapEntity(newEntity.GUID);
     setSelectedEntity(newEntity);
-  }, [activeMapSection, addMapEntity]);
+  }, [activeMapSectionGUID, addMapEntity]);
 
   const addDoorEntity = useCallback(() => {
-    let newEntity = new DoorEntity(activeMapSection.GUID);
+    let newEntity = new DoorEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
     mapRef.current.addMapEntity(newEntity);
     mapRef.current.selectMapEntity(newEntity.GUID);
     setSelectedEntity(newEntity);
-  }, [activeMapSection, addMapEntity]);
+  }, [activeMapSectionGUID, addMapEntity]);
 
   const addDPEntity = useCallback(() => {
-    let newEntity = new DeploymentPointEntity(activeMapSection.GUID);
+    let newEntity = new DeploymentPointEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
     mapRef.current.addMapEntity(newEntity);
     mapRef.current.selectMapEntity(newEntity.GUID);
     setSelectedEntity(newEntity);
-  }, [activeMapSection, addMapEntity]);
+  }, [activeMapSectionGUID, addMapEntity]);
 
   const addMarkerEntity = useCallback(() => {
-    let newEntity = new TokenEntity(activeMapSection.GUID);
+    let newEntity = new TokenEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
     mapRef.current.addMapEntity(newEntity);
     mapRef.current.selectMapEntity(newEntity.GUID);
     setSelectedEntity(newEntity);
-  }, [activeMapSection, addMapEntity]);
+  }, [activeMapSectionGUID, addMapEntity]);
 
   const addHighlightEntity = useCallback(() => {
-    let newEntity = new HighlightEntity(activeMapSection.GUID);
+    let newEntity = new HighlightEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
     mapRef.current.addMapEntity(newEntity);
     mapRef.current.selectMapEntity(newEntity.GUID);
     setSelectedEntity(newEntity);
-  }, [activeMapSection, addMapEntity]);
+  }, [activeMapSectionGUID, addMapEntity]);
 
   const handleToolbarAction = useCallback(
     (action) => {
@@ -170,6 +190,32 @@ export default function MapEditorPanel({ value, index }) {
     },
     [mapEntities]
   );
+
+  function onEditPropertiesClick() {
+    let entityToModify = { ...selectedEntity };
+    if (selectedEntity.entityType !== EntityType.DeploymentPoint) {
+      EditEntityProperties.ShowDialog(
+        selectedEntity.entityProperties,
+        false,
+        (enProps) => {
+          let updated = { ...entityToModify };
+          updated.entityProperties = enProps;
+          updateMapEntity(updated);
+          setSelectedEntity(updated);
+        }
+      );
+    } else if (selectedEntity.entityType === EntityType.DeploymentPoint) {
+      DeploymentGroupProperties.ShowDialog(
+        selectedEntity.deploymentPointProps,
+        (dpProps) => {
+          let updated = { ...entityToModify };
+          updated.deploymentPointProps = dpProps;
+          updateMapEntity(updated);
+          setSelectedEntity(updated);
+        }
+      );
+    }
+  }
 
   //setup keyboard handler
   useEffect(() => {
@@ -269,7 +315,7 @@ export default function MapEditorPanel({ value, index }) {
   //called by the entity component to update the entity
   const updateEntity = useCallback(
     (entity) => {
-      // console.log("🚀 ~ updateEntity ~ entity:", entity);
+      //console.log("🚀 ~ updateEntity ~ entity:", entity);
       updateMapEntity(entity);
       setSelectedEntity(entity);
     },
@@ -301,8 +347,7 @@ export default function MapEditorPanel({ value, index }) {
   function addMapSection() {
     let newSection = new MapSection();
     newSection.name = "New Map Section";
-    addSection(newSection);
-    setActiveMapSection(newSection);
+    addSection(newSection); //also sets active section
   }
 
   return (
@@ -312,17 +357,16 @@ export default function MapEditorPanel({ value, index }) {
       style={{ height: "100%" }}
     >
       {value === index && (
-        <div className="map-panel">
+        <div className="map-panel" ref={mapContainerRef}>
           {/* LEFT */}
-          <Paper sx={{ padding: "1rem", height: "100%" }}>
-            <div
-              style={{
-                height: "100%",
-                width: "100%",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
+          <Paper
+            sx={{
+              padding: "1rem",
+              height: "100%",
+              width: "100%",
+            }}
+          >
+            <div className="canvas">
               <MapEditor
                 ref={mapRef}
                 mapEntities={mapEntities}
@@ -330,6 +374,7 @@ export default function MapEditorPanel({ value, index }) {
                 addEntity={addMapEntity}
                 onUpdateEntityPosition={handleUpdateEntityPosition}
                 onRotateEntity={() => rotateMapEntity(selectedEntity?.GUID, 1)}
+                onDoubleClick={onEditPropertiesClick}
               >
                 {/* actions toolbar */}
                 <MapActionsToolbar
@@ -373,17 +418,21 @@ export default function MapEditorPanel({ value, index }) {
           {/* RIGHT */}
           <MapPropsPanel
             selectedEntity={selectedEntity}
-            setActiveMapSection={setActiveMapSection}
-            activeMapSection={activeMapSection}
+            setActiveMapSectionGUID={setActiveMapSectionGUID}
+            activeMapSectionGUID={activeMapSectionGUID}
             mapSections={mapSections}
             addMapSection={addMapSection}
             mapEntities={mapEntities}
-						handleRemoveEntity={handleRemoveEntity}
-						updateEntity={updateEntity}
-						handleEntitySelect={handleEntitySelect}
+            handleRemoveEntity={handleRemoveEntity}
+            updateEntity={updateEntity}
+            handleEntitySelect={handleEntitySelect}
+            onEditPropertiesClick={onEditPropertiesClick}
           />
         </div>
       )}
+
+      <EditEntityProperties />
+      <DeploymentGroupProperties />
     </div>
   );
 }

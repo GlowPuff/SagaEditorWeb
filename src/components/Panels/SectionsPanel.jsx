@@ -18,12 +18,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 //dialogs
 import ConfirmSectionRemoveDialog from "../Dialogs/ConfirmSectionRemoveDialog";
 //data
-import { useMapSectionsStore } from "../../data/dataStore";
+import { useMapSectionsStore, useMapEntitiesStore } from "../../data/dataStore";
 
 export default function SectionsPanel({ value, index }) {
+  //map section store
   const mapSections = useMapSectionsStore((state) => state.mapSections);
+  const addSection = useMapSectionsStore((state) => state.addSection);
   const modifySection = useMapSectionsStore((state) => state.modifySection);
   const removeSection = useMapSectionsStore((state) => state.removeSection);
+  const setActiveMapSectionGUID = useMapSectionsStore(
+    (state) => state.setActiveMapSectionGUID
+  );
+  const activeMapSectionGUID = useMapSectionsStore(
+    (state) => state.activeMapSectionGUID
+  );
+  //entities store
+  const mapEntities = useMapEntitiesStore((state) => state.mapEntities);
+  const updateEntity = useMapEntitiesStore((state) => state.updateEntity);
 
   const [selectedSectionIndex, setSelectedSectionIndex] = useState(0);
   const [checked, setChecked] = useState(
@@ -64,6 +75,22 @@ export default function SectionsPanel({ value, index }) {
         setSelectedSectionIndex(0);
         setChecked(mapSections[0].invisibleUntilActivated);
         setSectionName(mapSections[0].name);
+        //if active section is being removed, set active section to start section
+        if (mapSections[selectedSectionIndex].GUID === activeMapSectionGUID) {
+          // console.log("🚀 ~ onRemoveSection ~ UPDATING ACTIVE SECTION");
+          setActiveMapSectionGUID(mapSections[0].GUID);
+        }
+        //if any map entities are in the removed section, set their owner to the start section
+        mapEntities.forEach((entity) => {
+          if (
+            entity.mapSectionOwner === mapSections[selectedSectionIndex].GUID
+          ) {
+            let updated = { ...entity };
+            updated.mapSectionOwner = mapSections[0].GUID;
+            // console.log("🚀 ~ mapEntities.forEach ~ updated:", updated)
+            updateEntity(updated);
+          }
+        });
       }
     );
   }
@@ -97,9 +124,23 @@ export default function SectionsPanel({ value, index }) {
 
             {/* RIGHT SIDE */}
             <Paper sx={{ padding: "1rem" }}>
+              <Button
+                variant="contained"
+                onClick={() => addSection("New Map Section")}
+                fullWidth
+                sx={{
+                  marginBottom: ".5rem",
+                }}
+              >
+                add map section
+              </Button>
+
               <Accordion
                 defaultExpanded
-                sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}
+                sx={{
+                  marginBottom: ".5rem",
+                  backgroundColor: "#281b40",
+                }}
               >
                 <AccordionSummary id="panel1-header">
                   Selected Map Section Properties
