@@ -1,7 +1,7 @@
 import { create } from "zustand";
 //data
 import { startSection, MapSection, emptyEvent, emptyTrigger } from "./Mission";
-import { createGUID } from "../lib/core";
+import { createGUID, calculateEntityPosition } from "../lib/core";
 
 export const useReservedGroupsStore = create((set) => ({
   reservedGroups: [],
@@ -58,7 +58,7 @@ export const useMapSectionsStore = create((set) => ({
   addExistingSection: (section) =>
     set((state) => {
       //state.setActiveMapSectionGUID(section.GUID);
-			state.activeMapSectionGUID = section.GUID;
+      state.activeMapSectionGUID = section.GUID;
       return { mapSections: [...state.mapSections, section] };
     }),
   //constructs a new section and adds it to the mapSections array
@@ -67,7 +67,7 @@ export const useMapSectionsStore = create((set) => ({
       var s = new MapSection();
       s.name = name;
       s.GUID = createGUID();
-			state.activeMapSectionGUID = s.GUID;
+      state.activeMapSectionGUID = s.GUID;
       return { mapSections: [...state.mapSections, s] };
     }),
   modifySection: (action) =>
@@ -185,12 +185,24 @@ export const useMapEntitiesStore = create((set) => ({
     set((state) => ({
       mapEntities: state.mapEntities.map((item) => {
         if (item.GUID === guid) {
-          item.entityPosition = position;
+          //snap the position to the grid
+          const [x, y] = position.split(",");
+          let newPosition = {
+            x: parseFloat(x),
+            y: parseFloat(y),
+          };
+          newPosition.x = Math.floor(newPosition.x / 10) * 10;
+          newPosition.y = Math.floor(newPosition.y / 10) * 10;
+          newPosition = `${newPosition.x},${newPosition.y}`;
+
+          item.entityPosition = newPosition;
+          // console.log("🚀 ~ updateEntityPosition:", position);
           return item;
         } else return item;
       }),
     })),
-  rotateEntity: (guid, direction) =>
+  //TODO refactor this so the calculation is done in EntityShapeManager::checkEntityClicked()
+  rotateEntity: (guid, direction, drawPosition) =>
     set((state) => ({
       mapEntities: state.mapEntities.map((item) => {
         if (item.GUID === guid) {
@@ -198,6 +210,14 @@ export const useMapEntitiesStore = create((set) => ({
           if (item.entityRotation < 0) {
             item.entityRotation += 360;
           }
+          //calculate new position based on rotation
+          const newPosition = calculateEntityPosition(item, drawPosition);
+          //snap the position to the grid
+          newPosition.x = Math.round(newPosition.x / 10) * 10;
+          newPosition.y = Math.round(newPosition.y / 10) * 10;
+          // console.log("🚀 ~ rotateEntity ~ drawPosition:", drawPosition);
+          // console.log("🚀 ~ rotateEntity ~ newPosition:", newPosition);
+          item.entityPosition = `${newPosition.x},${newPosition.y}`;
           return item;
         } else return item;
       }),

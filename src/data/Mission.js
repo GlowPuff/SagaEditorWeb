@@ -904,6 +904,21 @@ export class HighlightEntity extends MapEntity {
   }
 }
 
+export class MapTileEntity extends MapEntity {
+  constructor(ownerGUID, id, exp, side) {
+    super(ownerGUID);
+    this.name = exp + id + side;
+    this.entityProperties.name = this.name;
+    this.entityType = core.EntityType.Tile;
+    //tile specific properties
+    this.expansion = core.Expansion[exp];
+    console.log("🚀 ~ MapTileEntity ~ constructor ~ this.expansion:", this.expansion)
+    this.tileID = id;
+    this.tileSide = side;
+    this.textureName = exp + "_" + id + side;
+  }
+}
+
 export class CampaignSkill {
   constructor(name, cost) {
     this.owner = core.createGUID();

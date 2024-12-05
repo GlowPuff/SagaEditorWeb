@@ -15,6 +15,7 @@ import {
   DeploymentPointEntity,
   TokenEntity,
   HighlightEntity,
+  MapTileEntity,
 } from "../../data/Mission";
 import { useMapSectionsStore, useMapEntitiesStore } from "../../data/dataStore";
 //components
@@ -24,6 +25,7 @@ import DeploymentGroupProperties from "../Dialogs/DeploymentGroupProperties";
 //map components
 import MapActionsToolbar from "../MapComponents/MapActionsToolbar";
 import MapPropsPanel from "../MapComponents/MapPropsPanel";
+import TileGallery from "../MapComponents/TileGallery";
 
 export default function MapEditorPanel({ value, index }) {
   //map section store
@@ -88,6 +90,30 @@ export default function MapEditorPanel({ value, index }) {
     }
   }, [selectedEntity]);
 
+  const addMapTileEntity = useCallback(
+    (id, exp, side) => {
+      let newEntity = new MapTileEntity(activeMapSectionGUID, id, exp, side);
+      console.log("🚀 ~ MapEditorPanel ~ newEntity:", newEntity)
+      addMapEntity(newEntity);
+      mapRef.current.addMapEntity(newEntity);
+      mapRef.current.selectMapEntity(newEntity.GUID);
+      setSelectedEntity(newEntity);
+    },
+    [activeMapSectionGUID, addMapEntity]
+  );
+
+  const openTileGallery = useCallback(() => {
+    TileGallery.ShowDialog((tiles) => {
+      if (tiles) {
+        //{ expansion, tileNumber, src, side }
+        tiles.forEach((tile) => {
+          console.log("🚀 ~ tiles.forEach ~ tile:", tile)
+          addMapTileEntity(tile.tileNumber, tile.expansion, tile.side);
+        });
+      }
+    });
+  }, [addMapTileEntity]);
+
   const addCrateEntity = useCallback(() => {
     let newEntity = new CrateEntity(activeMapSectionGUID);
     addMapEntity(newEntity);
@@ -139,6 +165,9 @@ export default function MapEditorPanel({ value, index }) {
   const handleToolbarAction = useCallback(
     (action) => {
       switch (action) {
+        case "tileGallery":
+          openTileGallery();
+          break;
         case "addCrateEntity":
           addCrateEntity();
           break;
@@ -166,6 +195,7 @@ export default function MapEditorPanel({ value, index }) {
       }
     },
     [
+      openTileGallery,
       addCrateEntity,
       centerEntity,
       centerMap,
@@ -192,6 +222,8 @@ export default function MapEditorPanel({ value, index }) {
   );
 
   function onEditPropertiesClick() {
+    if (selectedEntity.entityType === EntityType.Tile) return;
+
     let entityToModify = { ...selectedEntity };
     if (selectedEntity.entityType !== EntityType.DeploymentPoint) {
       EditEntityProperties.ShowDialog(
@@ -239,6 +271,11 @@ export default function MapEditorPanel({ value, index }) {
         isProcessingRef.current = true;
         centerEntity();
       }
+      if (e.ctrlKey && e.key === "1") {
+        e.preventDefault();
+        isProcessingRef.current = true;
+        openTileGallery();
+      }
       if (e.ctrlKey && e.key === "2") {
         e.preventDefault();
         isProcessingRef.current = true;
@@ -269,18 +306,24 @@ export default function MapEditorPanel({ value, index }) {
         isProcessingRef.current = true;
         addHighlightEntity();
       }
-      if (e.ctrlKey && e.shiftKey && e.key === "X") {
+      if (e.ctrlKey && e.key === "Delete") {
         isProcessingRef.current = true;
         mapRef.current.removeMapEntity(selectedEntity.GUID);
         removeMapEntity(selectedEntity.GUID);
         handleEntitySelect(null);
       }
       if (e.key === "[" && selectedEntity) {
-        if (selectedEntity.entityType === EntityType.Door)
+        if (
+          selectedEntity.entityType === EntityType.Door ||
+          selectedEntity.entityType === EntityType.Tile
+        )
           rotateMapEntity(selectedEntity.GUID, -1);
       }
       if (e.key === "]" && selectedEntity) {
-        if (selectedEntity.entityType === EntityType.Door)
+        if (
+          selectedEntity.entityType === EntityType.Door ||
+          selectedEntity.entityType === EntityType.Tile
+        )
           rotateMapEntity(selectedEntity.GUID, 1);
       }
     };
@@ -300,6 +343,7 @@ export default function MapEditorPanel({ value, index }) {
   }, [
     centerEntity,
     centerMap,
+    openTileGallery,
     addCrateEntity,
     addTerminalEntity,
     addDoorEntity,
@@ -373,7 +417,9 @@ export default function MapEditorPanel({ value, index }) {
                 onSelectEntity={handleEntitySelect}
                 addEntity={addMapEntity}
                 onUpdateEntityPosition={handleUpdateEntityPosition}
-                onRotateEntity={() => rotateMapEntity(selectedEntity?.GUID, 1)}
+                onRotateEntity={(drawPosition) =>
+                  rotateMapEntity(selectedEntity?.GUID, 1, drawPosition)
+                }
                 onDoubleClick={onEditPropertiesClick}
               >
                 {/* actions toolbar */}
@@ -384,14 +430,14 @@ export default function MapEditorPanel({ value, index }) {
 
                 {/* hotkey toolbar */}
                 <div className="hotkeyToolBar">
-                  <div className="hotkeyItem" style={{ marginLeft: "auto" }}>
+                  {/* <div className="hotkeyItem" style={{ marginLeft: "auto" }}>
                     <Typography variant="button">Ctrl + T</Typography>
                     <div className="hotkeyDefinition">Add Tile</div>
-                  </div>
+                  </div> */}
 
-                  <FiberManualRecordIcon
+                  {/* <FiberManualRecordIcon
                     sx={{ width: "10px", height: "10px", color: "#702da0" }}
-                  />
+                  /> */}
 
                   <div className="hotkeyItem">
                     <Typography variant="button">Ctrl + Shift + D</Typography>
@@ -405,7 +451,7 @@ export default function MapEditorPanel({ value, index }) {
                   />
 
                   <div className="hotkeyItem" style={{ marginRight: "auto" }}>
-                    <Typography variant="button">Ctrl + Shift + X</Typography>
+                    <Typography variant="button">Ctrl + Delete</Typography>
                     <div className="hotkeyDefinition">
                       Delete Selected Entity
                     </div>
@@ -433,6 +479,7 @@ export default function MapEditorPanel({ value, index }) {
 
       <EditEntityProperties />
       <DeploymentGroupProperties />
+      <TileGallery />
     </div>
   );
 }

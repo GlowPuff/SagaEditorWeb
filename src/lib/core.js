@@ -1,4 +1,5 @@
 import { purple, blue } from "@mui/material/colors";
+import dimensions from "../data/dimensions.json";
 
 export const createTranslatorTheme = {
   components: {
@@ -182,6 +183,40 @@ export function traitsToStringArray(traits) {
   return stringArray;
 }
 
+export function calculateEntityPosition(entity, drawingPosition) {
+  let dims = { x: 2, y: 2 }; //door default
+
+  if (entity.entityType === EntityType.Tile) {
+    const expansion = Object.keys(Expansion)[entity.expansion];
+    dims = dimensions.find(
+      (x) => x.expansion === expansion && x.id == entity.tileID
+    );
+    dims = { x: dims.width, y: dims.height };
+  }
+
+  if (entity.entityRotation === 0) {
+    return {
+      x: drawingPosition.x - (dims.x * 10) / 2,
+      y: drawingPosition.y - (dims.y * 10) / 2,
+    };
+  } else if (entity.entityRotation === 90) {
+    return {
+      x: drawingPosition.x + (dims.y * 10) / 2,
+      y: drawingPosition.y - (dims.x * 10) / 2,
+    };
+  } else if (entity.entityRotation === 180) {
+    return {
+      x: drawingPosition.x + (dims.x * 10) / 2,
+      y: drawingPosition.y + (dims.y * 10) / 2,
+    };
+  } else if (entity.entityRotation === 270) {
+    return {
+      x: drawingPosition.x - (dims.y * 10) / 2,
+      y: drawingPosition.y + (dims.x * 10) / 2,
+    };
+  }
+}
+
 export const PriorityTraits = [
   { name: "Brawler", propName: "incBrawler" },
   { name: "Creature", propName: "incCreature" },
@@ -303,7 +338,7 @@ export const Expansion = {
   Hoth: 2,
   Bespin: 3,
   Jabba: 4,
-  Empire: 4,
+  Empire: 5,
   Lothal: 6,
 };
 export const Factions = { Imperial: 0, Mercenary: 1 };

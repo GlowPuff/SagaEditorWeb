@@ -16,7 +16,7 @@ const MapActionsToolbar = ({ toolbarAction, isEntitySelected }) => {
   return (
     <div className="mapToolBar">
       <Tooltip title="Add a Tile (Control + 1)" placement="right">
-        <IconButton>
+        <IconButton onClick={() => toolbarAction("tileGallery")}>
           <SquareIcon fontSize="medium" />
         </IconButton>
       </Tooltip>

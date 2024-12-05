@@ -20,7 +20,7 @@ const MapEditor = forwardRef(
       onSelectEntity,
       onUpdateEntityPosition,
       onRotateEntity,
-			onDoubleClick,
+      onDoubleClick,
       children,
     },
     ref
@@ -29,7 +29,9 @@ const MapEditor = forwardRef(
     const containerRef = useRef(null);
     const twoRef = useRef(null);
     const zuiRef = useRef(null);
-    const drawingGroupRef = useRef(null);
+    const foregroundLayer = useRef(null);
+    const midgroundLayer = useRef(null);
+    const backgroundLayer = useRef(null);
     const resizeObserverRef = useRef(null);
     const zoomLevelRef = useRef(null);
     const shapeManagerRef = useRef(null);
@@ -101,7 +103,7 @@ const MapEditor = forwardRef(
       };
     }, []);
 
-    //setup the grid, event handlers, two.js, and zui
+    //setup  two.js, zui, the grid, resizeObserverRef
     useEffect(() => {
       // console.log("🚀 ~ useEffect ~ INIT TWO/ZUI");
 
@@ -131,8 +133,12 @@ const MapEditor = forwardRef(
       // Create main group for panning/zooming
       const mainGroup = two.makeGroup();
       //create a group for drawing shapes
-      const drawingGroup = two.makeGroup();
-      drawingGroupRef.current = drawingGroup;
+      const foregroundGroup = two.makeGroup(); //most entities
+      const midgroundGroup = two.makeGroup(); //highlighted entity
+      const backgroundGroup = two.makeGroup(); //tiles
+      foregroundLayer.current = foregroundGroup;
+      midgroundLayer.current = midgroundGroup;
+      backgroundLayer.current = backgroundGroup;
 
       //setup ZUI
       const zui = new ZUI(mainGroup);
@@ -191,7 +197,9 @@ const MapEditor = forwardRef(
         }
 
         mainGroup.add(gridGroup);
-        mainGroup.add(drawingGroup);
+        mainGroup.add(backgroundGroup);
+        mainGroup.add(midgroundGroup);
+        mainGroup.add(foregroundGroup);
       };
 
       drawGrid();
@@ -230,16 +238,25 @@ const MapEditor = forwardRef(
       };
     }, []);
 
-    //setup shape manager
+    //setup shape manager, draw entities when changed
     useEffect(() => {
       // console.log("🚀 ~ useEffect ~ INIT SHAPE MANAGER");
-      if (!twoRef.current || !drawingGroupRef.current || !zuiRef.current)
+      if (
+        !twoRef.current ||
+        !zuiRef.current ||
+        !foregroundLayer.current ||
+        !midgroundLayer.current ||
+        !backgroundLayer.current
+      )
         return;
+
       if (!shapeManagerRef.current)
         shapeManagerRef.current = new ShapeManager(
           twoRef.current,
-          drawingGroupRef.current,
-          zuiRef.current
+          zuiRef.current,
+          foregroundLayer.current,
+          midgroundLayer.current,
+          backgroundLayer.current
         );
 
       //add the shapes from existing map Entities
@@ -252,7 +269,7 @@ const MapEditor = forwardRef(
       if (selectedShapeGUIDRef.current)
         shapeManagerRef.current.selectShape(selectedShapeGUIDRef.current);
 
-      // logMap();
+      //  logMap();
 
       twoRef.current.update();
 
@@ -284,13 +301,13 @@ const MapEditor = forwardRef(
           if (selected) {
             selectedShapeGUIDRef.current = guid;
             onSelectEntity(selectedShapeGUIDRef.current);
-						onDoubleClick();
+            onDoubleClick();
           }
         }
       };
 
       const handleMouseDown = (e) => {
-				e.preventDefault();
+        e.preventDefault();
         if (e.target === containerRef.current.querySelector("canvas")) {
           const currentTime = new Date().getTime();
           const timeDiff = currentTime - lastClickTime.current;
@@ -298,16 +315,17 @@ const MapEditor = forwardRef(
           if (timeDiff < 300) {
             return;
           }
-					lastClickTime.current = currentTime;
+          lastClickTime.current = currentTime;
 
           const { x: mouseX, y: mouseY } = mouse2Surface(e);
           //left or right click
           if (e.button === 0 || e.button === 2) {
-            let { selected, guid } = shapeManagerRef.current.onMouseDown({
-              mouseX,
-              mouseY,
-              checkDblClick: false,
-            });
+            let { selected, guid, drawPosition, canRotate } =
+              shapeManagerRef.current.onMouseDown({
+                mouseX,
+                mouseY,
+                checkDblClick: false,
+              });
 
             //left click or middle click
             if (!selected && e.button === 0) {
@@ -319,8 +337,8 @@ const MapEditor = forwardRef(
             }
 
             //right click
-            if (selected && e.button === 2) {
-              onRotateEntity();
+            if (selected && canRotate && e.button === 2) {
+              onRotateEntity(drawPosition);
             }
           }
           //middle click
@@ -464,6 +482,7 @@ const MapEditor = forwardRef(
     useImperativeHandle(ref, () => ({
       addMapEntity: (entity) => {
         if (shapeManagerRef.current) shapeManagerRef.current.addEntity(entity);
+				twoRef.current.update();
       },
       removeMapEntity: (entityGUID) => {
         if (shapeManagerRef.current)
@@ -498,8 +517,16 @@ const MapEditor = forwardRef(
         shapeManagerRef.current.shapeGroups
       );
       console.log(
-        "🚀 ~ useEffect ~ drawing surface shape count:",
-        drawingGroupRef.current.children.length
+        "🚀 ~ useEffect ~ foreground shape count:",
+        foregroundLayer.current.children.length
+      );
+      console.log(
+        "🚀 ~ useEffect ~ midground shape count:",
+        midgroundLayer.current.children.length
+      );
+      console.log(
+        "🚀 ~ useEffect ~ background shape count:",
+        backgroundLayer.current.children.length
       );
     }
 
@@ -521,7 +548,7 @@ MapEditor.propTypes = {
   addEntity: PropTypes.func,
   onUpdateEntityPosition: PropTypes.func,
   onRotateEntity: PropTypes.func,
-	onDoubleClick: PropTypes.func,
+  onDoubleClick: PropTypes.func,
 
   children: PropTypes.node,
 };

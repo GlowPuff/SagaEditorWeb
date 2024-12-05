@@ -78,6 +78,12 @@ const CrateProps = ({
     onUpdateEntity(updated);
   }
 
+  function setTileSide(value) {
+    let updated = { ...entity };
+    updated.tileSide = value;
+    onUpdateEntity(updated);
+  }
+
   function onKeyUp(ev) {
     if (ev.key === "Enter" || ev.keyCode === 13) ev.target.blur();
   }
@@ -97,10 +103,13 @@ const CrateProps = ({
         onBlur={(e) => updateName(e.target.value)}
       />
 
-      <Button variant="contained" onClick={onEditPropertiesClick}>
-        {entityNames[entity.entityType]} properties...
-      </Button>
+      {entity.entityType !== EntityType.Tile && (
+        <Button variant="contained" onClick={onEditPropertiesClick}>
+          {entityNames[entity.entityType]} properties...
+        </Button>
+      )}
 
+      {/* OWNER */}
       <Paper
         sx={{
           padding: ".5rem",
@@ -130,6 +139,28 @@ const CrateProps = ({
           Changes the Map Section owner to the Active Map Section.
         </Typography>
       </Paper>
+
+      {/* TILE SIDE */}
+      {entity.entityType === EntityType.Tile && (
+        <Paper sx={{ padding: ".5rem", backgroundColor: "#472c61" }}>
+          <div className="simple-column" style={{ justifySelf: "center" }}>
+            <Typography>Tile Side</Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={entity.tileSide === "A"}
+                  onChange={(e) => {
+                    setTileSide(e.target.checked ? "A" : "B");
+                  }}
+                />
+              }
+              label={`Side ${entity.tileSide}`}
+            />
+          </div>
+        </Paper>
+      )}
+
+      {/* IS ACTIVE */}
       <Paper sx={{ padding: ".5rem", backgroundColor: "#472c61" }}>
         <FormControlLabel
           control={
@@ -158,25 +189,28 @@ const CrateProps = ({
         )}
       </Paper>
 
-      {entity.entityType !== EntityType.Door && (
-        <FormControl sx={{ marginTop: ".5rem" }}>
-          <InputLabel>Entity Color</InputLabel>
-          <Select
-            name="mapSections"
-            value={entity.entityProperties.entityColor || ""}
-            displayEmpty
-            sx={{ width: "100%" }}
-            onChange={(e) => updateColor(e.target.value)}
-          >
-            {DeploymentColors.map((item, index) => (
-              <MenuItem key={index} value={item}>
-                {item}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )}
+      {/* COLOR */}
+      {entity.entityType !== EntityType.Door &&
+        entity.entityType !== EntityType.Tile && (
+          <FormControl sx={{ marginTop: ".5rem" }}>
+            <InputLabel>Entity Color</InputLabel>
+            <Select
+              name="mapSections"
+              value={entity.entityProperties.entityColor || ""}
+              displayEmpty
+              sx={{ width: "100%" }}
+              onChange={(e) => updateColor(e.target.value)}
+            >
+              {DeploymentColors.map((item, index) => (
+                <MenuItem key={index} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
+      {/* HIGHLIGHT */}
       {entity.entityType === EntityType.Highlight && (
         <Paper sx={{ padding: ".5rem", backgroundColor: "#472c61" }}>
           <Typography>Duration in Rounds</Typography>

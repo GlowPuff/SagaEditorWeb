@@ -1,14 +1,17 @@
 import Two from "two.js";
-import { EntityType, DeploymentColorMap } from "../lib/core";
+import { EntityType, DeploymentColorMap, Expansion } from "../lib/core";
+import dimensions from "../data/dimensions";
 
 class ShapeManager {
-  constructor(two, drawingGroup, zui) {
+  constructor(two, zui, foregroundLayer, midgroundLayer, backgroundLayer) {
     this.two = two;
-    this.drawingGroup = drawingGroup;
+    this.foregroundLayer = foregroundLayer; //most entities
+    this.midgroundLayer = midgroundLayer; //highlighted entity
+    this.backgroundLayer = backgroundLayer; //tiles
     this.zui = zui;
-    this.shapeGroups = new Map(); // entityGUID -> Two.js shape
-    this.shapeProps = new Map(); // entityGUID -> {type, canRotate}
-    this.selectedShape = null; // { entityGUID, shape, twoID }, shape is usually a group
+    //TODO JUST STORE THE WHOLE ENTITY OBJECT!!!!!!!
+    this.shapeGroups = new Map(); // entityGUID -> {group: Two.js shape, type, canRotate, rotation, expansion(number), tileID(number), entity, dimensions}
+    this.selectedShape = null; // { guid: entityGUID, shape, twoID, entity, dimensions }, shape is usually a group
     this.isDraggingShape = false;
     this.dragOffset = { x: 0, y: 0 };
   }
@@ -34,6 +37,9 @@ class ShapeManager {
         break;
       case EntityType.Highlight:
         this.addHightlight(entity);
+        break;
+      case EntityType.Tile:
+        this.addTile(entity);
         break;
       default:
         break;
@@ -68,9 +74,9 @@ class ShapeManager {
 
     parentGroup.add(shape);
     parentGroup.add(text);
-    this.drawingGroup.add(parentGroup);
-    this.shapeGroups.set(entity.GUID, parentGroup);
-    this.shapeProps.set(entity.GUID, {
+    this.foregroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
       type: EntityType.Crate,
       canRotate: false,
     });
@@ -79,6 +85,7 @@ class ShapeManager {
   };
 
   addTerminal = (entity) => {
+    console.log("🚀 ~ ShapeManager ~ entity:", entity);
     const [x, y] = entity.entityPosition.split(",");
     const position = { x: parseFloat(x), y: parseFloat(y) };
 
@@ -106,10 +113,10 @@ class ShapeManager {
 
     parentGroup.add(shape);
     parentGroup.add(text);
-    this.drawingGroup.add(parentGroup);
-    this.shapeGroups.set(entity.GUID, parentGroup);
-    this.shapeProps.set(entity.GUID, {
-      type: EntityType.Crate,
+    this.foregroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
+      type: EntityType.Console,
       canRotate: false,
     });
 
@@ -119,19 +126,28 @@ class ShapeManager {
   addDoor = (entity) => {
     const [x, y] = entity.entityPosition.split(",");
     const position = { x: parseFloat(x), y: parseFloat(y) };
+    const drawingPosition = this.calculateDrawingPosition(
+      new Two.Vector(2, 2),
+      position,
+      entity.entityRotation
+    );
+
+    // console.log("🚀 ~ addTile ~ entity position:", position);
+    // console.log("🚀 ~ addTile ~ drawingPosition:", {
+    //   x: drawingPosition.x,
+    //   y: drawingPosition.y,
+    // });
 
     const parentGroup = new Two.Group();
-    parentGroup.position = new Two.Vector(position.x, position.y);
+    parentGroup.position = new Two.Vector(drawingPosition.x, drawingPosition.y);
     //main shape
     const shape = new Two.Rectangle(0, 0, 20, 20);
-    //set origin to upper left corner
-    shape.origin = new Two.Vector(-10, -10);
     shape.fill = "transparent";
     shape.stroke = "transparent";
     shape.linewidth = 0;
 
     const textGroup = new Two.Group();
-    textGroup.position = new Two.Vector(10, 10);
+    textGroup.position = new Two.Vector(0, 0);
     const innerShape = new Two.Rectangle(0, 0, 20, 6);
     innerShape.fill = "#01b5ff";
     innerShape.stroke = "black";
@@ -152,11 +168,14 @@ class ShapeManager {
     parentGroup.add(shape);
     parentGroup.add(textGroup);
 
-    this.drawingGroup.add(parentGroup);
-    this.shapeGroups.set(entity.GUID, parentGroup);
-    this.shapeProps.set(entity.GUID, {
+    this.foregroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
       type: EntityType.Door,
       canRotate: true,
+      rotation: entity.entityRotation,
+      entity: entity,
+      dimensions: { x: 2, y: 2 },
     });
 
     return shape;
@@ -189,10 +208,10 @@ class ShapeManager {
 
     parentGroup.add(shape);
     parentGroup.add(text);
-    this.drawingGroup.add(parentGroup);
-    this.shapeGroups.set(entity.GUID, parentGroup);
-    this.shapeProps.set(entity.GUID, {
-      type: EntityType.Crate,
+    this.foregroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
+      type: EntityType.DeploymentPoint,
       canRotate: false,
     });
 
@@ -213,10 +232,10 @@ class ShapeManager {
     shape.linewidth = 1;
 
     parentGroup.add(shape);
-    this.drawingGroup.add(parentGroup);
-    this.shapeGroups.set(entity.GUID, parentGroup);
-    this.shapeProps.set(entity.GUID, {
-      type: EntityType.Crate,
+    this.foregroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
+      type: EntityType.Token,
       canRotate: false,
     });
 
@@ -257,27 +276,110 @@ class ShapeManager {
 
     parentGroup.add(outlineShape);
     parentGroup.add(shape);
-    this.drawingGroup.add(parentGroup);
-    this.shapeGroups.set(entity.GUID, parentGroup);
-    this.shapeProps.set(entity.GUID, {
-      type: EntityType.Crate,
+    this.midgroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
+      type: EntityType.Highlight,
       canRotate: false,
     });
 
     return shape;
   };
 
-  //mouse position are in surface coordinates
-  //returns true if a shape was selected
-  onMouseDown = ({ mouseX, mouseY, checkDblClick }) => {
-    for (let i = this.drawingGroup.children.length - 1; i >= 0; i--) {
-      const group = this.drawingGroup.children[i];
+  addTile = (entity) => {
+    // console.log("🚀 ~ ShapeManager ~ ADD TILE:", entity);
+    const [x, y] = entity.entityPosition.split(",");
+    const expansion = Object.keys(Expansion)[entity.expansion];
+    const position = { x: parseFloat(x), y: parseFloat(y) };
+    const tileDimensions = dimensions.find(
+			(x) => x.expansion === expansion && x.id == entity.tileID
+    );
+    const drawingPosition = this.calculateDrawingPosition(
+			{
+				x: tileDimensions.width,
+        y: tileDimensions.height,
+      },
+      position,
+      entity.entityRotation
+    );
+
+		// console.log("🚀 ~ ShapeManager ~ expansion:", expansion)
+		// console.log("🚀 ~ ShapeManager ~ tileDimensions:", tileDimensions)
+    // console.log("🚀 ~ addTile ~ entity position:", position);
+    // console.log("🚀 ~ addTile ~ drawingPosition:", drawingPosition);
+
+    const source = "./Tiles/" + expansion + "/" + entity.textureName + ".webp";
+
+    const parentGroup = new Two.Group();
+    parentGroup.position = new Two.Vector(drawingPosition.x, drawingPosition.y);
+    //texture
+    const texture = new Two.Texture(source);
+    texture.scale =
+      Math.max(tileDimensions.width * 10, tileDimensions.height * 10) / 256;
+    texture.offset = new Two.Vector(0, 0);
+    //main shape
+    const shape = new Two.Rectangle(
+      0,
+      0,
+      10 * tileDimensions.width,
+      10 * tileDimensions.height
+    );
+    shape.fill = "rgba(128, 0, 128, 0.5)";
+    shape.stroke = "black";
+    shape.linewidth = 2;
+    shape.rotation = (entity.entityRotation * Math.PI) / 180;
+
+    const textureContainer = new Two.Rectangle(
+      0,
+      0,
+      10 * tileDimensions.width,
+      10 * tileDimensions.height
+    );
+    textureContainer.origin = new Two.Vector(0, 0);
+    textureContainer.fill = texture;
+    textureContainer.stroke = "transparent";
+    textureContainer.linewidth = 0;
+    textureContainer.rotation = (entity.entityRotation * Math.PI) / 180;
+
+    parentGroup.add(shape);
+    parentGroup.add(textureContainer);
+
+    this.backgroundLayer.add(parentGroup);
+    this.shapeGroups.set(entity.GUID, {
+      group: parentGroup,
+      type: EntityType.Tile,
+      canRotate: true,
+      rotation: entity.entityRotation,
+      expansion: entity.expansion,
+      tileID: entity.tileID,
+      entity: entity,
+      dimensions: { x: tileDimensions.width, y: tileDimensions.height },
+    });
+
+    return shape;
+  };
+
+  //handles visual selection, sets selectedShape, returns { selected, guid, drawPosition }
+  checkEntityClicked = (layer, mouseX, mouseY, checkDblClick) => {
+    for (let i = layer.children.length - 1; i >= 0; i--) {
+      const group = layer.children[i];
       //first item is the shape, second is the text or other decorations
       let shape = group.children[0];
       //get the guid based on the id of the shapeGroups map entries
       let guid = null;
+      let entity = null;
+      let dimensions = null;
+      let canRotate = false;
       for (const [key, value] of this.shapeGroups.entries()) {
-        if (value.id === group.id) {
+        if (value.group.id === group.id) {
+          if (
+            value.type === EntityType.Door ||
+            value.type === EntityType.Tile
+          ) {
+            entity = value.entity;
+            dimensions = value.dimensions;
+            canRotate = true;
+          }
           guid = key;
           break;
         }
@@ -299,7 +401,13 @@ class ShapeManager {
         shape.linewidth = 1.25;
         shape.stroke = "white";
 
-        this.selectedShape = { guid, shape: group, twoID: group.id };
+        this.selectedShape = {
+          guid,
+          shape: group,
+          twoID: group.id,
+          entity,
+          dimensions,
+        };
         // console.log("🚀 ~ selectedShape:", this.selectedShape);
         if (!checkDblClick) {
           this.isDraggingShape = true;
@@ -307,24 +415,78 @@ class ShapeManager {
           this.dragOffset.y = mouseY - group.position.y;
         }
 
-        this.drawingGroup.children.splice(i, 1);
-        this.drawingGroup.add(group);
+        layer.children.splice(i, 1);
+        layer.add(group);
 
-        return { selected: true, guid: guid, shapeGroup: group };
+        return {
+          selected: true,
+          guid: guid,
+          drawPosition: group.position,
+          canRotate,
+        };
       }
     }
+
+    //nothing selected
     return { selected: false, guid: null };
+  };
+
+  //mouse position is in surface coordinates, returns { selected, newPosition, canRotate }
+  onMouseDown = ({ mouseX, mouseY, checkDblClick }) => {
+    let selected = { selected: false, guid: null };
+
+    //check foreground first
+    selected = this.checkEntityClicked(
+      this.foregroundLayer,
+      mouseX,
+      mouseY,
+      checkDblClick
+    );
+    // console.log("🚀 ~ ShapeManager ~ foregroundLayer selected:", selected);
+    if (selected.selected) return selected;
+
+    //check midground second
+    selected = this.checkEntityClicked(
+      this.midgroundLayer,
+      mouseX,
+      mouseY,
+      checkDblClick
+    );
+    // console.log("🚀 ~ ShapeManager ~ midgroundLayer selected:", selected);
+    if (selected.selected) return selected;
+
+    //check background last
+    selected = this.checkEntityClicked(
+      this.backgroundLayer,
+      mouseX,
+      mouseY,
+      checkDblClick
+    );
+    // console.log("🚀 ~ ShapeManager ~ backgroundLayer selected:", selected);
+    if (selected.selected) return selected;
+
+    //nothing selected
+    return selected;
   };
 
   onMouseUp = () => {
     let isShapeSelected = false;
-    let newPosition = null;
+    let newPosition = null; //formatted string for entityPosition
+    let snappedEntityPosition = null; //the snapped entityPosition and shape position (top left corner)
 
     if (this.selectedShape) {
-      this.snapToGrid(this.selectedShape.shape);
       isShapeSelected = true;
-      newPosition = `${this.selectedShape.shape.position.x},${this.selectedShape.shape.position.y}`;
+      let shapeGroup = this.shapeGroups.get(this.selectedShape.guid);
+
+      //snap shape to grid (top left corner)
+      snappedEntityPosition = this.snapToGrid(this.selectedShape.shape);
+      // console.log("🚀 ~ onMouseUp ~ snapToGrid:", snappedEntityPosition);
+      if (shapeGroup.canRotate)
+        snappedEntityPosition = this.calculateEntityPosition(shapeGroup);
+
+      newPosition = `${snappedEntityPosition.x},${snappedEntityPosition.y}`;
     }
+
     this.isDraggingShape = false;
 
     return {
@@ -344,8 +506,78 @@ class ShapeManager {
   };
 
   getShapeFromGUID = (entityGUID) => {
-    return this.shapeGroups.get(entityGUID);
+    return this.shapeGroups.get(entityGUID).group;
   };
+
+  //calculate the drawing position based on entity position and rotation
+  calculateDrawingPosition = (dims, entityPosition, entityRotation) => {
+    // console.log(
+    //   "🚀 ~ calculateDrawingPosition ~ entityPosition:",
+    //   entityPosition
+    // );
+    // console.log("🚀 ~ calculateDrawingPosition ~ dims:", dims);
+
+    if (entityRotation === 0) {
+      return new Two.Vector(
+        entityPosition.x + (dims.x * 10) / 2,
+        entityPosition.y + (dims.y * 10) / 2
+      );
+    } else if (entityRotation === 90) {
+      return new Two.Vector(
+        entityPosition.x - (dims.y * 10) / 2,
+        entityPosition.y + (dims.x * 10) / 2
+      );
+    } else if (entityRotation === 180) {
+      return new Two.Vector(
+        entityPosition.x - (dims.x * 10) / 2,
+        entityPosition.y - (dims.y * 10) / 2
+      );
+    } else if (entityRotation === 270) {
+      return new Two.Vector(
+        entityPosition.x + (dims.y * 10) / 2,
+        entityPosition.y - (dims.x * 10) / 2
+      );
+    }
+  };
+
+  //calculate the entity position based on drawing position and rotation
+  calculateEntityPosition(shapeGroup) {
+    let dims = { x: 2, y: 2 }; //door default
+    const drawingPosition = {
+      x: shapeGroup.group.position.x,
+      y: shapeGroup.group.position.y,
+    };
+
+    if (shapeGroup.type === EntityType.Tile) {
+      const expansion = Object.keys(Expansion)[shapeGroup.expansion];
+      dims = dimensions.find(
+        (x) => x.expansion === expansion && x.id == shapeGroup.tileID
+      );
+      dims = { x: dims.width, y: dims.height };
+    }
+
+    if (shapeGroup.rotation === 0) {
+      return {
+        x: drawingPosition.x - (dims.x * 10) / 2,
+        y: drawingPosition.y - (dims.y * 10) / 2,
+      };
+    } else if (shapeGroup.rotation === 90) {
+      return {
+        x: drawingPosition.x + (dims.y * 10) / 2,
+        y: drawingPosition.y - (dims.x * 10) / 2,
+      };
+    } else if (shapeGroup.rotation === 180) {
+      return {
+        x: drawingPosition.x + (dims.x * 10) / 2,
+        y: drawingPosition.y + (dims.y * 10) / 2,
+      };
+    } else if (shapeGroup.rotation === 270) {
+      return {
+        x: drawingPosition.x - (dims.y * 10) / 2,
+        y: drawingPosition.y + (dims.x * 10) / 2,
+      };
+    }
+  }
 
   //explicitly select a shape
   selectShape = (entityGUID) => {
@@ -354,13 +586,29 @@ class ShapeManager {
 
     //console.log("🚀 ~ ShapeManager ~ finding guid:", guid);
 
-    let group = this.shapeGroups.get(entityGUID);
+    let shapeGroup = this.shapeGroups.get(entityGUID);
+    if (shapeGroup === undefined) return;
+
+    let group = shapeGroup.group;
     if (group) {
       //console.log("🚀 ~ ShapeManager ~ select shape:", group);
-      //move selectd shape to the top of the drawing group
-      const idx = this.drawingGroup.children.indexOf(group);
-      this.drawingGroup.children.splice(idx, 1);
-      this.drawingGroup.add(group);
+      //move selected shape to the top of the drawing group
+      let layer;
+      const type = shapeGroup.type;
+      if (type === EntityType.Highlight) {
+        layer = this.midgroundLayer;
+        // console.log("MID");
+      } else if (type !== EntityType.Tile) {
+        layer = this.foregroundLayer;
+        // console.log("FORE");
+      } else {
+        layer = this.backgroundLayer; //tile
+        // console.log("BACK");
+      }
+
+      const idx = layer.children.indexOf(group);
+      layer.children.splice(idx, 1);
+      layer.add(group);
 
       let shape = group.children[0];
       shape.linewidth = 1.25;
@@ -369,12 +617,11 @@ class ShapeManager {
   };
 
   unselectAll = () => {
-    for (const [guid, group] of this.shapeGroups) {
-      let shape = group.children[0];
+    for (const [, shapeGroup] of this.shapeGroups) {
+      let shape = shapeGroup.group.children[0];
       shape.linewidth = 1;
       shape.stroke = "black";
-      const { type } = this.shapeProps.get(guid);
-      if (type === EntityType.Door) {
+      if (shapeGroup.type === EntityType.Door) {
         shape.linewidth = 0;
         shape.stroke = "transparent";
       }
@@ -383,31 +630,42 @@ class ShapeManager {
 
   cleanup = () => {
     // console.log("🚀 ~ ShapeManager cleanup");
-    this.shapeGroups.forEach((shape) => {
-      if (shape && shape.parent) {
-        // console.log("🚀 ~ cleanup ~ shape:", shape);
-        shape.parent.remove(shape);
+    this.shapeGroups.forEach((shapeGroup) => {
+      if (shapeGroup.group && shapeGroup.group.parent) {
+        // console.log("🚀 ~ cleanup ~ shape:", shapeGroup.group);
+        shapeGroup.group.parent.remove(shapeGroup.group);
       }
     });
   };
 
   removeShape = (entityGUID) => {
-    const shape = this.shapeGroups.get(entityGUID);
-    if (shape) {
-      // console.log("🚀 ~ ShapeManager ~ REMOVING:", shape);
+    const shapeGroup = this.shapeGroups.get(entityGUID);
+    if (shapeGroup.group) {
+      if (shapeGroup.type === EntityType.Highlight) {
+        this.midgroundLayer.remove(shapeGroup.group);
+        // console.log("🚀 ~ ShapeManager ~ REMOVED MID LAYER");
+      } else if (shapeGroup.type !== EntityType.Tile) {
+        this.foregroundLayer.remove(shapeGroup.group);
+        // console.log("🚀 ~ ShapeManager ~ REMOVED FORE LAYER");
+      } else {
+        this.backgroundLayer.remove(shapeGroup.group); //tile
+        // console.log("🚀 ~ ShapeManager ~ REMOVED BACK LAYER");
+      }
+
+      this.two.release(shapeGroup.group);
       this.shapeGroups.delete(entityGUID);
-      this.shapeProps.delete(entityGUID);
-      this.drawingGroup.remove(shape);
-      this.two.release(shape);
     }
     this.two.update();
   };
 
+  //snaps the shape to the grid and returns the new shape position
   snapToGrid = (shape) => {
     //gridsize is 10
+    //round to shape position, which is same as entity position (top left corner)
     let sX = Math.round(shape.position.x / 10) * 10;
     let sY = Math.round(shape.position.y / 10) * 10;
     shape.position = new Two.Vector(sX, sY);
+    return { x: sX, y: sY };
   };
 }
 
