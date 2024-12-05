@@ -52,7 +52,7 @@ export default function TileGallery() {
       }
       return tiles;
     },
-    [selectedExpansion]
+    []
   );
 
   const [open, setOpen] = useState(false);
