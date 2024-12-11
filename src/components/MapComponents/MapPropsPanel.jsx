@@ -20,6 +20,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 //map components
 import EntityProps from "./EntityProps";
+//data
+import { EntityType } from "../../lib/core";
 
 const MapPropsPanel = ({
   selectedEntity,
@@ -32,6 +34,7 @@ const MapPropsPanel = ({
   updateEntity,
   handleEntitySelect,
   onEditPropertiesClick,
+  onDuplicateEntity,
 }) => {
   return (
     <div className="map-props">
@@ -77,9 +80,13 @@ const MapPropsPanel = ({
               }}
             >
               <Button
+                onClick={onDuplicateEntity}
                 variant="contained"
                 sx={{ width: "100%" }}
-                disabled={selectedEntity === null}
+                disabled={
+                  selectedEntity === null ||
+                  selectedEntity.entityType === EntityType.Tile
+                }
               >
                 Add Duplicate
               </Button>
@@ -146,11 +153,37 @@ const MapPropsPanel = ({
         </Accordion>
 
         {/* TILES SECTION */}
-        <Accordion sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}>
+        <Accordion
+          sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}
+          defaultExpanded
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon />} id="panel1-header">
             Tiles
           </AccordionSummary>
-          <AccordionDetails></AccordionDetails>
+          <AccordionDetails>
+            <List
+              sx={{
+                maxHeight: "15rem",
+                overflow: "hidden auto",
+                scrollbarColor: "#bc56ff #4c4561",
+                scrollbarWidth: "thin",
+                padding: "0",
+              }}
+            >
+              {mapEntities
+                .filter((x) => x.entityType === EntityType.Tile)
+                .map((entity, index) => (
+                  <ListItem disablePadding key={index}>
+                    <ListItemButton
+                      selected={selectedEntity?.GUID === entity.GUID}
+                      onClick={() => handleEntitySelect(entity.GUID)}
+                    >
+                      {entity.name}
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+            </List>
+          </AccordionDetails>
         </Accordion>
 
         {/* ENTITIES SECTION */}
@@ -172,17 +205,19 @@ const MapPropsPanel = ({
                   padding: "0",
                 }}
               >
-                {mapEntities.map((entity, index) => (
-                  <ListItem disablePadding key={index}>
-                    <ListItemButton
-                      selected={selectedEntity?.GUID === entity.GUID}
-                      onClick={() => handleEntitySelect(entity.GUID)}
-                      onDoubleClick={() => handleEntitySelect(entity.GUID)}
-                    >
-                      {entity.name}
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                {mapEntities
+                  .filter((x) => x.entityType !== EntityType.Tile)
+                  .map((entity, index) => (
+                    <ListItem disablePadding key={index}>
+                      <ListItemButton
+                        selected={selectedEntity?.GUID === entity.GUID}
+                        onClick={() => handleEntitySelect(entity.GUID)}
+                        onDoubleClick={() => handleEntitySelect(entity.GUID)}
+                      >
+                        {entity.name}
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
               </List>
             </div>
           </AccordionDetails>
@@ -228,5 +263,6 @@ MapPropsPanel.propTypes = {
   handleRemoveEntity: PropTypes.func.isRequired,
   updateEntity: PropTypes.func.isRequired,
   handleEntitySelect: PropTypes.func.isRequired,
-	onEditPropertiesClick: PropTypes.func.isRequired,
+  onEditPropertiesClick: PropTypes.func.isRequired,
+  onDuplicateEntity: PropTypes.func.isRequired,
 };

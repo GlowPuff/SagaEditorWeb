@@ -11,12 +11,12 @@ class ShapeManager {
     this.zui = zui;
     //TODO JUST STORE THE WHOLE ENTITY OBJECT!!!!!!!
     this.shapeGroups = new Map(); // entityGUID -> {group: Two.js shape, type, canRotate, rotation, expansion(number), tileID(number), entity, dimensions}
-    this.selectedShape = null; // { guid: entityGUID, shape, twoID, entity, dimensions }, shape is usually a group
+    this.selectedShape = null; // { guid: entityGUID, shape, twoID }, shape is usually a group
     this.isDraggingShape = false;
     this.dragOffset = { x: 0, y: 0 };
   }
 
-  addEntity = (entity) => {
+  addEntity = (entity, callback) => {
     this.unselectAll();
 
     switch (entity.entityType) {
@@ -39,7 +39,7 @@ class ShapeManager {
         this.addHightlight(entity);
         break;
       case EntityType.Tile:
-        this.addTile(entity);
+        this.addTile(entity, callback);
         break;
       default:
         break;
@@ -286,25 +286,25 @@ class ShapeManager {
     return shape;
   };
 
-  addTile = (entity) => {
+  addTile = (entity, callback) => {
     // console.log("🚀 ~ ShapeManager ~ ADD TILE:", entity);
     const [x, y] = entity.entityPosition.split(",");
     const expansion = Object.keys(Expansion)[entity.expansion];
     const position = { x: parseFloat(x), y: parseFloat(y) };
     const tileDimensions = dimensions.find(
-			(x) => x.expansion === expansion && x.id == entity.tileID
+      (x) => x.expansion === expansion && x.id == entity.tileID
     );
     const drawingPosition = this.calculateDrawingPosition(
-			{
-				x: tileDimensions.width,
+      {
+        x: tileDimensions.width,
         y: tileDimensions.height,
       },
       position,
       entity.entityRotation
     );
 
-		// console.log("🚀 ~ ShapeManager ~ expansion:", expansion)
-		// console.log("🚀 ~ ShapeManager ~ tileDimensions:", tileDimensions)
+    // console.log("🚀 ~ ShapeManager ~ expansion:", expansion)
+    // console.log("🚀 ~ ShapeManager ~ tileDimensions:", tileDimensions)
     // console.log("🚀 ~ addTile ~ entity position:", position);
     // console.log("🚀 ~ addTile ~ drawingPosition:", drawingPosition);
 
@@ -313,7 +313,7 @@ class ShapeManager {
     const parentGroup = new Two.Group();
     parentGroup.position = new Two.Vector(drawingPosition.x, drawingPosition.y);
     //texture
-    const texture = new Two.Texture(source);
+    const texture = new Two.Texture(source, callback);
     texture.scale =
       Math.max(tileDimensions.width * 10, tileDimensions.height * 10) / 256;
     texture.offset = new Two.Vector(0, 0);
@@ -367,8 +367,6 @@ class ShapeManager {
       let shape = group.children[0];
       //get the guid based on the id of the shapeGroups map entries
       let guid = null;
-      let entity = null;
-      let dimensions = null;
       let canRotate = false;
       for (const [key, value] of this.shapeGroups.entries()) {
         if (value.group.id === group.id) {
@@ -376,8 +374,6 @@ class ShapeManager {
             value.type === EntityType.Door ||
             value.type === EntityType.Tile
           ) {
-            entity = value.entity;
-            dimensions = value.dimensions;
             canRotate = true;
           }
           guid = key;
@@ -405,8 +401,6 @@ class ShapeManager {
           guid,
           shape: group,
           twoID: group.id,
-          entity,
-          dimensions,
         };
         // console.log("🚀 ~ selectedShape:", this.selectedShape);
         if (!checkDblClick) {
@@ -473,10 +467,11 @@ class ShapeManager {
     let isShapeSelected = false;
     let newPosition = null; //formatted string for entityPosition
     let snappedEntityPosition = null; //the snapped entityPosition and shape position (top left corner)
+    let shapeGroup = null;
 
     if (this.selectedShape) {
       isShapeSelected = true;
-      let shapeGroup = this.shapeGroups.get(this.selectedShape.guid);
+      shapeGroup = this.shapeGroups.get(this.selectedShape.guid);
 
       //snap shape to grid (top left corner)
       snappedEntityPosition = this.snapToGrid(this.selectedShape.shape);

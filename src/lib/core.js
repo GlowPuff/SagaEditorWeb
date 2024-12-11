@@ -60,7 +60,7 @@ export function parseDiceString(dice) {
 
         for (let i = 0; i < count; i++) {
           const color = DiceColor[match[0].substring(1)]; // Access enum value by string
-          if (color) {
+          if (color >= 0) {
             // Check if valid color exists in enum
             diceColors.push(color);
           } else {

@@ -481,8 +481,12 @@ const MapEditor = forwardRef(
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
       addMapEntity: (entity) => {
-        if (shapeManagerRef.current) shapeManagerRef.current.addEntity(entity);
-				twoRef.current.update();
+        if (shapeManagerRef.current)
+          shapeManagerRef.current.addEntity(entity, () => {
+            setTimeout(() => {
+              twoRef.current.update();
+            }, 50);
+          });
       },
       removeMapEntity: (entityGUID) => {
         if (shapeManagerRef.current)
@@ -504,6 +508,12 @@ const MapEditor = forwardRef(
       },
       centerMap: centerMap,
       centerEntity: centerEntity,
+      rotateEntityFromKeyCommand(direction) {
+        const shape = shapeManagerRef.current.getShapeFromGUID(
+          selectedShapeGUIDRef.current
+        );
+        onRotateEntity(shape.position, direction);
+      },
     }));
 
     // eslint-disable-next-line no-unused-vars

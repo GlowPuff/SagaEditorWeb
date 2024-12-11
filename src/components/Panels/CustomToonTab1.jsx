@@ -36,9 +36,9 @@ const CustomToonTab1 = memo(function CustomToonTab1({
   }, []);
 
   const onDoCopyClick = useCallback(() => {
-    console.log("🚀 ~ onDoCopyClick ~ customToon:", customToon);
+    // console.log("🚀 ~ onDoCopyClick ~ customToon:", customToon);
     let update = customToon.CopyFrom(customToon, selectedGroup, copyMore);
-    console.log("🚀 ~ onDoCopyClick ~ updatedCard:", update);
+    // console.log("🚀 ~ onDoCopyClick ~ updatedCard:", update);
     updateToon(update);
   }, [customToon, selectedGroup, copyMore, updateToon]);
 

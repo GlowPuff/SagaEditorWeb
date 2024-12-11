@@ -294,7 +294,7 @@ export class MapSection {
     this.triggers = [];
     this.missionEvents = [];
     this.mapTiles = [
-      new MapTile(Math.random().toString(), core.Expansion.Core, "A"),
+      //new MapTile(Math.random().toString(), core.Expansion.Core, "A"),
     ];
   }
   name;
@@ -309,7 +309,7 @@ class StartSection extends MapSection {
   constructor() {
     super();
     this.GUID = "11111111-1111-1111-1111-111111111111";
-    this.mapTiles = [new MapTile("1", core.Expansion.Core, "A")];
+    // this.mapTiles = [new MapTile("1", core.Expansion.Core, "A")];
   }
 }
 export const startSection = new StartSection();
@@ -692,117 +692,81 @@ export class CustomToon {
     this.thumbnail = NoneThumb;
 
     //DeploymentCard, bool
-    this.CopyFrom = (oldToon, card, copyCardText) => {
-      //fix attackType and miniSize, which come in as strings
-      card.attackType = core.AttackType[card.attackType];
-      card.miniSize = core.FigureSize[card.miniSize];
-      console.log("🚀 ~ CustomToon ~ constructor ~ thumb:", oldToon);
-      console.log("🚀 ~ CustomToon ~ constructor ~ card:", card);
-      //  console.log("🚀 ~ CustomToon ~ constructor ~ THIS:", this);
-      let updatedToon = JSON.parse(JSON.stringify(oldToon));
-      updatedToon.CopyFrom = oldToon.CopyFrom;
-      // console.log("🚀 ~ CustomToon ~ CopyFrom ~ updatedToon:", updatedToon);
-      updatedToon.groupAttack = updatedToon.groupDefense = "";
-      //store some properties from the card we want to keep
-      let outline = updatedToon.deploymentCard.deploymentOutlineColor;
-      let ctype = updatedToon.deploymentCard.characterType;
-      let mugpath = updatedToon.deploymentCard.mugShotPath;
-      //copy the card
-      updatedToon.deploymentCard = JSON.parse(JSON.stringify(card));
-      //set the values we want to keep
-      updatedToon.deploymentCard.deploymentOutlineColor = outline;
-      updatedToon.deploymentCard.characterType = ctype;
-      updatedToon.deploymentCard.mugShotPath = mugpath;
-      updatedToon.deploymentCard.preferredTargets = [
-        ...oldToon.deploymentCard.preferredTargets,
-      ];
-      //set the rest
-      updatedToon.deploymentCard.id = updatedToon.cardID;
-      updatedToon.deploymentCard.name = updatedToon.cardName;
-      updatedToon.deploymentCard.subname = updatedToon.cardSubName;
-      updatedToon.deploymentCard.faction =
-        updatedToon.faction === 0 ? "Imperial" : "Mercenary";
-      updatedToon.deploymentCard.expansion = "Other";
-
-      if (copyCardText) {
-        //set instructions from the copied card
-        let inst = instructionsData.filter((x) => x.instID === card.id)[0];
-        updatedToon.cardInstruction = { ...inst };
-        updatedToon.cardInstruction.instID = updatedToon.cardID;
-        //set bonuses from the copied card
-        let effect = bonusEffectsData.filter((x) => x.bonusID === card.id)[0];
-        updatedToon.bonusEffect = { ...effect };
-        updatedToon.bonusEffect.bonusID = updatedToon.cardID;
-      }
-
-      //set groupAttack from the copied card
-      let colors = new Set();
-      for (let i = 0; i < card.attacks.length; i++) colors.add(card.attacks[i]);
-      //get number of each dice color
-      for (let c of colors) {
-        let n = card.attacks.filter((x) => x === c).length;
-        updatedToon.groupAttack += `${n}${c} `;
-      }
-      //set groupDefense from the copied card
-      let dcolors = new Set();
-      for (let i = 0; i < card.defense.length; i++)
-        dcolors.add(card.defense[i]);
-      //get number of each dice color
-      for (let c of dcolors) {
-        let n = card.defense.filter((x) => x == c).length;
-        updatedToon.groupDefense += `${n}${c} `;
-      }
-      updatedToon.groupAttack = updatedToon.groupAttack.trim();
-      updatedToon.groupDefense = updatedToon.groupDefense.trim();
-      //set the equivalent dice strings in the deployment card
-      updatedToon.deploymentCard.defense = core.parseDiceString(
-        updatedToon.groupDefense.split(" ")
-      );
-      updatedToon.deploymentCard.attacks = core.parseDiceString(
-        updatedToon.groupAttack.split(" ")
-      );
-
-      console.log("🚀 ~ CustomToon ~ constructor ~ updatedToon:", updatedToon);
-
-      return updatedToon;
-    };
   }
-  // #faction;
-  // get faction() {
-  //   return this.#faction;
-  // }
-  // set faction(faction) {
-  //   this.#faction = faction;
-  //   this.deploymentCard.faction = faction;
-  // }
 
-  // #cardName;
-  // get cardName() {
-  //   return this.#cardName;
-  // }
-  // set cardName(cardName) {
-  //   this.#cardName = cardName;
-  //   this.deploymentCard.name = cardName;
-  // }
+  CopyFrom = (oldToon, card, copyCardText) => {
+    //fix attackType and miniSize, which come in as strings
+    card.attackType = core.AttackType[card.attackType];
+    card.miniSize = core.FigureSize[card.miniSize];
+    // console.log("🚀 ~ CustomToon ~ constructor ~ thumb:", oldToon);
+    // console.log("🚀 ~ CustomToon ~ constructor ~ card:", card);
+    //  console.log("🚀 ~ CustomToon ~ constructor ~ THIS:", this);
+    let updatedToon = JSON.parse(JSON.stringify(oldToon));
+    updatedToon.CopyFrom = oldToon.CopyFrom;
+    // console.log("🚀 ~ CustomToon ~ CopyFrom ~ updatedToon:", updatedToon);
+    updatedToon.groupAttack = updatedToon.groupDefense = "";
+    //store some properties from the card we want to keep
+    let outline = updatedToon.deploymentCard.deploymentOutlineColor;
+    let ctype = updatedToon.deploymentCard.characterType;
+    let mugpath = updatedToon.deploymentCard.mugShotPath;
+    //copy the card
+    updatedToon.deploymentCard = JSON.parse(JSON.stringify(card));
+    //set the values we want to keep
+    updatedToon.deploymentCard.deploymentOutlineColor = outline;
+    updatedToon.deploymentCard.characterType = ctype;
+    updatedToon.deploymentCard.mugShotPath = mugpath;
+    updatedToon.deploymentCard.preferredTargets = [
+      ...oldToon.deploymentCard.preferredTargets,
+    ];
+    //set the rest
+    updatedToon.deploymentCard.id = updatedToon.cardID;
+    updatedToon.deploymentCard.name = updatedToon.cardName;
+    updatedToon.deploymentCard.subname = updatedToon.cardSubName;
+    updatedToon.deploymentCard.faction =
+      updatedToon.faction === 0 ? "Imperial" : "Mercenary";
+    updatedToon.deploymentCard.expansion = "Other";
 
-  // #cardSubName;
-  // get cardSubName() {
-  //   return this.#cardSubName;
-  // }
-  // set cardSubName(cardSubName) {
-  //   this.#cardSubName = cardSubName;
-  //   this.deploymentCard.subname = cardSubName;
-  // }
+    if (copyCardText) {
+      //set instructions from the copied card
+      let inst = instructionsData.filter((x) => x.instID === card.id)[0];
+      updatedToon.cardInstruction = { ...inst };
+      updatedToon.cardInstruction.instID = updatedToon.cardID;
+      //set bonuses from the copied card
+      let effect = bonusEffectsData.filter((x) => x.bonusID === card.id)[0];
+      updatedToon.bonusEffect = { ...effect };
+      updatedToon.bonusEffect.bonusID = updatedToon.cardID;
+    }
 
-  // #cardID;
-  // get cardID() {
-  //   return this.#cardID;
-  // }
-  // set cardID(cardID) {
-  //   this.#cardID = cardID;
-  //   this.deploymentCard.id = cardID;
-  // }
-  //groupAttack,groupDefense
+    //set groupAttack from the copied card
+    let colors = new Set();
+    for (let i = 0; i < card.attacks.length; i++) colors.add(card.attacks[i]);
+    //get number of each dice color
+    for (let c of colors) {
+      let n = card.attacks.filter((x) => x === c).length;
+      updatedToon.groupAttack += `${n}${c} `;
+    }
+    //set groupDefense from the copied card
+    let dcolors = new Set();
+    for (let i = 0; i < card.defense.length; i++) dcolors.add(card.defense[i]);
+    //get number of each dice color
+    for (let c of dcolors) {
+      let n = card.defense.filter((x) => x == c).length;
+      updatedToon.groupDefense += `${n}${c} `;
+    }
+    updatedToon.groupAttack = updatedToon.groupAttack.trim();
+    updatedToon.groupDefense = updatedToon.groupDefense.trim();
+    //set the equivalent dice strings in the deployment card
+    updatedToon.deploymentCard.defense = core.parseDiceString(
+      updatedToon.groupDefense.split(" ")
+    );
+    updatedToon.deploymentCard.attacks = core.parseDiceString(
+      updatedToon.groupAttack.split(" ")
+    );
+
+    // console.log("🚀 ~ CustomToon ~ constructor ~ updatedToon:", updatedToon);
+
+    return updatedToon;
+  };
 }
 
 class MapEntity {
@@ -912,7 +876,6 @@ export class MapTileEntity extends MapEntity {
     this.entityType = core.EntityType.Tile;
     //tile specific properties
     this.expansion = core.Expansion[exp];
-    console.log("🚀 ~ MapTileEntity ~ constructor ~ this.expansion:", this.expansion)
     this.tileID = id;
     this.tileSide = side;
     this.textureName = exp + "_" + id + side;

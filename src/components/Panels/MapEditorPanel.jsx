@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 //icons
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 //data
-import { EntityType } from "../../lib/core";
+import { EntityType, createGUID } from "../../lib/core";
 import {
   MapSection,
   CrateEntity,
@@ -33,9 +33,17 @@ export default function MapEditorPanel({ value, index }) {
   const setActiveMapSectionGUID = useMapSectionsStore(
     (state) => state.setActiveMapSectionGUID
   );
-  const addSection = useMapSectionsStore((state) => state.addExistingSection);
+  const addExistingSection = useMapSectionsStore(
+    (state) => state.addExistingSection
+  );
   const activeMapSectionGUID = useMapSectionsStore(
     (state) => state.activeMapSectionGUID
+  );
+  const addTileToActiveSection = useMapSectionsStore(
+    (state) => state.addTileToActiveSection
+  );
+  const updateTilePosition = useMapSectionsStore(
+    (state) => state.updateTilePosition
   );
 
   //map entity store
@@ -93,13 +101,12 @@ export default function MapEditorPanel({ value, index }) {
   const addMapTileEntity = useCallback(
     (id, exp, side) => {
       let newEntity = new MapTileEntity(activeMapSectionGUID, id, exp, side);
-      console.log("🚀 ~ MapEditorPanel ~ newEntity:", newEntity)
-      addMapEntity(newEntity);
+      addTileToActiveSection(newEntity);
       mapRef.current.addMapEntity(newEntity);
       mapRef.current.selectMapEntity(newEntity.GUID);
       setSelectedEntity(newEntity);
     },
-    [activeMapSectionGUID, addMapEntity]
+    [activeMapSectionGUID, addTileToActiveSection]
   );
 
   const openTileGallery = useCallback(() => {
@@ -107,7 +114,6 @@ export default function MapEditorPanel({ value, index }) {
       if (tiles) {
         //{ expansion, tileNumber, src, side }
         tiles.forEach((tile) => {
-          console.log("🚀 ~ tiles.forEach ~ tile:", tile)
           addMapTileEntity(tile.tileNumber, tile.expansion, tile.side);
         });
       }
@@ -211,6 +217,13 @@ export default function MapEditorPanel({ value, index }) {
     (entityGUID) => {
       // console.log("🚀 ~ handleEntitySelect ~ entityGUID:", entityGUID);
       let selected = mapEntities.find((x) => x.GUID === entityGUID);
+      //if not an entity, check the map section tiles
+      if (!selected) {
+        selected = mapSections
+          .map((x) => x.mapTiles)
+          .flat()
+          .find((x) => x.GUID === entityGUID);
+      }
       // console.log("🚀 ~ MapEditorPanel ~ selected:", selected);
       if (selected) {
         setSelectedEntity(selected);
@@ -218,7 +231,7 @@ export default function MapEditorPanel({ value, index }) {
         mapRef.current.selectMapEntity(selected.GUID);
       } else setSelectedEntity(null);
     },
-    [mapEntities]
+    [mapEntities, mapSections]
   );
 
   function onEditPropertiesClick() {
@@ -249,6 +262,25 @@ export default function MapEditorPanel({ value, index }) {
     }
   }
 
+  const handleDuplicateEntity = useCallback(() => {
+    let newEntity = { ...selectedEntity };
+    newEntity.GUID = createGUID();
+    if (!newEntity.name.includes("Duplicate"))
+      newEntity.name = `${selectedEntity.name} (Duplicate)`;
+    newEntity.entityProperties.name = newEntity.name;
+    //move the entity a bit
+    const [x, y] = newEntity.entityPosition.split(",");
+    const position = { x: parseFloat(x), y: parseFloat(y) };
+    position.x += 10;
+    position.y += 10;
+    newEntity.entityPosition = `${position.x},${position.y}`;
+    //add the entity
+    addMapEntity(newEntity);
+    mapRef.current.addMapEntity(newEntity);
+    mapRef.current.selectMapEntity(newEntity.GUID);
+    setSelectedEntity(newEntity);
+  }, [selectedEntity, addMapEntity]);
+
   //setup keyboard handler
   useEffect(() => {
     // Keyboard shortcuts
@@ -262,12 +294,10 @@ export default function MapEditorPanel({ value, index }) {
       // Handle the combos
       if (e.ctrlKey && e.key === "m") {
         isProcessingRef.current = true;
-        console.log("🚀 ~ centerMap");
         centerMap();
       }
       if (e.ctrlKey && e.key === "e") {
         e.preventDefault();
-        console.log("🚀 ~ centerEntity");
         isProcessingRef.current = true;
         centerEntity();
       }
@@ -307,24 +337,40 @@ export default function MapEditorPanel({ value, index }) {
         addHighlightEntity();
       }
       if (e.ctrlKey && e.key === "Delete") {
+        e.preventDefault();
+        if (!selectedEntity) return;
         isProcessingRef.current = true;
         mapRef.current.removeMapEntity(selectedEntity.GUID);
         removeMapEntity(selectedEntity.GUID);
         handleEntitySelect(null);
       }
-      if (e.key === "[" && selectedEntity) {
-        if (
-          selectedEntity.entityType === EntityType.Door ||
-          selectedEntity.entityType === EntityType.Tile
-        )
-          rotateMapEntity(selectedEntity.GUID, -1);
+      if (e.ctrlKey && e.shiftKey && e.key === "D") {
+        e.preventDefault();
+        if (!selectedEntity) return;
+        if (selectedEntity.entityType === EntityType.Tile) return;
+
+        isProcessingRef.current = true;
+        handleDuplicateEntity();
       }
-      if (e.key === "]" && selectedEntity) {
+      if (e.key === "[") {
+        e.preventDefault();
+        if (!selectedEntity) return;
+
         if (
           selectedEntity.entityType === EntityType.Door ||
           selectedEntity.entityType === EntityType.Tile
         )
-          rotateMapEntity(selectedEntity.GUID, 1);
+          mapRef.current.rotateEntityFromKeyCommand(-1);
+      }
+      if (e.key === "]") {
+        e.preventDefault();
+        if (!selectedEntity) return;
+
+        if (
+          selectedEntity.entityType === EntityType.Door ||
+          selectedEntity.entityType === EntityType.Tile
+        )
+          mapRef.current.rotateEntityFromKeyCommand(1);
       }
     };
 
@@ -351,6 +397,8 @@ export default function MapEditorPanel({ value, index }) {
     addMarkerEntity,
     addHighlightEntity,
     handleEntitySelect,
+    handleDuplicateEntity,
+    addMapEntity,
     rotateMapEntity,
     removeMapEntity,
     selectedEntity,
@@ -377,21 +425,31 @@ export default function MapEditorPanel({ value, index }) {
   };
 
   const handleUpdateEntityPosition = useCallback(
+    //position is a string "x,y"
     (entityGUID, position) => {
       // console.log(
       //   "🚀 ~ handleUpdateEntityPosition ~ entityGUID, position",
       //   entityGUID,
       //   position
       // );
-      updateMapEntityPosition(entityGUID, position);
+      if (mapEntities.find((x) => x.GUID === entityGUID)) {
+        updateMapEntityPosition(entityGUID, position);
+      } else {
+        //otherwise, it's a map tile
+        let tile = mapSections
+          .map((x) => x.mapTiles)
+          .flat()
+          .find((x) => x.GUID === entityGUID);
+        if (tile) updateTilePosition(tile.GUID, position);
+      }
     },
-    [updateMapEntityPosition]
+    [updateMapEntityPosition, updateTilePosition, mapEntities, mapSections]
   );
 
   function addMapSection() {
     let newSection = new MapSection();
     newSection.name = "New Map Section";
-    addSection(newSection); //also sets active section
+    addExistingSection(newSection); //also sets active section
   }
 
   return (
@@ -413,12 +471,13 @@ export default function MapEditorPanel({ value, index }) {
             <div className="canvas">
               <MapEditor
                 ref={mapRef}
-                mapEntities={mapEntities}
+                mapEntities={mapEntities.concat(
+                  mapSections.map((x) => x.mapTiles).flat()
+                )}
                 onSelectEntity={handleEntitySelect}
-                addEntity={addMapEntity}
                 onUpdateEntityPosition={handleUpdateEntityPosition}
-                onRotateEntity={(drawPosition) =>
-                  rotateMapEntity(selectedEntity?.GUID, 1, drawPosition)
+                onRotateEntity={(drawPosition, direction = 1) =>
+                  rotateMapEntity(selectedEntity?.GUID, direction, drawPosition)
                 }
                 onDoubleClick={onEditPropertiesClick}
               >
@@ -468,11 +527,14 @@ export default function MapEditorPanel({ value, index }) {
             activeMapSectionGUID={activeMapSectionGUID}
             mapSections={mapSections}
             addMapSection={addMapSection}
-            mapEntities={mapEntities}
+            mapEntities={mapEntities.concat(
+              mapSections.map((x) => x.mapTiles).flat()
+            )}
             handleRemoveEntity={handleRemoveEntity}
             updateEntity={updateEntity}
             handleEntitySelect={handleEntitySelect}
             onEditPropertiesClick={onEditPropertiesClick}
+            onDuplicateEntity={handleDuplicateEntity}
           />
         </div>
       )}

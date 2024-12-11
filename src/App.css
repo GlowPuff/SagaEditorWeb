@@ -440,15 +440,17 @@ hr {
 }
 
 .tileGalleryThumbView {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-	gap: 0.5rem;
-	overflow-y: auto;
-	scrollbar-color: #bc56ff #4c4561;
-	scrollbar-width: thin;
-	height: 100%;
-	min-height: 0;
-	flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 1rem;
+  overflow-y: auto;
+  scrollbar-color: #bc56ff #4c4561;
+  scrollbar-width: thin;
+  height: 100%;
+  min-height: 0;
+  /* justify-content: start; */
+  align-content: start;
+  /* flex: 1; */
 }
 
 .tileGalleryPanel {
