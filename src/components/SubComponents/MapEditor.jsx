@@ -283,8 +283,9 @@ const MapEditor = forwardRef(
 
     //setup mouse handlers
     useEffect(() => {
-      let isPanning = false;
       let lastPosition = { x: 0, y: 0 };
+			//TODO maybe make these refs to avoid setting selection only on mouse UP
+			let isPanning = false;
       let hasPanned = false;
       const container = containerRef.current;
 
@@ -333,12 +334,14 @@ const MapEditor = forwardRef(
               isPanning = true;
             } else {
               selectedShapeGUIDRef.current = guid;
-              onSelectEntity(selectedShapeGUIDRef.current);
+							//setting the selected shape here causes the map component to re-render
+							//which makes it so you can't click and drag a shape in one click
+              //onSelectEntity(selectedShapeGUIDRef.current);
             }
 
             //right click
             if (selected && canRotate && e.button === 2) {
-              onRotateEntity(drawPosition);
+              onRotateEntity(drawPosition, guid);
             }
           }
           //middle click
@@ -352,7 +355,7 @@ const MapEditor = forwardRef(
       };
 
       const handleMouseUp = () => {
-        //unset the selected shape
+        //unset the selected shape if just clicking the canvas
         if (!hasPanned && isPanning) {
           selectedShapeGUIDRef.current = null;
           shapeManagerRef.current.unselectAll();
@@ -360,8 +363,10 @@ const MapEditor = forwardRef(
         }
 
         //if just finished dragging a shape, update the entity position
+				//also let parent know the entity was selected
         const { selected, newPosition } = shapeManagerRef.current.onMouseUp();
         if (selected) {
+					onSelectEntity(selectedShapeGUIDRef.current);
           onUpdateEntityPosition(selectedShapeGUIDRef.current, newPosition);
         }
 

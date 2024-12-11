@@ -109,6 +109,30 @@ export const useMapSectionsStore = create((set) => ({
         }),
       };
     }),
+  rotateTile: (guid, direction, drawPosition) =>
+    set((state) => {
+      return {
+        mapSections: state.mapSections.map((section) => {
+          section.mapTiles = section.mapTiles.map((tile) => {
+            if (tile.GUID === guid) {
+              tile.entityRotation =
+                (tile.entityRotation + 90 * direction) % 360;
+              if (tile.entityRotation < 0) {
+                tile.entityRotation += 360;
+              }
+              //calculate new position based on rotation
+              const newPosition = calculateEntityPosition(tile, drawPosition);
+              //snap the position to the grid
+              newPosition.x = Math.round(newPosition.x / 10) * 10;
+              newPosition.y = Math.round(newPosition.y / 10) * 10;
+              tile.entityPosition = `${newPosition.x},${newPosition.y}`;
+            }
+            return tile;
+          });
+          return section;
+        }),
+      };
+    }),
   updateTilePosition: (
     guid,
     position //position is a string "x,y"

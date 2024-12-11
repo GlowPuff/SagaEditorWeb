@@ -42,9 +42,13 @@ export default function MapEditorPanel({ value, index }) {
   const addTileToActiveSection = useMapSectionsStore(
     (state) => state.addTileToActiveSection
   );
+  const removeTileFromActiveSection = useMapSectionsStore(
+    (state) => state.removeTileFromActiveSection
+  );
   const updateTilePosition = useMapSectionsStore(
     (state) => state.updateTilePosition
   );
+  const rotateTile = useMapSectionsStore((state) => state.rotateTile);
 
   //map entity store
   const mapEntities = useMapEntitiesStore((state) => state.mapEntities);
@@ -281,6 +285,16 @@ export default function MapEditorPanel({ value, index }) {
     setSelectedEntity(newEntity);
   }, [selectedEntity, addMapEntity]);
 
+  const handlRotateEntity = useCallback(
+    (direction, drawPosition, guid) => {
+      if (selectedEntity.GUID !== guid) return;
+      if (selectedEntity.entityType === EntityType.Tile)
+        rotateTile(selectedEntity?.GUID, direction, drawPosition);
+      else rotateMapEntity(selectedEntity?.GUID, direction, drawPosition);
+    },
+    [selectedEntity, rotateMapEntity, rotateTile]
+  );
+
   //setup keyboard handler
   useEffect(() => {
     // Keyboard shortcuts
@@ -419,7 +433,10 @@ export default function MapEditorPanel({ value, index }) {
     if (selectedEntity !== null) {
       // console.log("🚀 ~ handleRemoveEntity ~ selectedEntity:", selectedEntity);
       mapRef.current.removeMapEntity(selectedEntity.GUID);
-      removeMapEntity(selectedEntity.GUID);
+      if (selectedEntity.entityType !== EntityType.Tile)
+        removeMapEntity(selectedEntity.GUID);
+      else removeTileFromActiveSection(selectedEntity);
+
       handleEntitySelect(null);
     }
   };
@@ -476,8 +493,8 @@ export default function MapEditorPanel({ value, index }) {
                 )}
                 onSelectEntity={handleEntitySelect}
                 onUpdateEntityPosition={handleUpdateEntityPosition}
-                onRotateEntity={(drawPosition, direction = 1) =>
-                  rotateMapEntity(selectedEntity?.GUID, direction, drawPosition)
+                onRotateEntity={(drawPosition, guid, direction = 1) =>
+                  handlRotateEntity(direction, drawPosition, guid)
                 }
                 onDoubleClick={onEditPropertiesClick}
               >

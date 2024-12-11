@@ -85,7 +85,7 @@ class ShapeManager {
   };
 
   addTerminal = (entity) => {
-    console.log("🚀 ~ ShapeManager ~ entity:", entity);
+    // console.log("🚀 ~ ShapeManager ~ entity:", entity);
     const [x, y] = entity.entityPosition.split(",");
     const position = { x: parseFloat(x), y: parseFloat(y) };
 
