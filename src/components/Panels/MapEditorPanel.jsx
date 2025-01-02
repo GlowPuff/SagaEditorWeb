@@ -351,12 +351,10 @@ export default function MapEditorPanel({ value, index }) {
         addHighlightEntity();
       }
       if (e.ctrlKey && e.key === "Delete") {
-        e.preventDefault();
+				e.preventDefault();
         if (!selectedEntity) return;
         isProcessingRef.current = true;
-        mapRef.current.removeMapEntity(selectedEntity.GUID);
-        removeMapEntity(selectedEntity.GUID);
-        handleEntitySelect(null);
+				handleRemoveEntity();
       }
       if (e.ctrlKey && e.shiftKey && e.key === "D") {
         e.preventDefault();
@@ -412,6 +410,7 @@ export default function MapEditorPanel({ value, index }) {
     addHighlightEntity,
     handleEntitySelect,
     handleDuplicateEntity,
+    removeTileFromActiveSection,
     addMapEntity,
     rotateMapEntity,
     removeMapEntity,
@@ -421,7 +420,7 @@ export default function MapEditorPanel({ value, index }) {
   //called by the entity component to update the entity
   const updateEntity = useCallback(
     (entity) => {
-      //console.log("🚀 ~ updateEntity ~ entity:", entity);
+      console.log("🚀 ~ updateEntity ~ entity:", entity);
       updateMapEntity(entity);
       setSelectedEntity(entity);
     },

@@ -101,11 +101,13 @@ export const useMapSectionsStore = create((set) => ({
   removeTileFromActiveSection: (tile) =>
     set((state) => {
       return {
-        mapSections: state.mapSections.map((item) => {
-          if (item.GUID === state.activeMapSectionGUID) {
-            item.mapTiles = item.mapTiles.filter((x) => x.GUID !== tile.GUID);
+        mapSections: state.mapSections.map((section) => {
+          if (section.GUID === state.activeMapSectionGUID) {
+            section.mapTiles = section.mapTiles.filter(
+              (x) => x.GUID !== tile.GUID
+            );
           }
-          return item;
+          return section;
         }),
       };
     }),

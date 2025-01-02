@@ -28,7 +28,7 @@ const entityNames = [
   "Door",
 ];
 
-const CrateProps = ({
+const EntityProps = ({
   entity,
   onUpdateEntity,
   activeMapSectionGUID,
@@ -250,10 +250,10 @@ const CrateProps = ({
   );
 };
 
-export default CrateProps;
+export default EntityProps;
 
 //add prop types
-CrateProps.propTypes = {
+EntityProps.propTypes = {
   entity: PropTypes.object,
   onUpdateEntity: PropTypes.func.isRequired,
   activeMapSectionGUID: PropTypes.string,
