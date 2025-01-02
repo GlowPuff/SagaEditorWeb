@@ -42,6 +42,9 @@ export default function MapEditorPanel({ value, index }) {
   const addTileToActiveSection = useMapSectionsStore(
     (state) => state.addTileToActiveSection
   );
+  const updateTileEntity = useMapSectionsStore(
+    (state) => state.updateTileEntity
+  );
   const removeTileFromActiveSection = useMapSectionsStore(
     (state) => state.removeTileFromActiveSection
   );
@@ -295,6 +298,24 @@ export default function MapEditorPanel({ value, index }) {
     [selectedEntity, rotateMapEntity, rotateTile]
   );
 
+  const handleRemoveEntity = useCallback(() => {
+    // console.log("🚀 ~ handleRemoveEntity ~ mapRef.current:", mapRef.current);
+    if (selectedEntity !== null) {
+      // console.log("🚀 ~ handleRemoveEntity ~ selectedEntity:", selectedEntity);
+      mapRef.current.removeMapEntity(selectedEntity.GUID);
+      if (selectedEntity.entityType !== EntityType.Tile)
+        removeMapEntity(selectedEntity.GUID);
+      else removeTileFromActiveSection(selectedEntity);
+
+      handleEntitySelect(null);
+    }
+  }, [
+    handleEntitySelect,
+    removeMapEntity,
+    removeTileFromActiveSection,
+    selectedEntity,
+  ]);
+
   //setup keyboard handler
   useEffect(() => {
     // Keyboard shortcuts
@@ -422,29 +443,12 @@ export default function MapEditorPanel({ value, index }) {
   const updateEntity = useCallback(
     (entity) => {
       console.log("🚀 ~ updateEntity ~ entity:", entity);
-      updateMapEntity(entity);
+      if (entity.entityType === EntityType.Tile) updateTileEntity(entity);
+      else updateMapEntity(entity);
       setSelectedEntity(entity);
     },
-    [updateMapEntity]
+    [updateMapEntity, updateTileEntity]
   );
-
-  const handleRemoveEntity = useCallback(() => {
-    // console.log("🚀 ~ handleRemoveEntity ~ mapRef.current:", mapRef.current);
-    if (selectedEntity !== null) {
-      // console.log("🚀 ~ handleRemoveEntity ~ selectedEntity:", selectedEntity);
-      mapRef.current.removeMapEntity(selectedEntity.GUID);
-      if (selectedEntity.entityType !== EntityType.Tile)
-        removeMapEntity(selectedEntity.GUID);
-      else removeTileFromActiveSection(selectedEntity);
-
-      handleEntitySelect(null);
-    }
-  }, [
-    handleEntitySelect,
-    removeMapEntity,
-    removeTileFromActiveSection,
-    selectedEntity,
-  ]);
 
   const handleUpdateEntityPosition = useCallback(
     //position is a string "x,y"

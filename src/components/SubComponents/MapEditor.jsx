@@ -269,7 +269,7 @@ const MapEditor = forwardRef(
       if (selectedShapeGUIDRef.current)
         shapeManagerRef.current.selectShape(selectedShapeGUIDRef.current);
 
-      //  logMap();
+      // logMap();
 
       twoRef.current.update();
 

@@ -98,6 +98,19 @@ export const useMapSectionsStore = create((set) => ({
         }),
       };
     }),
+  updateTileEntity: (tile) =>
+    set((state) => {
+      return {
+        mapSections: state.mapSections.map((section) => {
+          section.mapTiles = section.mapTiles.map((item) => {
+            if (item.GUID === tile.GUID) {
+              return tile;
+            } else return item;
+          });
+          return section;
+        }),
+      };
+    }),
   removeTileFromActiveSection: (tile) =>
     set((state) => {
       return {
