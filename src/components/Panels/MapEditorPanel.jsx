@@ -351,10 +351,10 @@ export default function MapEditorPanel({ value, index }) {
         addHighlightEntity();
       }
       if (e.ctrlKey && e.key === "Delete") {
-				e.preventDefault();
+        e.preventDefault();
         if (!selectedEntity) return;
         isProcessingRef.current = true;
-				handleRemoveEntity();
+        handleRemoveEntity();
       }
       if (e.ctrlKey && e.shiftKey && e.key === "D") {
         e.preventDefault();
@@ -410,6 +410,7 @@ export default function MapEditorPanel({ value, index }) {
     addHighlightEntity,
     handleEntitySelect,
     handleDuplicateEntity,
+    handleRemoveEntity,
     removeTileFromActiveSection,
     addMapEntity,
     rotateMapEntity,
@@ -427,7 +428,7 @@ export default function MapEditorPanel({ value, index }) {
     [updateMapEntity]
   );
 
-  const handleRemoveEntity = () => {
+  const handleRemoveEntity = useCallback(() => {
     // console.log("🚀 ~ handleRemoveEntity ~ mapRef.current:", mapRef.current);
     if (selectedEntity !== null) {
       // console.log("🚀 ~ handleRemoveEntity ~ selectedEntity:", selectedEntity);
@@ -438,7 +439,12 @@ export default function MapEditorPanel({ value, index }) {
 
       handleEntitySelect(null);
     }
-  };
+  }, [
+    handleEntitySelect,
+    removeMapEntity,
+    removeTileFromActiveSection,
+    selectedEntity,
+  ]);
 
   const handleUpdateEntityPosition = useCallback(
     //position is a string "x,y"
