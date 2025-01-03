@@ -81,6 +81,8 @@ const EntityProps = ({
   function setTileSide(value) {
     let updated = { ...entity };
     updated.tileSide = value;
+    //update the texture name
+    updated.textureName = updated.textureName.substring(0, updated.textureName.length - 1) + value;
     onUpdateEntity(updated);
   }
 
