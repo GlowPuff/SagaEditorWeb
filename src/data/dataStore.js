@@ -1,7 +1,21 @@
 import { create } from "zustand";
 //data
-import { startSection, MapSection, emptyEvent, emptyTrigger } from "./Mission";
+import {
+  startSection,
+  MapSection,
+  emptyEvent,
+  emptyTrigger,
+  MissionProperties,
+} from "./Mission";
 import { createGUID, calculateEntityPosition } from "../lib/core";
+
+export const useMissionPropertiesStore = create((set) => ({
+  missionProperties: new MissionProperties(),
+  updateMissionProp: (propName, value) =>
+    set((state) => ({
+      missionProperties: { ...state.missionProperties, [propName]: value },
+    })),
+}));
 
 export const useReservedGroupsStore = create((set) => ({
   reservedGroups: [],

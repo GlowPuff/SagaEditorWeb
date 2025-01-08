@@ -17,12 +17,20 @@ import CustomToonPanel from "./components/Panels/CustomToonPanel";
 import GenericTextDialog from "./components/Dialogs/GenericTextDialog";
 import QuickAddDialog from "./components/Dialogs/QuickAddDialog";
 //Mission data
-import * as Mission from "./data/Mission";
+// import * as Mission from "./data/Mission";
+//data
+import { useMissionPropertiesStore } from "./data/dataStore";
 
 export default function App() {
   //Mission data
-  const [missionProps, setMissionProps] = useState(
-    new Mission.MissionProperties()
+  // const [missionProps, setMissionProps] = useState(
+  //   new Mission.MissionProperties()
+  // );
+  const missionProps = useMissionPropertiesStore(
+    (state) => state.missionProperties
+  );
+  const updateMissionProp = useMissionPropertiesStore(
+    (state) => state.updateMissionProp
   );
   const [initialGroups, setInitialGroups] = useState([]);
   // const [reservedGroups, setReservedGroups] = useState([]);
@@ -32,7 +40,8 @@ export default function App() {
 
   function onSetMissionProps(name, value) {
     //console.log("🚀 ~ onSetMissionProps ~ text:", value);
-    setMissionProps({ ...missionProps, [name]: value });
+    //setMissionProps({ ...missionProps, [name]: value });
+    updateMissionProp(name, value);
     //debug
     // let newProps = { ...missionProps, [name]: value };
     // console.log("🚀 ~ onSetMissionProps ~ newProps:", newProps);

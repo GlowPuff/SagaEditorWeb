@@ -17,6 +17,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 //icons
 import DeleteIcon from "@mui/icons-material/Delete";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 //components
 import TileThumbnail from "./TileThumbnail";
 //data
@@ -39,21 +40,18 @@ export default function TileGallery() {
   const [selectedExpansion, setSelectedExpansion] = useState(0);
 
   //calculate tile array, side A or B, based on selected expansion
-  const calculateTileArray = useCallback(
-    (side, expansionIndex) => {
-      // console.log("calculateTileData called");
-      const tiles = [];
-      const exp = Object.keys(Expansion)[expansionIndex];
-      for (let i = 1; i <= tileCounts[expansionIndex]; i++) {
-        tiles.push({
-          imageSrc: `./Tiles/${exp}/${exp}_${i}${side.toUpperCase()}.webp`,
-          name: `${exp} ${i}${side}`,
-        });
-      }
-      return tiles;
-    },
-    []
-  );
+  const calculateTileArray = useCallback((side, expansionIndex) => {
+    // console.log("calculateTileData called");
+    const tiles = [];
+    const exp = Object.keys(Expansion)[expansionIndex];
+    for (let i = 1; i <= tileCounts[expansionIndex]; i++) {
+      tiles.push({
+        imageSrc: `./Tiles/${exp}/${exp}_${i}${side.toUpperCase()}.webp`,
+        name: `${exp} ${i}${side}`,
+      });
+    }
+    return tiles;
+  }, []);
 
   const [open, setOpen] = useState(false);
   const callbackFunc = useRef(null);
@@ -350,9 +348,36 @@ export default function TileGallery() {
           </DialogContent>
 
           <DialogActions sx={{ paddingRight: "1rem", paddingBottom: "1rem" }}>
-            <Button variant="contained" onClick={() => onOK()}>
-              close
-            </Button>
+            <div className="event-container" style={{ width: "100%" }}>
+              <div className="center hotkeyDefinition">
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "1rem",
+										justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="caption">
+                    Left Click to Select a Tile
+                  </Typography>
+                  <FiberManualRecordIcon
+                    sx={{ width: "10px", height: "10px", color: "#702da0" }}
+                  />
+                  <Typography variant="caption">
+                    Right Click to Add Tile to Queue
+                  </Typography>
+                  <FiberManualRecordIcon
+                    sx={{ width: "10px", height: "10px", color: "#702da0" }}
+                  />
+                  <Typography variant="caption">
+                    Double Click to Immediately Add Tile to Map
+                  </Typography>
+                </div>
+              </div>
+              <Button variant="contained" onClick={() => onOK()}>
+                close
+              </Button>
+            </div>
           </DialogActions>
         </Dialog>
       )}
