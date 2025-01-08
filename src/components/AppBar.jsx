@@ -37,7 +37,9 @@ export default function AppBar() {
     console.log(missionEvents);
   }
 
-  function onSave() {}
+  function onSave() {
+
+	}
 
   function onNewTrigger() {
     NewTriggerDialog.ShowDialog(new MissionTrigger(), (value) => {

@@ -16,35 +16,35 @@ import CustomToonPanel from "./components/Panels/CustomToonPanel";
 //dialogs
 import GenericTextDialog from "./components/Dialogs/GenericTextDialog";
 import QuickAddDialog from "./components/Dialogs/QuickAddDialog";
-//Mission data
-// import * as Mission from "./data/Mission";
 //data
-import { useMissionPropertiesStore } from "./data/dataStore";
+import {
+  useMissionPropertiesStore,
+  useInitialGroupsStore,
+} from "./data/dataStore";
 
 export default function App() {
   //Mission data
-  // const [missionProps, setMissionProps] = useState(
-  //   new Mission.MissionProperties()
-  // );
   const missionProps = useMissionPropertiesStore(
     (state) => state.missionProperties
   );
   const updateMissionProp = useMissionPropertiesStore(
     (state) => state.updateMissionProp
   );
-  const [initialGroups, setInitialGroups] = useState([]);
-  // const [reservedGroups, setReservedGroups] = useState([]);
+  const initialGroups = useInitialGroupsStore((state) => state.initialGroups);
+  const addInitialGroup = useInitialGroupsStore((state) => state.addGroup);
+  const removeInitialGroup = useInitialGroupsStore(
+    (state) => state.removeGroup
+  );
+  const modifyInitialGroup = useInitialGroupsStore(
+    (state) => state.modifyGroup
+  );
   //everything else
   const [languageID, setlanguageID] = useState("English (EN)");
   const [tabIndex, setTabIndex] = useState(0);
 
   function onSetMissionProps(name, value) {
     //console.log("🚀 ~ onSetMissionProps ~ text:", value);
-    //setMissionProps({ ...missionProps, [name]: value });
     updateMissionProp(name, value);
-    //debug
-    // let newProps = { ...missionProps, [name]: value };
-    // console.log("🚀 ~ onSetMissionProps ~ newProps:", newProps);
   }
 
   function onModifyEnemyGroups(action) {
@@ -56,20 +56,11 @@ export default function App() {
             (item) => item.cardID === action.group.cardID
           ) === -1
         )
-          setInitialGroups([...initialGroups, action.group]);
+          addInitialGroup(action.group);
       } else if (action.command === "remove") {
-        let groups = [...initialGroups];
-        groups.splice(action.index, 1);
-        setInitialGroups(groups);
+        removeInitialGroup(action.index);
       } else if (action.command === "edit") {
-        setInitialGroups(
-          initialGroups.map((item, index) => {
-            if (index === action.index) {
-              item = action.group;
-            }
-            return item;
-          })
-        );
+				modifyInitialGroup(action.index, action.group);
       }
     }
   }

@@ -17,6 +17,25 @@ export const useMissionPropertiesStore = create((set) => ({
     })),
 }));
 
+export const useInitialGroupsStore = create((set) => ({
+  initialGroups: [],
+  addGroup: (group) =>
+    set((state) => ({ initialGroups: [...state.initialGroups, group] })),
+  modifyGroup: (groupIndex, group) =>
+    set((state) => {
+      return {
+        initialGroups: state.initialGroups.map((item, index) => {
+          if (index === groupIndex) item = group;
+          return item;
+        }),
+      };
+    }),
+  removeGroup: (index) =>
+    set((state) => ({
+      initialGroups: state.initialGroups.filter((x, idx) => index !== idx),
+    })),
+}));
+
 export const useReservedGroupsStore = create((set) => ({
   reservedGroups: [],
   addGroup: (group) =>
