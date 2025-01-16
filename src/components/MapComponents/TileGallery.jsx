@@ -354,22 +354,32 @@ export default function TileGallery() {
                   style={{
                     display: "flex",
                     gap: "1rem",
-										justifyContent: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <Typography variant="caption">
+                  <Typography variant="button">
                     Left Click to Select a Tile
                   </Typography>
                   <FiberManualRecordIcon
-                    sx={{ width: "10px", height: "10px", color: "#702da0" }}
+                    sx={{
+                      width: "10px",
+                      height: "10px",
+                      color: "#702da0",
+                      alignSelf: "center",
+                    }}
                   />
-                  <Typography variant="caption">
+                  <Typography variant="button">
                     Right Click to Add Tile to Queue
                   </Typography>
                   <FiberManualRecordIcon
-                    sx={{ width: "10px", height: "10px", color: "#702da0" }}
+                    sx={{
+                      width: "10px",
+                      height: "10px",
+                      color: "#702da0",
+                      alignSelf: "center",
+                    }}
                   />
-                  <Typography variant="caption">
+                  <Typography variant="button">
                     Double Click to Immediately Add Tile to Map
                   </Typography>
                 </div>

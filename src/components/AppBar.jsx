@@ -1,24 +1,28 @@
 // import { useState, useEffect } from "react";
+import { Fragment, useState } from "react";
 import PropTypes from "prop-types";
 //mui
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-// import Typography from "@mui/material/Typography";
-// import Select from "@mui/material/Select";
-// import MenuItem from "@mui/material/MenuItem";
-//icons
-import FileOpenIcon from "@mui/icons-material/FileOpen";
-import SaveIcon from "@mui/icons-material/Save";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 //dialogs
 import NewTriggerDialog from "./Dialogs/NewTriggerDialog";
 import NewEventDialog from "./Dialogs/NewEventDialog";
-
+//components
+import MissionSaveButton from "./SubComponents/MissionSaveButton";
+import MissionLoadButton from "./SubComponents/MissionLoadButton";
 //data
 import { MissionEvent, MissionTrigger } from "../data/Mission";
 import {
@@ -26,20 +30,17 @@ import {
   useEventsStore,
   useTriggerStore,
 } from "../data/dataStore";
+import emptyMissionRaw from "../data/emptyMission.json?raw";
 
-export default function AppBar() {
-  const missionEvents = useEventsStore((state) => state.missionEvents); //useEvents();
+export default function AppBar({ languageID }) {
   const addEvent = useEventsStore((state) => state.addEvent);
   const addTrigger = useTriggerStore((state) => state.addTrigger);
   const addMapSection = useMapSectionsStore((state) => state.addSection);
+  const [open, setOpen] = useState(false);
 
-  function onFileOpen() {
-    console.log(missionEvents);
+  function onNewMission() {
+    setOpen(true);
   }
-
-  function onSave() {
-
-	}
 
   function onNewTrigger() {
     NewTriggerDialog.ShowDialog(new MissionTrigger(), (value) => {
@@ -57,32 +58,34 @@ export default function AppBar() {
     addMapSection("New Map Section");
   }
 
+  function handleClose(bContinue) {
+    setOpen(false);
+    if (bContinue) {
+      const emptyMission = JSON.parse(emptyMissionRaw);
+      console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission)
+    }
+  }
+
   return (
     <div className="menu">
       <Paper>
         <div className="menubar">
           <Typography variant="h6">Mission Editor</Typography>
 
-          <Tooltip title="Open a Mission">
-            <Button
-              sx={{ marginLeft: "auto" }}
+          <Tooltip title="Create a new Mission">
+            <IconButton
               variant="contained"
-              onClick={onFileOpen}
-              startIcon={<FileOpenIcon />}
+              onClick={onNewMission}
+              size="large"
+              style={{ color: "purple" }}
             >
-              Open...
-            </Button>
+              <AddBoxIcon fontSize="inherit" />
+            </IconButton>
           </Tooltip>
 
-          <Tooltip title="Save the Mission">
-            <Button
-              variant="contained"
-              onClick={onSave}
-              startIcon={<SaveIcon />}
-            >
-              Save...
-            </Button>
-          </Tooltip>
+          <MissionLoadButton />
+
+          <MissionSaveButton languageID={languageID} />
 
           <FiberManualRecordIcon sx={{ transform: "scale(.5)" }} />
 
@@ -137,6 +140,35 @@ export default function AppBar() {
 
       <NewTriggerDialog />
       <NewEventDialog />
+      <Fragment>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle id="alert-dialog-title">
+            {"Create a new Mission?"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Creating a new Mission will clear the current Mission and you will
+              lose any unsaved changes. Do you want to continue?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="contained"
+              sx={{ color: "pink" }}
+              onClick={() => handleClose(true)}
+            >
+              Create New Mission
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => handleClose(false)}
+              autoFocus
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Fragment>
     </div>
   );
 }
@@ -144,4 +176,5 @@ export default function AppBar() {
 AppBar.propTypes = {
   mapSections: PropTypes.array,
   onChangeSelectedSection: PropTypes.func,
+  languageID: PropTypes.string.isRequired,
 };

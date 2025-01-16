@@ -62,7 +62,7 @@ function getMissionTypes() {
     "Finale",
   ];
   return mtypes.map((t, index) => (
-    <MenuItem key={index} value={t}>
+    <MenuItem key={index} value={index}>
       {t}
     </MenuItem>
   ));
@@ -106,8 +106,8 @@ export default function MissionPanel({
 
   function getMissionSubtypes() {
     return stypes.map((t, index) => (
-      <MenuItem key={index} value={t}>
-        <Checkbox checked={missionProps.missionSubType.indexOf(t) > -1} />
+      <MenuItem key={index} value={index}>
+        <Checkbox checked={missionProps.missionSubType.indexOf(index) > -1} />
         {t}
       </MenuItem>
     ));
@@ -198,7 +198,10 @@ export default function MissionPanel({
                       name="missionType"
                       value={missionProps.missionType}
                       onChange={(e) =>
-                        setPropValue(e.target.name, e.target.value)
+                        setPropValue(
+                          e.target.name,
+                          Number.parseInt(e.target.value)
+                        )
                       }
                       displayEmpty
                     >
@@ -339,10 +342,26 @@ export default function MissionPanel({
               </AccordionSummary>
               <AccordionDetails>
                 <div className="missionPanel__info-container">
-                  <Button variant="contained" onClick={onDescriptionClick}>
+                  <Button
+                    variant="contained"
+                    onClick={onDescriptionClick}
+                    sx={
+                      missionProps.missionDescription
+                        ? { outline: "2px solid lime" }
+                        : { outline: "2px solid red" }
+                    }
+                  >
                     description...
                   </Button>
-                  <Button variant="contained" onClick={onAdditionalClick}>
+                  <Button
+                    variant="contained"
+                    onClick={onAdditionalClick}
+                    sx={
+                      missionProps.additionalMissionInfo
+                        ? { outline: "2px solid lime" }
+                        : { outline: "2px solid red" }
+                    }
+                  >
                     additional info
                   </Button>
                 </div>
@@ -361,7 +380,7 @@ export default function MissionPanel({
                 sx={{
                   width: "100%",
                   backgroundColor: "#281b40",
-									marginBottom: ".5rem",
+                  marginBottom: ".5rem",
                 }}
               >
                 <Tabs

@@ -169,11 +169,19 @@ export default function SectionsPanel({ value, index }) {
                   />
                   <div className="two-column-grid">
                     <Typography>Tile Count</Typography>
-                    <Typography>1</Typography>
+                    <Typography>
+                      {mapSections[selectedSectionIndex].mapTiles.length}
+                    </Typography>
                   </div>
                   <div className="two-column-grid">
                     <Typography>Map Entity Count</Typography>
-                    <Typography>1</Typography>
+                    <Typography>
+                      {
+                        mapEntities.filter(
+                          (x) => x.mapSectionOwner === activeMapSectionGUID
+                        ).length
+                      }
+                    </Typography>
                   </div>
                   <hr />
                   <Button

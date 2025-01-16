@@ -1,11 +1,9 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 //mui
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 //icons
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 //dispatcher
@@ -23,16 +21,9 @@ export default function MissionPanelTab2({
 }) {
   const refreshToken = useEventsStore((state) => state.refreshToken);
 
-  const [infoSet, setInfoSet] = useState(missionProps.missionInfo !== "");
-  const [objectiveSet, setObjectiveSet] = useState(
-    missionProps.startingObjective !== ""
-  );
-
   function onEditText(title, name, value) {
     GenericTextDialog.ShowDialog(title, value, (text) => {
       setPropValue(name, text);
-      if (name === "missionInfo") setInfoSet(text !== "");
-      else if (name === "startingObjective") setObjectiveSet(text !== "");
     });
   }
 
@@ -87,12 +78,14 @@ export default function MissionPanelTab2({
                       missionProps.missionInfo
                     )
                   }
+                  sx={
+                    missionProps.missionInfo
+                      ? { outline: "2px solid lime" }
+                      : { outline: "2px solid red" }
+                  }
                 >
                   Edit Mission Info...
                 </Button>
-                <Typography sx={{ color: infoSet ? "lime" : "red" }}>
-                  {infoSet ? "Text Set" : "Text Not Set"}
-                </Typography>
               </div>
             </AccordionDetails>
           </Accordion>
@@ -114,6 +107,11 @@ export default function MissionPanelTab2({
             <AccordionDetails>
               <div className="label-text">
                 <Button
+                  sx={
+                    missionProps.startingObjective
+                      ? { outline: "2px solid lime" }
+                      : { outline: "2px solid red" }
+                  }
                   variant="contained"
                   onClick={() =>
                     onEditText(
@@ -125,9 +123,6 @@ export default function MissionPanelTab2({
                 >
                   Edit Objective...
                 </Button>
-                <Typography sx={{ color: objectiveSet ? "lime" : "red" }}>
-                  {objectiveSet ? "Text Set" : "Text Not Set"}
-                </Typography>
               </div>
             </AccordionDetails>
           </Accordion>

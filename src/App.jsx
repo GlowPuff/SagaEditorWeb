@@ -60,7 +60,7 @@ export default function App() {
       } else if (action.command === "remove") {
         removeInitialGroup(action.index);
       } else if (action.command === "edit") {
-				modifyInitialGroup(action.index, action.group);
+        modifyInitialGroup(action.index, action.group);
       }
     }
   }
@@ -70,6 +70,7 @@ export default function App() {
       <div className="surface-layout">
         {/* menu */}
         <AppBar
+          languageID={languageID}
           onChangeSelectedSection={(value) =>
             console.log("changed section: ", value)
           }

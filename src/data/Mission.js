@@ -341,6 +341,7 @@ export class MissionProperties {
     this.useAlternateEventSystem = false;
     //empty values so they aren't undefined
     this.campaignName = "";
+    this.missionDescription = "";
     this.additionalMissionInfo = "";
     this.startingObjective = "";
     this.missionInfo = "";

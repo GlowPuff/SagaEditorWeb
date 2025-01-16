@@ -268,12 +268,12 @@ export const DeploymentColorMap = new Map([
 export const CustomInstructionType = { Top: 0, Bottom: 1, Replace: 2 };
 export const YesNoAll = { Yes: 0, No: 1, All: 2, Multi: 3 };
 export const MissionType = {
-  Story: "Story",
-  Side: "Side",
-  Forced: "Forced",
-  Introduction: "Introduction",
-  Interlude: "Interlude",
-  Finale: "Finale",
+  Story: 0,
+  Side: 1,
+  Forced: 2,
+  Introduction: 3,
+  Interlude: 4,
+  Finale: 5,
 };
 export const PriorityTargetType = {
   Rebel: 0,
