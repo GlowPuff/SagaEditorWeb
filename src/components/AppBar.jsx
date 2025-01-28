@@ -31,7 +31,7 @@ import {
   useInitialGroupsStore,
   useReservedGroupsStore,
   useEventGroupStore,
-	useEntityGroupStore,
+  useEntityGroupStore,
   useMapSectionsStore,
   useEventsStore,
   useTriggerStore,
@@ -44,6 +44,7 @@ export default function AppBar({ languageID }) {
   const addEvent = useEventsStore((state) => state.addEvent);
   const addTrigger = useTriggerStore((state) => state.addTrigger);
   const addMapSection = useMapSectionsStore((state) => state.addSection);
+  const [open, setOpen] = useState(false);
   //set state methods
   const importMissionProps = useMissionPropertiesStore(
     (state) => state.importMission
@@ -55,13 +56,14 @@ export default function AppBar({ languageID }) {
     (state) => state.importMission
   );
   const importEventGroups = useEventGroupStore((state) => state.importMission);
-	const importEntityGroups = useEntityGroupStore((state) => state.importMission);
-	const importMapSections = useMapSectionsStore((state) => state.importMission);
+  const importEntityGroups = useEntityGroupStore(
+    (state) => state.importMission
+  );
+  const importMapSections = useMapSectionsStore((state) => state.importMission);
   const importEvents = useEventsStore((state) => state.importMission);
   const importTriggers = useTriggerStore((state) => state.importMission);
   const importMapEntities = useMapEntitiesStore((state) => state.importMission);
   const importCustomToons = useToonsStore((state) => state.importMission);
-  const [open, setOpen] = useState(false);
 
   function onNewMission() {
     setOpen(true);
@@ -89,12 +91,13 @@ export default function AppBar({ languageID }) {
       const emptyMission = JSON.parse(emptyMissionRaw);
       emptyMission.customMissionIdentifier = createGUID();
       console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
+
       importMissionProps(emptyMission);
       importInitialGroups(emptyMission);
       importReservedGroups(emptyMission);
       importEventGroups(emptyMission);
-			importEntityGroups(emptyMission);
-			importMapSections(emptyMission);
+      importEntityGroups(emptyMission);
+      importMapSections(emptyMission);
       importEvents(emptyMission);
       importTriggers(emptyMission);
       importMapEntities(emptyMission);
@@ -213,4 +216,5 @@ AppBar.propTypes = {
   mapSections: PropTypes.array,
   onChangeSelectedSection: PropTypes.func,
   languageID: PropTypes.string.isRequired,
+	onLoad: PropTypes.func,
 };

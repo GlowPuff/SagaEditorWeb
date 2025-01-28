@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 //mui
 import Paper from "@mui/material/Paper";
@@ -24,10 +23,7 @@ import EntityGroupDialog from "../Dialogs/EntityGroupDialog";
 //data
 import * as Mission from "../../data/Mission";
 //store
-import {
-  useEventGroupStore,
-  useEntityGroupStore,
-} from "../../data/dataStore";
+import { useEventGroupStore, useEntityGroupStore } from "../../data/dataStore";
 
 export default function PropertiesPanel({
   setPropValue,
@@ -40,17 +36,22 @@ export default function PropertiesPanel({
   const addEVGroup = useEventGroupStore((state) => state.addGroup);
   const updateEVGroup = useEventGroupStore((state) => state.updateGroup);
   const removeEVGroup = useEventGroupStore((state) => state.removeGroup);
+  const selectedEventGroup = useEventGroupStore(
+    (state) => state.selectedEventGroup
+  );
+  const setSelectedEventGroup = useEventGroupStore(
+    (state) => state.setSelectedEventGroup
+  );
   //entity group store
   const entityGroups = useEntityGroupStore((state) => state.entityGroups);
   const addENGroup = useEntityGroupStore((state) => state.addGroup);
   const updateENGroup = useEntityGroupStore((state) => state.updateGroup);
   const removeENGroup = useEntityGroupStore((state) => state.removeGroup);
-
-  const [selectedEventGroup, setSelectedEventGroup] = useState(
-    eventGroups.length > 0 ? eventGroups[0] : ""
+  const selectedEntityGroup = useEntityGroupStore(
+    (state) => state.selectedEntityGroup
   );
-  const [selectedEntityGroup, setSelectedEntityGroup] = useState(
-    entityGroups.length > 0 ? entityGroups[0] : ""
+  const setSelectedEntityGroup = useEntityGroupStore(
+    (state) => state.setSelectedEntityGroup
   );
 
   function onChangeEventGroup(value) {

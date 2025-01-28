@@ -54,7 +54,13 @@ export const useReservedGroupsStore = create((set) => ({
 
 export const useEventGroupStore = create((set) => ({
   eventGroups: [],
-  importMission: (mission) => set(() => ({ eventGroups: mission.eventGroups })),
+  selectedEventGroup: "",
+  importMission: (mission) =>
+    set(() => ({ selectedEventGroup: "", eventGroups: mission.eventGroups })),
+  setSelectedEventGroup: (group) =>
+    set((state) => ({
+      selectedEventGroup: state.eventGroups.find((x) => x.GUID === group.GUID),
+    })),
   addGroup: (group) =>
     set((state) => ({ eventGroups: [...state.eventGroups, group] })),
   updateGroup: (group) =>
@@ -72,8 +78,18 @@ export const useEventGroupStore = create((set) => ({
 
 export const useEntityGroupStore = create((set) => ({
   entityGroups: [],
+  selectedEntityGroup: "",
   importMission: (mission) =>
-    set(() => ({ entityGroups: mission.entityGroups })),
+    set(() => ({
+      selectedEntityGroup: "",
+      entityGroups: mission.entityGroups,
+    })),
+  setSelectedEntityGroup: (group) =>
+    set((state) => ({
+      selectedEntityGroup: state.entityGroups.find(
+        (x) => x.GUID === group.GUID
+      ),
+    })),
   addGroup: (group) =>
     set((state) => ({ entityGroups: [...state.entityGroups, group] })),
   updateGroup: (group) =>
