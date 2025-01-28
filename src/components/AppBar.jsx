@@ -24,11 +24,19 @@ import NewEventDialog from "./Dialogs/NewEventDialog";
 import MissionSaveButton from "./SubComponents/MissionSaveButton";
 import MissionLoadButton from "./SubComponents/MissionLoadButton";
 //data
+import { createGUID } from "../lib/core";
 import { MissionEvent, MissionTrigger } from "../data/Mission";
 import {
+  useMissionPropertiesStore,
+  useInitialGroupsStore,
+  useReservedGroupsStore,
+  useEventGroupStore,
+	useEntityGroupStore,
   useMapSectionsStore,
   useEventsStore,
   useTriggerStore,
+  useMapEntitiesStore,
+  useToonsStore,
 } from "../data/dataStore";
 import emptyMissionRaw from "../data/emptyMission.json?raw";
 
@@ -36,6 +44,23 @@ export default function AppBar({ languageID }) {
   const addEvent = useEventsStore((state) => state.addEvent);
   const addTrigger = useTriggerStore((state) => state.addTrigger);
   const addMapSection = useMapSectionsStore((state) => state.addSection);
+  //set state methods
+  const importMissionProps = useMissionPropertiesStore(
+    (state) => state.importMission
+  );
+  const importInitialGroups = useInitialGroupsStore(
+    (state) => state.importMission
+  );
+  const importReservedGroups = useReservedGroupsStore(
+    (state) => state.importMission
+  );
+  const importEventGroups = useEventGroupStore((state) => state.importMission);
+	const importEntityGroups = useEntityGroupStore((state) => state.importMission);
+	const importMapSections = useMapSectionsStore((state) => state.importMission);
+  const importEvents = useEventsStore((state) => state.importMission);
+  const importTriggers = useTriggerStore((state) => state.importMission);
+  const importMapEntities = useMapEntitiesStore((state) => state.importMission);
+  const importCustomToons = useToonsStore((state) => state.importMission);
   const [open, setOpen] = useState(false);
 
   function onNewMission() {
@@ -62,7 +87,18 @@ export default function AppBar({ languageID }) {
     setOpen(false);
     if (bContinue) {
       const emptyMission = JSON.parse(emptyMissionRaw);
-      console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission)
+      emptyMission.customMissionIdentifier = createGUID();
+      console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
+      importMissionProps(emptyMission);
+      importInitialGroups(emptyMission);
+      importReservedGroups(emptyMission);
+      importEventGroups(emptyMission);
+			importEntityGroups(emptyMission);
+			importMapSections(emptyMission);
+      importEvents(emptyMission);
+      importTriggers(emptyMission);
+      importMapEntities(emptyMission);
+      importCustomToons(emptyMission);
     }
   }
 

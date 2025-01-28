@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 //mui
 import TextField from "@mui/material/TextField";
@@ -28,6 +28,16 @@ export default function EnemyFilterList({
   const [selectedRemoveGroup, setSelectedRemoveGroup] = useState(
     initialAddedGroups.length ? initialAddedGroups[0] : ""
   );
+
+  useEffect(() => {
+    if (initialAddedGroups.length) {
+      setAddedGroups(initialAddedGroups);
+      setSelectedRemoveGroup(initialAddedGroups[0]);
+    } else {
+      setAddedGroups([]);
+      setSelectedRemoveGroup("");
+    }
+  }, [initialAddedGroups]);
 
   const transformedEnemies = enemyData.map(
     (item) => `${item.name} [${item.id}]`

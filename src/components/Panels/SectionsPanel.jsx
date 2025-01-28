@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 //mui
 import Paper from "@mui/material/Paper";
@@ -42,6 +42,15 @@ export default function SectionsPanel({ value, index }) {
   );
   const [sectionName, setSectionName] = useState(mapSections[0].name);
 
+  useEffect(() => {
+    if (mapSections.length === 1) {
+      setSelectedSectionIndex(0);
+      setChecked(mapSections[0].invisibleUntilActivated);
+      setSectionName(mapSections[0].name);
+      setActiveMapSectionGUID(mapSections[0].GUID);
+    }
+  }, [mapSections, setActiveMapSectionGUID]);
+
   function onKeyUp(ev) {
     if (ev.key === "Enter" || ev.keyCode === 13) ev.target.blur();
   }
@@ -64,6 +73,11 @@ export default function SectionsPanel({ value, index }) {
       });
       setSectionName(name);
     } else setSectionName(mapSections[selectedSectionIndex].name);
+  }
+
+  function onAddSection() {
+    addSection("New Map Section");
+    setSelectedSectionIndex(mapSections.length);
   }
 
   function onRemoveSection() {
@@ -126,7 +140,7 @@ export default function SectionsPanel({ value, index }) {
             <Paper sx={{ padding: "1rem" }}>
               <Button
                 variant="contained"
-                onClick={() => addSection("New Map Section")}
+                onClick={() => onAddSection()}
                 fullWidth
                 sx={{
                   marginBottom: ".5rem",
@@ -170,7 +184,7 @@ export default function SectionsPanel({ value, index }) {
                   <div className="two-column-grid">
                     <Typography>Tile Count</Typography>
                     <Typography>
-                      {mapSections[selectedSectionIndex].mapTiles.length}
+                      {mapSections[selectedSectionIndex]?.mapTiles.length}
                     </Typography>
                   </div>
                   <div className="two-column-grid">
@@ -178,7 +192,9 @@ export default function SectionsPanel({ value, index }) {
                     <Typography>
                       {
                         mapEntities.filter(
-                          (x) => x.mapSectionOwner === activeMapSectionGUID
+                          (x) =>
+                            x.mapSectionOwner ===
+                            mapSections[selectedSectionIndex].GUID
                         ).length
                       }
                     </Typography>

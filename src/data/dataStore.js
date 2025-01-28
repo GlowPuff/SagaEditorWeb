@@ -11,6 +11,8 @@ import { createGUID, calculateEntityPosition } from "../lib/core";
 
 export const useMissionPropertiesStore = create((set) => ({
   missionProperties: new MissionProperties(),
+  importMission: (mission) =>
+    set(() => ({ missionProperties: mission.missionProperties })),
   updateMissionProp: (propName, value) =>
     set((state) => ({
       missionProperties: { ...state.missionProperties, [propName]: value },
@@ -19,6 +21,8 @@ export const useMissionPropertiesStore = create((set) => ({
 
 export const useInitialGroupsStore = create((set) => ({
   initialGroups: [],
+  importMission: (mission) =>
+    set(() => ({ initialGroups: mission.initialDeploymentGroups })),
   addGroup: (group) =>
     set((state) => ({ initialGroups: [...state.initialGroups, group] })),
   modifyGroup: (groupIndex, group) =>
@@ -38,6 +42,8 @@ export const useInitialGroupsStore = create((set) => ({
 
 export const useReservedGroupsStore = create((set) => ({
   reservedGroups: [],
+  importMission: (mission) =>
+    set(() => ({ reservedGroups: mission.reservedDeploymentGroups })),
   addGroup: (group) =>
     set((state) => ({ reservedGroups: [...state.reservedGroups, group] })),
   removeGroup: (index) =>
@@ -48,6 +54,7 @@ export const useReservedGroupsStore = create((set) => ({
 
 export const useEventGroupStore = create((set) => ({
   eventGroups: [],
+  importMission: (mission) => set(() => ({ eventGroups: mission.eventGroups })),
   addGroup: (group) =>
     set((state) => ({ eventGroups: [...state.eventGroups, group] })),
   updateGroup: (group) =>
@@ -65,6 +72,8 @@ export const useEventGroupStore = create((set) => ({
 
 export const useEntityGroupStore = create((set) => ({
   entityGroups: [],
+  importMission: (mission) =>
+    set(() => ({ entityGroups: mission.entityGroups })),
   addGroup: (group) =>
     set((state) => ({ entityGroups: [...state.entityGroups, group] })),
   updateGroup: (group) =>
@@ -82,11 +91,14 @@ export const useEntityGroupStore = create((set) => ({
 
 export const useMapSectionsStore = create((set) => ({
   mapSections: [startSection],
-  // activeMapSection: startSection,
   activeMapSectionGUID: startSection.GUID,
+  importMission: (mission) =>
+    set(() => ({
+      mapSections: mission.mapSections,
+      activeMapSectionGUID: startSection.GUID,
+    })),
   setActiveMapSectionGUID: (guid) =>
     set(() => ({ activeMapSectionGUID: guid })),
-  // setActiveMapSection: (section) => set(() => ({ activeMapSection: section })),
   //adds a pre-constructed section to the mapSections array, sets it as active
   addExistingSection: (section) =>
     set((state) => {
@@ -212,6 +224,12 @@ export const useMapSectionsStore = create((set) => ({
 export const useEventsStore = create((set) => ({
   missionEvents: [emptyEvent],
   refreshToken: 0,
+  importMission: (mission) =>
+    set((state) => ({
+      missionEvents:
+        mission.globalEvents.length === 1 ? [emptyEvent] : mission.globalEvents,
+      refreshToken: ++state.refreshToken,
+    })),
   addEvent: (item) =>
     set((state) => ({
       missionEvents: [...state.missionEvents, item],
@@ -264,6 +282,14 @@ export const useEventsStore = create((set) => ({
 export const useTriggerStore = create((set) => ({
   missionTriggers: [emptyTrigger],
   refreshToken: 0,
+  importMission: (mission) =>
+    set((state) => ({
+      missionTriggers:
+        mission.globalTriggers.length === 1
+          ? [emptyTrigger]
+          : mission.globalTriggers,
+      refreshToken: ++state.refreshToken,
+    })),
   addTrigger: (trigger) =>
     set((state) => ({ missionTriggers: [...state.missionTriggers, trigger] })),
   updateTrigger: (trigger) => {
@@ -283,8 +309,9 @@ export const useTriggerStore = create((set) => ({
 
 export const useMapEntitiesStore = create((set) => ({
   mapEntities: [],
-  addEntity: (entity) =>
-    set((state) => ({ mapEntities: [...state.mapEntities, entity] })),
+  importMission: () => set(() => ({ mapEntities: [] })),
+  addEntity: (newState) =>
+    set((state) => ({ mapEntities: [...state.mapEntities, newState] })),
   updateEntity: (entity) =>
     set((state) => ({
       mapEntities: state.mapEntities.map((item) => {
@@ -319,7 +346,7 @@ export const useMapEntitiesStore = create((set) => ({
           newPosition = `${newPosition.x},${newPosition.y}`;
 
           item.entityPosition = newPosition;
-          console.log("🚀 ~ updateEntityPosition:", position);
+          // console.log("🚀 ~ updateEntityPosition:", position);
           return item;
         } else return item;
       }),
@@ -356,6 +383,7 @@ export const useMapEntitiesStore = create((set) => ({
 
 export const useToonsStore = create((set) => ({
   customCharacters: [],
+  importMission: () => set(() => ({ customCharacters: [] })),
   addToon: (toon) =>
     set((state) => ({ customCharacters: [...state.customCharacters, toon] })),
   updateToon: (toon) =>

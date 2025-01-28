@@ -15,9 +15,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MultiBanAllySelector from "../Dialogs/MultiBanAllySelector";
 import EnemyFilterList from "../SubComponents/EnemyFilterList";
 //data
-import { allyData } from "../../data/carddata";
+import { allyData, enemyData, villainData } from "../../data/carddata";
 //core.js
 import * as core from "../../lib/core";
+
+const enemySet = new Map(
+  [...enemyData, ...villainData].map((x) => [x.id, `${x.name} [${x.id}]`])
+);
 
 export default function MissionPanelTab2({
   missionProps,
@@ -235,6 +239,9 @@ export default function MissionPanelTab2({
                 onGroupChanged={(value) => setPropValue("bannedGroups", value)}
                 title={"banned groups"}
                 setPropValue={setPropValue}
+                initialAddedGroups={missionProps.bannedGroups.map((x) =>
+                  enemySet.get(x)
+                )}
               />
             </AccordionDetails>
           </Accordion>

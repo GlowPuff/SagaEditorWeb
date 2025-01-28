@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 //mui
 import Select from "@mui/material/Select";
@@ -19,6 +19,13 @@ export default function EventSelectAdd({ initialGUID, onItemChanged }) {
   const [selectedEvent, setSelectedEvent] = useState(
     missionEvents.find((x) => x.GUID === initialGUID) || Mission.emptyEvent
   );
+  const missionRefresh = useEventsStore((state) => state.refreshToken);
+
+  useEffect(() => {
+    setSelectedEvent(
+      missionEvents.find((x) => x.GUID === initialGUID) || Mission.emptyEvent
+    );
+  }, [missionRefresh, initialGUID, missionEvents]);
 
   function onChangeEvent(ev) {
     setSelectedEvent(ev);

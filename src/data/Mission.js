@@ -96,7 +96,6 @@ export class MissionEvent {
     this.heroWithdraws = "H1";
     this.allyDefeated = "A001";
     this.activationOf = "DG001";
-    // this.additionalTriggers.push(new MissionTrigger());
   }
   //string
   GUID; //GUID as string

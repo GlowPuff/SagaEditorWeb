@@ -62,9 +62,13 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
   const nameRef = useRef(null);
   const subNameRef = useRef(null);
   useEffect(() => {
-    if (nameRef.current) nameRef.current.value = customToon.cardName;
-    if (subNameRef.current) subNameRef.current.value = customToon.cardSubName;
-  }, [customToon.cardName, customToon.cardSubName]);
+    if (toons.length > 0 && customToon !== "") {
+      if (nameRef.current) nameRef.current.value = customToon.cardName;
+      if (subNameRef.current) subNameRef.current.value = customToon.cardSubName;
+    } else {
+      setCustomToon("");
+    }
+  }, [toons, customToon]);
 
   function getUnusedID() {
     if (toons.length === 0) return "TC1";
@@ -178,7 +182,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
                   displayEmpty
                   sx={{ minWidth: "15rem" }}
                   onChange={(e) => changeToonClick(e.target.value)}
-                  value={customToon || ""}
+                  value={toons.length > 0 ? customToon || "" : ""}
                 >
                   {toons.map((toon, index) => (
                     <MenuItem key={index} value={toon}>
@@ -211,7 +215,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
             </div>
           </Paper>
           {/* TOON PANEL */}
-          {customToon && (
+          {toons.length > 0 && customToon && (
             <div
               className="two-column-grid"
               style={{ overflow: "hidden", height: "100%" }}
