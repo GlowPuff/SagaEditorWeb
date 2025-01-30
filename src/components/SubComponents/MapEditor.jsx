@@ -284,8 +284,8 @@ const MapEditor = forwardRef(
     //setup mouse handlers
     useEffect(() => {
       let lastPosition = { x: 0, y: 0 };
-			//TODO maybe make these refs to avoid setting selection only on mouse UP
-			let isPanning = false;
+      //TODO maybe make these refs to avoid setting selection only on mouse UP
+      let isPanning = false;
       let hasPanned = false;
       const container = containerRef.current;
 
@@ -334,8 +334,8 @@ const MapEditor = forwardRef(
               isPanning = true;
             } else {
               selectedShapeGUIDRef.current = guid;
-							//setting the selected shape here causes the map component to re-render
-							//which makes it so you can't click and drag a shape in one click
+              //setting the selected shape here causes the map component to re-render
+              //which makes it so you can't click and drag a shape in one click
               //onSelectEntity(selectedShapeGUIDRef.current);
             }
 
@@ -363,10 +363,10 @@ const MapEditor = forwardRef(
         }
 
         //if just finished dragging a shape, update the entity position
-				//also let parent know the entity was selected
+        //also let parent know the entity was selected
         const { selected, newPosition } = shapeManagerRef.current.onMouseUp();
         if (selected) {
-					onSelectEntity(selectedShapeGUIDRef.current);
+          onSelectEntity(selectedShapeGUIDRef.current);
           onUpdateEntityPosition(selectedShapeGUIDRef.current, newPosition);
         }
 
@@ -508,9 +508,9 @@ const MapEditor = forwardRef(
           shapeManagerRef.current.selectShape(entityGUID);
         twoRef.current.update();
       },
-      updateMapEntity(entity) {
-        console.log("🚀 ~ updateMapEntity ~ entity:", entity);
-      },
+      // updateMapEntity(entity) {
+      //   console.log("🚀 ~ updateMapEntity ~ entity:", entity);
+      // },
       centerMap: centerMap,
       centerEntity: centerEntity,
       rotateEntityFromKeyCommand(direction) {
@@ -518,6 +518,13 @@ const MapEditor = forwardRef(
           selectedShapeGUIDRef.current
         );
         onRotateEntity(shape.position, direction);
+      },
+      clearMap: () => {
+        console.log("🚀 ~ clear map");
+        if (shapeManagerRef.current) {
+          shapeManagerRef.current.cleanup();
+        }
+        twoRef.current.update();
       },
     }));
 

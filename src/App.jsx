@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./App.css";
 
 //my components
@@ -41,6 +41,8 @@ export default function App() {
   //everything else
   const [languageID, setlanguageID] = useState("English (EN)");
   const [tabIndex, setTabIndex] = useState(0);
+  //refs
+  const mapPanelRef = useRef(null);
 
   function onSetMissionProps(name, value) {
     //console.log("🚀 ~ onSetMissionProps ~ text:", value);
@@ -65,12 +67,19 @@ export default function App() {
     }
   }
 
+  function clearMap() {
+		if (mapPanelRef.current) {
+      mapPanelRef.current.clearMap();
+    }
+  }
+
   return (
     <>
       <div className="surface-layout">
         {/* menu */}
         <AppBar
           languageID={languageID}
+          onClearMap={clearMap}
           onChangeSelectedSection={(value) =>
             console.log("changed section: ", value)
           }
@@ -95,7 +104,9 @@ export default function App() {
               />
             )}
             {tabIndex === 1 && <SectionsPanel value={tabIndex} index={1} />}
-            {tabIndex === 2 && <MapEditorPanel value={tabIndex} index={2} />}
+            {tabIndex === 2 && (
+              <MapEditorPanel ref={mapPanelRef} value={tabIndex} index={2} />
+            )}
             {tabIndex === 3 && (
               <EnemyGroupPanel
                 value={tabIndex}

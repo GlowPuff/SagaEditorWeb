@@ -40,7 +40,7 @@ import {
 } from "../data/dataStore";
 import emptyMissionRaw from "../data/emptyMission.json?raw";
 
-export default function AppBar({ languageID }) {
+export default function AppBar({ languageID, onClearMap }) {
   const addEvent = useEventsStore((state) => state.addEvent);
   const addTrigger = useTriggerStore((state) => state.addTrigger);
   const addMapSection = useMapSectionsStore((state) => state.addSection);
@@ -89,7 +89,10 @@ export default function AppBar({ languageID }) {
     setOpen(false);
     if (bContinue) {
       const emptyMission = JSON.parse(emptyMissionRaw);
-      emptyMission.customMissionIdentifier = createGUID();
+      //generate new GUIDs
+      emptyMission.missionProperties.customMissionIdentifier = createGUID();
+      emptyMission.missionGUID = createGUID();
+			onClearMap();
       console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
 
       importMissionProps(emptyMission);
@@ -216,5 +219,6 @@ AppBar.propTypes = {
   mapSections: PropTypes.array,
   onChangeSelectedSection: PropTypes.func,
   languageID: PropTypes.string.isRequired,
-	onLoad: PropTypes.func,
+  onLoad: PropTypes.func,
+	onClearMap: PropTypes.func,
 };

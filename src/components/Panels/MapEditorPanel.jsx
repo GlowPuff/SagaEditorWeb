@@ -1,4 +1,11 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import PropTypes from "prop-types";
 //mui
 import Paper from "@mui/material/Paper";
@@ -27,7 +34,7 @@ import MapActionsToolbar from "../MapComponents/MapActionsToolbar";
 import MapPropsPanel from "../MapComponents/MapPropsPanel";
 import TileGallery from "../MapComponents/TileGallery";
 
-export default function MapEditorPanel({ value, index }) {
+const MapEditorPanel = forwardRef(({ value, index }, ref) => {
   //map section store
   const mapSections = useMapSectionsStore((state) => state.mapSections);
   const setActiveMapSectionGUID = useMapSectionsStore(
@@ -478,6 +485,13 @@ export default function MapEditorPanel({ value, index }) {
     addExistingSection(newSection); //also sets active section
   }
 
+  useImperativeHandle(ref, () => ({
+    clearMap: () => {
+      setSelectedEntity(null);
+      mapRef.current.clearMap();
+    },
+  }));
+
   return (
     <div
       hidden={value !== index}
@@ -570,7 +584,10 @@ export default function MapEditorPanel({ value, index }) {
       <TileGallery />
     </div>
   );
-}
+});
+
+MapEditorPanel.displayName = "MapEditorPanel";
+export default MapEditorPanel;
 
 MapEditorPanel.propTypes = {
   value: PropTypes.number,
