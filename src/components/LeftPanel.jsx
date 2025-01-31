@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 //mui
 import Paper from "@mui/material/Paper";
 import List from "@mui/material/List";
@@ -24,7 +24,7 @@ import { emptyGUID } from "../lib/core";
 import { MissionTrigger, MissionEvent } from "../data/Mission";
 import { useEventsStore, useTriggerStore } from "../data/dataStore";
 
-export default function LeftPanel() {
+const LeftPanel = forwardRef((props, ref) => {
   const [selectedTriggerIndex, setSelectedTriggerIndex] = useState(0);
   const [selectedEventIndex, setSelectedEventIndex] = useState(0);
   const [dataChanged, setDataChanged] = useState(false);
@@ -110,6 +110,14 @@ export default function LeftPanel() {
         break;
     }
   }
+
+  useImperativeHandle(ref, () => ({
+    resetData: () => {
+      setSelectedTriggerIndex(0);
+      setSelectedEventIndex(0);
+      setDataChanged(false);
+    },
+  }));
 
   return (
     <div className="left-panel">
@@ -270,4 +278,7 @@ export default function LeftPanel() {
       <TriggerValidator dataChanged={dataChanged} />
     </div>
   );
-}
+});
+
+export default LeftPanel;
+LeftPanel.displayName = "LeftPanel";

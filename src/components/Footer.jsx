@@ -31,7 +31,7 @@ export default function Footer({ languageID, onSetLanguage }) {
       <Paper sx={{ padding: ".5rem" }}>
         <div className="footer__content">
           <div style={{ justifySelf: "left", paddingLeft: ".5rem" }}>
-            ICEditor Version: 1.0
+            ICEditor Version: 1.0 (Beta 1)
           </div>
           {/* <div>Mission Format Version: 22</div> */}
           <div></div>

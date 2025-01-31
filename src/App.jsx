@@ -43,6 +43,7 @@ export default function App() {
   const [tabIndex, setTabIndex] = useState(0);
   //refs
   const mapPanelRef = useRef(null);
+  const leftPanelRef = useRef(null);
 
   function onSetMissionProps(name, value) {
     //console.log("🚀 ~ onSetMissionProps ~ text:", value);
@@ -68,9 +69,12 @@ export default function App() {
   }
 
   function clearMap() {
-		if (mapPanelRef.current) {
+    if (mapPanelRef.current) {
       mapPanelRef.current.clearMap();
     }
+		if(leftPanelRef.current){
+			leftPanelRef.current.resetData();
+		}
   }
 
   return (
@@ -86,7 +90,7 @@ export default function App() {
         />
 
         {/* left panel */}
-        <LeftPanel />
+        <LeftPanel ref={leftPanelRef} />
 
         {/* main content */}
         <div className="display-area">
