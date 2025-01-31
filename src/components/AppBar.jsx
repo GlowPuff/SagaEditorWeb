@@ -92,8 +92,9 @@ export default function AppBar({ languageID, onClearMap }) {
       //generate new GUIDs
       emptyMission.missionProperties.customMissionIdentifier = createGUID();
       emptyMission.missionGUID = createGUID();
-			onClearMap();
-      console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
+      // console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
+
+      onClearMap();
 
       importMissionProps(emptyMission);
       importInitialGroups(emptyMission);
@@ -106,6 +107,10 @@ export default function AppBar({ languageID, onClearMap }) {
       importMapEntities(emptyMission);
       importCustomToons(emptyMission);
     }
+  }
+
+  function clearData() {
+    onClearMap();
   }
 
   return (
@@ -125,7 +130,7 @@ export default function AppBar({ languageID, onClearMap }) {
             </IconButton>
           </Tooltip>
 
-          <MissionLoadButton />
+          <MissionLoadButton onClearData={clearData} />
 
           <MissionSaveButton languageID={languageID} />
 
@@ -220,5 +225,5 @@ AppBar.propTypes = {
   onChangeSelectedSection: PropTypes.func,
   languageID: PropTypes.string.isRequired,
   onLoad: PropTypes.func,
-	onClearMap: PropTypes.func,
+  onClearMap: PropTypes.func,
 };

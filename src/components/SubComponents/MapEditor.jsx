@@ -520,7 +520,7 @@ const MapEditor = forwardRef(
         onRotateEntity(shape.position, direction);
       },
       clearMap: () => {
-        console.log("🚀 ~ clear map");
+        //console.log("🚀 ~ clear map");
         if (shapeManagerRef.current) {
           shapeManagerRef.current.cleanup();
         }

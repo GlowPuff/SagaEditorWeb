@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 //mui
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
@@ -17,7 +18,7 @@ import {
   useToonsStore,
 } from "../../data/dataStore";
 
-const MissionLoadButton = () => {
+const MissionLoadButton = ({ onClearData }) => {
   //set state methods
   const importMissionProps = useMissionPropertiesStore(
     (state) => state.importMission
@@ -51,16 +52,18 @@ const MissionLoadButton = () => {
           const importedMission = JSON.parse(content);
           console.log(importedMission);
 
+					onClearData();
+
           importMissionProps(importedMission);
-					importInitialGroups(importedMission);
-					importReservedGroups(importedMission);
-					importEventGroups(importedMission);
-					importEntityGroups(importedMission);
-					importMapSections(importedMission);
-					importEvents(importedMission);
-					importTriggers(importedMission);
-					importMapEntities(importedMission);
-					importCustomToons(importedMission);
+          importInitialGroups(importedMission);
+          importReservedGroups(importedMission);
+          importEventGroups(importedMission);
+          importEntityGroups(importedMission);
+          importMapSections(importedMission);
+          importEvents(importedMission);
+          importTriggers(importedMission);
+          importMapEntities(importedMission);
+          importCustomToons(importedMission);
         };
         reader.readAsText(file);
       }
@@ -85,3 +88,7 @@ const MissionLoadButton = () => {
 };
 
 export default MissionLoadButton;
+
+MissionLoadButton.propTypes = {
+	onClearData: PropTypes.func,
+};
