@@ -61,6 +61,8 @@ export default function TileGallery() {
   const [selectedThumbs, setSelectedThumbs] = useState([]);
   const [tileQueue, setTileQueue] = useState([]);
   const [selectedSide, setSelectedSide] = useState("A");
+  //refs
+  const galleryRef = useRef(null);
 
   const calculateSelectedTileData = useCallback((tile) => {
     // console.log("🚀 ~ calculateSelectedTileData ~ tile:", tile)
@@ -152,6 +154,12 @@ export default function TileGallery() {
   }
 
   function onChangeExpansion(value) {
+    if (galleryRef.current) {
+      galleryRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
     setThumbnails(calculateTileArray(selectedSide));
     setSelectedExpansion(value);
     setSelectedSide("A");
@@ -194,7 +202,7 @@ export default function TileGallery() {
                   overflow: "hidden",
                 }}
               >
-                <div className="tileGalleryThumbView">
+                <div className="tileGalleryThumbView" ref={galleryRef}>
                   {thumbnails.map((tile, index) => (
                     <TileThumbnail
                       key={index}

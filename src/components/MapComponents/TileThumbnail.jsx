@@ -4,7 +4,7 @@ import { Typography, Skeleton } from "@mui/material";
 
 const TileThumbnail = ({ src, alt, selectedThumbs }) => {
   const [isVisible, setIsVisible] = useState(false);
-	const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef();
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const TileThumbnail = ({ src, alt, selectedThumbs }) => {
         width: "128px", // Fixed width to prevent layout shifts
       }}
     >
-      {!isLoaded && isVisible && (
+      {
         <Skeleton
           variant="rectangular"
           width={128}
@@ -51,21 +51,30 @@ const TileThumbnail = ({ src, alt, selectedThumbs }) => {
           style={{
             position: "absolute",
             backgroundColor: "rgba(157, 125, 222, 0.1)",
+            display: isLoaded ? "none" : "block",
+            zIndex: 1,
           }}
         />
-      )}
-      <img
-        ref={imgRef}
-        src={isVisible ? src : ""}
-        alt={alt}
-        className={
-          "tileGalleryThumbnail" +
-          (selectedThumbs.includes(alt) ? " selectedThumb" : "")
-        }
-        loading="lazy"
-        style={{ opacity: isLoaded ? 1 : 0 }}
-        onLoad={() => setIsLoaded(true)}
-      />
+      }
+      {
+        <img
+          ref={imgRef}
+          src={isVisible ? src : ""}
+          alt={alt}
+          className={
+            "tileGalleryThumbnail" +
+            (selectedThumbs.includes(alt) ? " selectedThumb" : "")
+          }
+          loading="lazy"
+          style={{
+            opacity: isLoaded ? 1 : 0,
+            transition: "opacity 0.3s ease-in-out",
+            position: "absolute",
+            zIndex: 2,
+          }}
+          onLoad={() => setIsLoaded(true)}
+        />
+      }
       <Typography
         variant="caption"
         style={{
@@ -76,6 +85,7 @@ const TileThumbnail = ({ src, alt, selectedThumbs }) => {
           color: "white",
           padding: "2px 4px",
           pointerEvents: "none",
+          zIndex: 3,
         }}
       >
         {alt}
@@ -87,7 +97,7 @@ const TileThumbnail = ({ src, alt, selectedThumbs }) => {
 TileThumbnail.propTypes = {
   src: PropTypes.string.isRequired,
   alt: PropTypes.string.isRequired,
-	selectedThumbs: PropTypes.array.isRequired,
+  selectedThumbs: PropTypes.array.isRequired,
 };
 
 export default TileThumbnail;
