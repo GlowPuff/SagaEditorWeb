@@ -37,7 +37,7 @@
 			"Leader"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Gaarkhan",
@@ -58,7 +58,7 @@
 			"Brawler"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Gideon Argus",
@@ -77,7 +77,7 @@
 			"Leader"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Jyn Odan",
@@ -96,7 +96,7 @@
 			"Smuggler"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Mak Eshka'rey",
@@ -115,7 +115,7 @@
 			"Spy"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Biv Bodhrik",
@@ -135,7 +135,7 @@
 			"Brawler"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Saska Teft",
@@ -155,7 +155,7 @@
 			"Spy"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Loku Kanoloa",
@@ -174,7 +174,7 @@
 			"Spy"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "MHD-19",
@@ -193,7 +193,7 @@
 			"Droid"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Verena Talos",
@@ -213,7 +213,7 @@
 			"Brawler"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Davith Elso",
@@ -233,7 +233,7 @@
 			"Force User"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Murne Rin",
@@ -253,7 +253,7 @@
 			"Spy"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Onar Koma",
@@ -273,7 +273,7 @@
 			"Hunter"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Shyla Varad",
@@ -293,7 +293,7 @@
 			"Hunter"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Vinto Hreeda",
@@ -313,7 +313,7 @@
 			"Smuggler"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Drokkatta",
@@ -333,7 +333,7 @@
 			"Heavy Weapon"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Jarrod Kelvin",
@@ -354,7 +354,7 @@
 			"Spy"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Ko-Tun Feralo",
@@ -374,7 +374,7 @@
 			"Trooper"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "CT-1701",
@@ -394,7 +394,7 @@
 			"Guardian"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	},
 	{
 		"name": "Tress Hacnua",
@@ -413,6 +413,6 @@
 			"Brawler"
 		],
 		"ignored": "",
-		"isHero": true			
+		"isHero": true
 	}
 ]

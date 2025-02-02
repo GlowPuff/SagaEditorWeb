@@ -38,7 +38,6 @@ import {
   useMapEntitiesStore,
   useToonsStore,
 } from "../data/dataStore";
-// import emptyMissionRaw from "../data/emptyMission.json?raw";
 
 export default function AppBar({ languageID, onClearMap }) {
   const addEvent = useEventsStore((state) => state.addEvent);
