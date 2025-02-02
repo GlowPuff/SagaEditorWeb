@@ -1,5 +1,5 @@
 // import { useState, useEffect } from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 //mui
 import Button from "@mui/material/Button";
@@ -38,7 +38,7 @@ import {
   useMapEntitiesStore,
   useToonsStore,
 } from "../data/dataStore";
-import emptyMissionRaw from "../data/emptyMission.json?raw";
+// import emptyMissionRaw from "../data/emptyMission.json?raw";
 
 export default function AppBar({ languageID, onClearMap }) {
   const addEvent = useEventsStore((state) => state.addEvent);
@@ -64,6 +64,15 @@ export default function AppBar({ languageID, onClearMap }) {
   const importTriggers = useTriggerStore((state) => state.importMission);
   const importMapEntities = useMapEntitiesStore((state) => state.importMission);
   const importCustomToons = useToonsStore((state) => state.importMission);
+  const [emptyMissionRaw, setEmptyMissionRaw] = useState(null);
+
+  useEffect(() => {
+    fetch("/data/emptymission.json")
+      .then((response) => response.text())
+      .then((data) => {
+        setEmptyMissionRaw(data);
+      });
+  }, []);
 
   function onNewMission() {
     setOpen(true);
@@ -87,12 +96,12 @@ export default function AppBar({ languageID, onClearMap }) {
 
   function handleClose(bContinue) {
     setOpen(false);
-    if (bContinue) {
+    if (bContinue && emptyMissionRaw) {
       const emptyMission = JSON.parse(emptyMissionRaw);
       //generate new GUIDs
       emptyMission.missionProperties.customMissionIdentifier = createGUID();
       emptyMission.missionGUID = createGUID();
-      // console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
+      console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
 
       onClearMap();
 
