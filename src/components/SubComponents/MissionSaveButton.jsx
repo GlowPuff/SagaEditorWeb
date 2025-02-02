@@ -6,6 +6,7 @@ import Tooltip from "@mui/material/Tooltip";
 import SaveIcon from "@mui/icons-material/Save";
 //data
 import {
+  useRootMissionPropsStore,
   useMissionPropertiesStore,
   useMapSectionsStore,
   useTriggerStore,
@@ -20,6 +21,9 @@ import {
 
 const MissionSaveButton = ({ languageID }) => {
   //data stores
+  const rootMissionProps = useRootMissionPropsStore(
+    (state) => state.missionProps
+  );
   const missionProps = useMissionPropertiesStore(
     (state) => state.missionProperties
   );
@@ -40,9 +44,9 @@ const MissionSaveButton = ({ languageID }) => {
     const date = new Date();
 
     let missionData = {
-      missionGUID: "",
+      missionGUID: rootMissionProps.missionGUID,
       fileName: "mission.json",
-			fileVersion: "22",
+      fileVersion: "22",
       saveDate: `${
         date.getMonth() + 1
       }/${date.getDate()}/${date.getFullYear()}`,
@@ -59,6 +63,7 @@ const MissionSaveButton = ({ languageID }) => {
       entityGroups: entityGroups,
       customCharacters: customCharacters,
     };
+    console.log("🚀 ~ onSave ~ rootMissionProps.missionGUID:", rootMissionProps.missionGUID)
 
     //format the json in a human readable way
     const missionDataStr = JSON.stringify(missionData, null, 2);

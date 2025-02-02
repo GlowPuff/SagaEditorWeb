@@ -9,6 +9,14 @@ import {
 } from "./Mission";
 import { createGUID, calculateEntityPosition } from "../lib/core";
 
+export const useRootMissionPropsStore = create((set) => ({
+  missionProps: { missionGUID: createGUID() },
+  updateMissionProp: (propName, value) =>
+    set((state) => ({
+      missionProps: { ...state.missionProps, [propName]: value },
+    })),
+}));
+
 export const useMissionPropertiesStore = create((set) => ({
   missionProperties: new MissionProperties(),
   importMission: (mission) =>
@@ -332,10 +340,6 @@ export const useMapEntitiesStore = create((set) => ({
     set((state) => ({
       mapEntities: state.mapEntities.map((item) => {
         if (item.GUID === entity.GUID) {
-          // console.log(
-          //   "🚀 ~ UPDATED mapEntities:state.mapEntities.map ~ entity:",
-          //   entity
-          // );
           return entity;
         } else return item;
       }),
@@ -362,7 +366,6 @@ export const useMapEntitiesStore = create((set) => ({
           newPosition = `${newPosition.x},${newPosition.y}`;
 
           item.entityPosition = newPosition;
-          // console.log("🚀 ~ updateEntityPosition:", position);
           return item;
         } else return item;
       }),
@@ -375,11 +378,8 @@ export const useMapEntitiesStore = create((set) => ({
           if (item.entityRotation < 0) {
             item.entityRotation += 360;
           }
-          //  console.log("🚀 ~ rotateEntity ~ drawPosition:", drawPosition);
-          //  console.log("🚀 ~ rotateEntity ~ direction:", direction);
           //calculate new position based on rotation
           const newPosition = calculateEntityPosition(item, drawPosition);
-          // console.log("🚀 ~ rotateEntity ~ newPosition:", newPosition);
           //snap the position to the grid
           newPosition.x = Math.round(newPosition.x / 10) * 10;
           newPosition.y = Math.round(newPosition.y / 10) * 10;
@@ -424,7 +424,6 @@ export const useToonsStore = create((set) => ({
 //       shapes: state.shapes.map((item) => {
 //         if (item.entityGUID === guid) {
 //           item.isSelected = isSelected;
-//           console.log("🚀 ~ set ~ item SELECTED:", item);
 //         }
 //         return item;
 //       }),

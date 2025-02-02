@@ -27,6 +27,7 @@ import MissionLoadButton from "./SubComponents/MissionLoadButton";
 import { createGUID } from "../lib/core";
 import { MissionEvent, MissionTrigger } from "../data/Mission";
 import {
+  useRootMissionPropsStore,
   useMissionPropertiesStore,
   useInitialGroupsStore,
   useReservedGroupsStore,
@@ -45,6 +46,9 @@ export default function AppBar({ languageID, onClearMap }) {
   const addMapSection = useMapSectionsStore((state) => state.addSection);
   const [open, setOpen] = useState(false);
   //set state methods
+  const updateRootMissionProp = useRootMissionPropsStore(
+    (state) => state.updateMissionProp
+  );
   const importMissionProps = useMissionPropertiesStore(
     (state) => state.importMission
   );
@@ -99,7 +103,8 @@ export default function AppBar({ languageID, onClearMap }) {
       const emptyMission = JSON.parse(emptyMissionRaw);
       //generate new GUIDs
       emptyMission.missionProperties.customMissionIdentifier = createGUID();
-      emptyMission.missionGUID = createGUID();
+      updateRootMissionProp("missionGUID", createGUID());
+      // emptyMission.missionGUID = createGUID();
       console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
 
       onClearMap();
