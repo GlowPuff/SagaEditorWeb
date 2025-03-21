@@ -16,10 +16,14 @@ import {
   useTriggerStore,
   useMapEntitiesStore,
   useToonsStore,
+  useRootMissionPropsStore,
 } from "../../data/dataStore";
 
 const MissionLoadButton = ({ onClearData }) => {
   //set state methods
+  const updateRootMissionProp = useRootMissionPropsStore(
+    (state) => state.updateMissionProp
+  );
   const importMissionProps = useMissionPropertiesStore(
     (state) => state.importMission
   );
@@ -52,7 +56,7 @@ const MissionLoadButton = ({ onClearData }) => {
           const importedMission = JSON.parse(content);
           console.log(importedMission);
 
-					onClearData();
+          onClearData();
 
           importMissionProps(importedMission);
           importInitialGroups(importedMission);
@@ -64,6 +68,7 @@ const MissionLoadButton = ({ onClearData }) => {
           importTriggers(importedMission);
           importMapEntities(importedMission);
           importCustomToons(importedMission);
+          updateRootMissionProp("missionGUID", importedMission.missionGUID);
         };
         reader.readAsText(file);
       }
@@ -90,5 +95,5 @@ const MissionLoadButton = ({ onClearData }) => {
 export default MissionLoadButton;
 
 MissionLoadButton.propTypes = {
-	onClearData: PropTypes.func,
+  onClearData: PropTypes.func,
 };
