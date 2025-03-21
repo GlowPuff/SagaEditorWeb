@@ -333,7 +333,7 @@ export const useTriggerStore = create((set) => ({
 
 export const useMapEntitiesStore = create((set) => ({
   mapEntities: [],
-  importMission: () => set(() => ({ mapEntities: [] })),
+  importMission: (mission) => set(() => ({ mapEntities: mission.mapEntities })),
   addEntity: (newState) =>
     set((state) => ({ mapEntities: [...state.mapEntities, newState] })),
   updateEntity: (entity) =>
@@ -399,7 +399,7 @@ export const useMapEntitiesStore = create((set) => ({
 
 export const useToonsStore = create((set) => ({
   customCharacters: [],
-  importMission: () => set(() => ({ customCharacters: [] })),
+  importMission: (mission) => set(() => ({ customCharacters: mission.customCharacters })),
   addToon: (toon) =>
     set((state) => ({ customCharacters: [...state.customCharacters, toon] })),
   updateToon: (toon) =>

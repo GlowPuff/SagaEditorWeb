@@ -702,7 +702,7 @@ export class CustomToon {
     // console.log("🚀 ~ CustomToon ~ constructor ~ card:", card);
     //  console.log("🚀 ~ CustomToon ~ constructor ~ THIS:", this);
     let updatedToon = JSON.parse(JSON.stringify(oldToon));
-    updatedToon.CopyFrom = oldToon.CopyFrom;
+    //updatedToon.CopyFrom = oldToon.CopyFrom;//not necessary, since we are copying the whole object
     // console.log("🚀 ~ CustomToon ~ CopyFrom ~ updatedToon:", updatedToon);
     updatedToon.groupAttack = updatedToon.groupDefense = "";
     //store some properties from the card we want to keep
