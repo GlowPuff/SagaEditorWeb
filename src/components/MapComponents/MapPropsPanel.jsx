@@ -36,6 +36,11 @@ const MapPropsPanel = ({
   onEditPropertiesClick,
   onDuplicateEntity,
 }) => {
+  function onEntityDoubleClick(entityGUID) {
+    handleEntitySelect(entityGUID);
+    onEditPropertiesClick(entityGUID);
+  }
+
   return (
     <div className="map-props">
       <Paper
@@ -153,10 +158,7 @@ const MapPropsPanel = ({
         </Accordion>
 
         {/* TILES SECTION */}
-        <Accordion
-          sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}
-          defaultExpanded
-        >
+        <Accordion sx={{ marginBottom: ".5rem", backgroundColor: "#281b40" }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} id="panel1-header">
             Tiles
           </AccordionSummary>
@@ -212,7 +214,8 @@ const MapPropsPanel = ({
                       <ListItemButton
                         selected={selectedEntity?.GUID === entity.GUID}
                         onClick={() => handleEntitySelect(entity.GUID)}
-                        onDoubleClick={() => handleEntitySelect(entity.GUID)}
+                        // onDoubleClick={() => handleEntitySelect(entity.GUID)}
+                        onDoubleClick={() => onEntityDoubleClick(entity.GUID)}
                       >
                         {entity.name}
                       </ListItemButton>
