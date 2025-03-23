@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+// import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
@@ -17,12 +17,24 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Divider from "@mui/material/Divider";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+//icons
+import MenuIcon from "@mui/icons-material/Menu";
+import SaveAltIcon from "@mui/icons-material/SaveAlt";
+import FileOpenIcon from "@mui/icons-material/FileOpen";
+import SaveIcon from "@mui/icons-material/Save";
+import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
+import { Delete } from "@mui/icons-material";
 //dialogs
 import NewTriggerDialog from "./Dialogs/NewTriggerDialog";
 import NewEventDialog from "./Dialogs/NewEventDialog";
 //components
-import MissionSaveButton from "./SubComponents/MissionSaveButton";
-import MissionLoadButton from "./SubComponents/MissionLoadButton";
+// import MissionSaveButton from "./SubComponents/MissionSaveButton";
+// import MissionLoadButton from "./SubComponents/MissionLoadButton";
 //data
 import { createGUID } from "../lib/core";
 import { MissionEvent, MissionTrigger } from "../data/Mission";
@@ -39,12 +51,18 @@ import {
   useMapEntitiesStore,
   useToonsStore,
 } from "../data/dataStore";
+import useMissionImporter from "../hooks/useMissionImporter";
+import useMissionExporter from "../hooks/useMissionExporter";
 
 export default function AppBar({ languageID, onClearMap }) {
+  const [anchorEl, setAnchorEl] = useState(null);
   const addEvent = useEventsStore((state) => state.addEvent);
   const addTrigger = useTriggerStore((state) => state.addTrigger);
   const addMapSection = useMapSectionsStore((state) => state.addSection);
   const [open, setOpen] = useState(false);
+  // const rootMissionGUID = useRootMissionPropsStore(
+  //   (state) => state.missionProps.missionGUID
+  // );
   //set state methods
   const updateRootMissionProp = useRootMissionPropsStore(
     (state) => state.updateMissionProp
@@ -76,6 +94,11 @@ export default function AppBar({ languageID, onClearMap }) {
         setEmptyMissionRaw(data);
       });
   }, []);
+
+  const importMission = useMissionImporter(clearData);
+  const exportMission = useMissionExporter(languageID);
+
+  const menuOpen = Boolean(anchorEl);
 
   function onNewMission() {
     setOpen(true);
@@ -126,31 +149,156 @@ export default function AppBar({ languageID, onClearMap }) {
     onClearMap();
   }
 
+  function handleClickMenu(event) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  function handleCloseMenu() {
+    setAnchorEl(null);
+  }
+
+  function handleNewMission() {
+    handleCloseMenu();
+    onNewMission();
+  }
+
+  function handleImportMission() {
+    handleCloseMenu();
+    importMission.loadMission();
+  }
+  function handleExportMission() {
+    handleCloseMenu();
+    exportMission.saveMission();
+  }
+
+  function handleQuickSave() {
+    handleCloseMenu();
+    exportMission.saveMissionToLocalStorage("quickSaveMission"); //rootMissionGUID);
+  }
+
+  function handleQuickLoad() {
+    handleCloseMenu();
+    const success =
+      importMission.loadMissionFromLocalStorage("quickSaveMission"); //rootMissionGUID);
+    if (success) {
+      // console.log("Mission loaded from local storage successfully");
+    } else {
+      console.error("Failed to load mission from local storage");
+    }
+  }
+
+  function clearLocalStorage() {
+    handleCloseMenu();
+    localStorage.clear();
+  }
+
   return (
     <div className="menu">
       <Paper>
         <div className="menubar">
-          <Typography variant="h6">Mission Editor</Typography>
+          <IconButton
+            variant="contained"
+            onClick={handleClickMenu}
+            size="large"
+            style={{ color: "purple" }}
+          >
+            <MenuIcon fontSize="inherit" />
+          </IconButton>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={menuOpen}
+            onClose={handleCloseMenu}
+          >
+            <Tooltip title="Create a new Mission" placement="right">
+              <MenuItem onClick={handleNewMission}>
+                <ListItemIcon>
+                  <AddBoxIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>New Mission</ListItemText>
+              </MenuItem>
+            </Tooltip>
 
-          <Tooltip title="Create a new Mission">
-            <IconButton
-              variant="contained"
-              onClick={onNewMission}
-              size="large"
-              style={{ color: "purple" }}
+            <Divider />
+
+            {/* IMPORT */}
+            <Tooltip
+              title="Import a Mission from your filesystem"
+              placement="right"
             >
-              <AddBoxIcon fontSize="inherit" />
-            </IconButton>
-          </Tooltip>
+              <MenuItem onClick={handleImportMission}>
+                <ListItemIcon>
+                  <FileOpenIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Import...</ListItemText>
+              </MenuItem>
+            </Tooltip>
 
-          <MissionLoadButton onClearData={clearData} />
+            {/* EXPORT */}
+            <Tooltip
+              title="Export a Mission to your filesystem"
+              placement="right"
+            >
+              <MenuItem onClick={handleExportMission}>
+                <ListItemIcon>
+                  <SaveAltIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Export...</ListItemText>
+              </MenuItem>
+            </Tooltip>
 
-          <MissionSaveButton languageID={languageID} />
+            <Divider />
 
-          <FiberManualRecordIcon sx={{ transform: "scale(.5)" }} />
+            {/* QUICK SAVE */}
+            <Tooltip
+              title="Quickly save work in progress to your browser's local stoarage"
+              placement="right"
+            >
+              <MenuItem onClick={handleQuickSave}>
+                <ListItemIcon>
+                  <SaveIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Quick Save</ListItemText>
+              </MenuItem>
+            </Tooltip>
+
+            {/* QUICK LOAD */}
+            <Tooltip
+              title="Quickly load a Quick Save Mission from your browser's local stoarage"
+              placement="right"
+            >
+              <MenuItem
+                onClick={handleQuickLoad}
+                disabled={!localStorage.getItem("quickSaveMission")}
+              >
+                <ListItemIcon>
+                  <DriveFolderUploadIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Quick Load</ListItemText>
+              </MenuItem>
+            </Tooltip>
+
+            {/* CLEAR DATA */}
+            <Tooltip
+              title="Clear all ICE data from your browser's local storage"
+              placement="right"
+            >
+              <MenuItem onClick={clearLocalStorage}>
+                <ListItemIcon>
+                  <Delete fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Clear Local Storage</ListItemText>
+              </MenuItem>
+            </Tooltip>
+          </Menu>
+
+          <Typography variant="h6">ICE Mission Editor</Typography>
+
+          {/* <FiberManualRecordIcon sx={{ marginLeft:"auto", transform: "scale(.5)" }} /> */}
 
           <Tooltip title="Add a new Trigger">
             <Button
+              sx={{ marginLeft: "auto" }}
               variant="contained"
               onClick={onNewTrigger}
               startIcon={<ToggleOnIcon />}
@@ -229,6 +377,7 @@ export default function AppBar({ languageID, onClearMap }) {
           </DialogActions>
         </Dialog>
       </Fragment>
+      {/* <MyComponent /> */}
     </div>
   );
 }
