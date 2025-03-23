@@ -126,8 +126,9 @@ export default function AppBar({ languageID, onClearMap }) {
       const emptyMission = JSON.parse(emptyMissionRaw);
       //generate new GUIDs
       emptyMission.missionProperties.customMissionIdentifier = createGUID();
-      updateRootMissionProp("missionGUID", createGUID());
-      // emptyMission.missionGUID = createGUID();
+      const newGUID = createGUID();
+      emptyMission.missionGUID = newGUID;
+      updateRootMissionProp("missionGUID", newGUID);
       console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
 
       onClearMap();
