@@ -212,6 +212,7 @@ const MapPropsPanel = ({
                   .map((entity, index) => (
                     <ListItem disablePadding key={index}>
                       <ListItemButton
+                        autoFocus={selectedEntity?.GUID === entity.GUID}
                         selected={selectedEntity?.GUID === entity.GUID}
                         onClick={() => handleEntitySelect(entity.GUID)}
                         // onDoubleClick={() => handleEntitySelect(entity.GUID)}

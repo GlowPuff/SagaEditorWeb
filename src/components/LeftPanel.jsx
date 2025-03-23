@@ -129,9 +129,6 @@ const LeftPanel = forwardRef((props, ref) => {
         sx={{
           padding: ".5rem",
           height: "100%",
-          overflow: "auto",
-          scrollbarColor: "#bc56ff #4c4561",
-          scrollbarWidth: "thin",
         }}
       >
         <div className="left-panel__layout">
