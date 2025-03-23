@@ -6,7 +6,10 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
+// import Typography from "@mui/material/Typography";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 //icons
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -14,6 +17,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 //dialogs
 import NewTriggerDialog from "./Dialogs/NewTriggerDialog";
 import NewEventDialog from "./Dialogs/NewEventDialog";
@@ -133,143 +137,146 @@ const LeftPanel = forwardRef((props, ref) => {
         <div className="left-panel__layout">
           {/* TRIGGERS */}
           <div className="left-panel__item">
-            <Paper
+            <Accordion
+              defaultExpanded
               sx={{
-                padding: ".5rem",
-                // overflow: "auto",
-                // scrollbarColor: "#bc56ff #4c4561",
-                // scrollbarWidth: "thin",
+                backgroundColor: "#281b40",
+                overflow: "auto",
+                height: "100%",
               }}
-              variant="outlined"
             >
-              <Typography variant="button">trigger variables</Typography>
-
-              <div className="left-panel__item-layout">
-                <List
-                  sx={{
-                    // flex: "1",
-                    // overflow: "auto",
-                    // scrollbarColor: "#bc56ff #4c4561",
-                    // scrollbarWidth: "thin",
-                    minHeight: "250px",
-                  }}
-                >
-                  {missionTriggers.map((item, index) => (
-                    <ListItem
-                      disablePadding
-                      key={index}
-                      onDoubleClick={() => modifyTriggerClick("edit")}
-                    >
-                      <ListItemButton
-                        selected={selectedTriggerIndex === index}
-                        onClick={() => setSelectedTriggerIndex(index)}
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                Trigger Variables
+              </AccordionSummary>
+              <AccordionDetails>
+                <div className="left-panel__item-layout">
+                  <List
+                    sx={{
+                      // minHeight: "250px",
+                    }}
+                  >
+                    {missionTriggers.map((item, index) => (
+                      <ListItem
+                        disablePadding
+                        key={item.GUID}
+                        onDoubleClick={() => modifyTriggerClick("edit")}
                       >
-                        {item.name}
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-                {/* BUTTONS */}
-                <Paper sx={{ padding: ".5rem" }}>
-                  <div className="left-panel__button-layout">
-                    <Tooltip title="Add New Trigger">
-                      <IconButton onClick={() => modifyTriggerClick("add")}>
-                        <AddIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit Selected Trigger">
-                      <IconButton onClick={() => modifyTriggerClick("edit")}>
-                        <EditIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Remove Selected Trigger">
-                      <IconButton onClick={() => modifyTriggerClick("remove")}>
-                        <DeleteIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                </Paper>
-              </div>
-            </Paper>
+                        <ListItemButton
+                          selected={selectedTriggerIndex === index}
+                          onClick={() => setSelectedTriggerIndex(index)}
+                        >
+                          {item.name}
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                  {/* BUTTONS */}
+                  <Paper sx={{ padding: ".5rem" }}>
+                    <div className="left-panel__button-layout">
+                      <Tooltip title="Add New Trigger">
+                        <IconButton onClick={() => modifyTriggerClick("add")}>
+                          <AddIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit Selected Trigger">
+                        <IconButton onClick={() => modifyTriggerClick("edit")}>
+                          <EditIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Remove Selected Trigger">
+                        <IconButton
+                          onClick={() => modifyTriggerClick("remove")}
+                        >
+                          <DeleteIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
+                  </Paper>
+                </div>
+              </AccordionDetails>
+            </Accordion>
+            {/* </Paper> */}
           </div>
 
           {/* EVENTS */}
           <div className="left-panel__item">
-            <Paper
+            <Accordion
+              defaultExpanded
               sx={{
-                padding: ".5rem",
-                // overflow: "auto",
-                // scrollbarColor: "#bc56ff #4c4561",
-                // scrollbarWidth: "thin",
+                backgroundColor: "#281b40",
+                overflow: "auto",
+                height: "100%",
               }}
-              variant="outlined"
             >
-              <Typography variant="button">events</Typography>
-
-              <div className="left-panel__item-layout">
-                {/* maxHeight: 500, */}
-                <List
-                  sx={{
-                    flex: "1",
-                    overflow: "auto",
-                    scrollbarColor: "#bc56ff #4c4561",
-                    scrollbarWidth: "thin",
-                    minHeight: "250px",
-                  }}
-                >
-                  {missionEvents.map((item, index) => (
-                    <ListItem
-                      disablePadding
-                      key={index}
-                      onDoubleClick={() => modifyEventClick("edit")}
-                    >
-                      <ListItemButton
-                        selected={selectedEventIndex === index}
-                        onClick={() => setSelectedEventIndex(index)}
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                Events
+              </AccordionSummary>
+              <AccordionDetails>
+                <div className="left-panel__item-layout">
+                  <List
+                    sx={
+                      {
+                        // minHeight: "250px",
+                      }
+                    }
+                  >
+                    {missionEvents.map((item, index) => (
+                      <ListItem
+                        disablePadding
+                        key={item.GUID}
+                        onDoubleClick={() => modifyEventClick("edit")}
                       >
-                        {item.name}
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-                {/* BUTTONS */}
-                <Paper sx={{ padding: ".5rem" }}>
-                  <div className="left-panel__button-layout">
-                    <Tooltip title="Add New Event">
-                      <IconButton onClick={() => modifyEventClick("add")}>
-                        <AddIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit Selected Event">
-                      <IconButton onClick={() => modifyEventClick("edit")}>
-                        <EditIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Remove Selected Event">
-                      <IconButton onClick={() => modifyEventClick("remove")}>
-                        <DeleteIcon fontSize="medium" />
-                      </IconButton>
-                    </Tooltip>
+                        <ListItemButton
+                          selected={selectedEventIndex === index}
+                          onClick={() => setSelectedEventIndex(index)}
+                        >
+                          {item.name}
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                  {/* BUTTONS */}
+                  <Paper sx={{ padding: ".5rem" }}>
+                    <div className="left-panel__button-layout">
+                      <Tooltip title="Add New Event">
+                        <IconButton onClick={() => modifyEventClick("add")}>
+                          <AddIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit Selected Event">
+                        <IconButton onClick={() => modifyEventClick("edit")}>
+                          <EditIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Remove Selected Event">
+                        <IconButton onClick={() => modifyEventClick("remove")}>
+                          <DeleteIcon fontSize="medium" />
+                        </IconButton>
+                      </Tooltip>
 
-                    <Tooltip title="Duplicate Event">
-                      <IconButton onClick={() => modifyEventClick("duplicate")}>
-                        <ContentCopyIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Move Event Up">
-                      <IconButton onClick={() => modifyEventClick("up")}>
-                        <KeyboardArrowUpIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Move Event Down">
-                      <IconButton onClick={() => modifyEventClick("down")}>
-                        <KeyboardArrowDownIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                </Paper>
-              </div>
-            </Paper>
+                      <Tooltip title="Duplicate Event">
+                        <IconButton
+                          onClick={() => modifyEventClick("duplicate")}
+                        >
+                          <ContentCopyIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Move Event Up">
+                        <IconButton onClick={() => modifyEventClick("up")}>
+                          <KeyboardArrowUpIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Move Event Down">
+                        <IconButton onClick={() => modifyEventClick("down")}>
+                          <KeyboardArrowDownIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
+                  </Paper>
+                </div>
+              </AccordionDetails>
+            </Accordion>
+            {/* </Paper> */}
           </div>
         </div>
       </Paper>
