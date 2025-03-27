@@ -32,7 +32,7 @@ import EnemyDeploymentTab4 from "./EnemyDeploymentTab4";
 //data
 import { enemyData, villainData } from "../../data/carddata";
 import { useReservedGroupsStore } from "../../data/dataStore";
-import { ActiveDeploymentPoint } from "../../data/Mission";
+import { ActiveDeploymentPoint, NoneThumb } from "../../data/Mission";
 
 //can these be optimized? Use a state, but pass a function to set the state instead of rebuilding the initial state on each render
 let groupData = [...enemyData, ...villainData].map(
@@ -84,7 +84,7 @@ export default function EnemyDeploymentDialog() {
   EnemyDeploymentDialog.ShowDialog = showDialog;
 
   function onOK() {
-    console.log(customNameRef);
+    // console.log(customNameRef);
     callbackFunc.current(eventAction);
     setOpen(false);
   }
@@ -176,6 +176,7 @@ export default function EnemyDeploymentDialog() {
                   label="Filter By Reserved Groups"
                 />
                 <Select
+                  name="enemyGroup"
                   sx={{ width: "100%" }}
                   value={selectedGroup}
                   onChange={(e) => changeGroup(e.target.value)}
@@ -215,7 +216,8 @@ export default function EnemyDeploymentDialog() {
                       <Typography>
                         Thumbnail:{" "}
                         <span style={{ color: "#ee82e5" }}>
-                          {eventAction.thumbnail.ID === "None"
+                          {eventAction.thumbnail === null ||
+                          eventAction.thumbnail?.ID === "None"
                             ? "Default"
                             : eventAction.thumbnail.Name}
                         </span>
@@ -223,11 +225,10 @@ export default function EnemyDeploymentDialog() {
                     </Paper>
 
                     {/* ICON */}
-                    {/* <Button variant="contained">use default icon</Button> */}
                     <ThumbnailSelector
                       showDefaultButton={true}
                       onIconChanged={onIconChanged}
-                      initialThumb={eventAction.thumbnail}
+                      initialThumb={eventAction.thumbnail || NoneThumb}
                     />
                   </AccordionDetails>
                 </Accordion>
@@ -243,6 +244,7 @@ export default function EnemyDeploymentDialog() {
                   }}
                 >
                   <Tabs
+                    name="enemyDeploymentTabs"
                     value={selectedTabIndex}
                     onChange={handleTabChange}
                     variant="scrollable"

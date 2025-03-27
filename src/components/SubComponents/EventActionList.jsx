@@ -95,39 +95,36 @@ export default function EventActionList({ eventActions, modifyEA }) {
             </ListItem>
 
             <div className="quad-column-grid">
-              <Tooltip title="Edit Event Action">
-                <IconButton
-                  edge="end"
-                  onClick={() => modifyEAClick("edit", item)}
-                  fontSize="medium"
-                >
-                  <EditIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Move Event Action Up">
-                <IconButton
-                  edge="end"
-                  onClick={() => modifyEAClick("up", index)}
-                >
-                  <KeyboardArrowUpIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Move Event Action Down">
-                <IconButton
-                  edge="end"
-                  onClick={() => modifyEAClick("down", index)}
-                >
-                  <KeyboardArrowDownIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Remove Event Action">
-                <IconButton
-                  edge="end"
-                  onClick={() => modifyEAClick("remove", index)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
+              {/* <Tooltip title="Edit Event Action"> */}
+              <IconButton
+                edge="end"
+                onClick={() => modifyEAClick("edit", item)}
+                fontSize="medium"
+              >
+                <EditIcon />
+              </IconButton>
+              {/* </Tooltip> */}
+              {/* <Tooltip title="Move Event Action Up"> */}
+              <IconButton edge="end" onClick={() => modifyEAClick("up", index)}>
+                <KeyboardArrowUpIcon />
+              </IconButton>
+              {/* </Tooltip> */}
+              {/* <Tooltip title="Move Event Action Down"> */}
+              <IconButton
+                edge="end"
+                onClick={() => modifyEAClick("down", index)}
+              >
+                <KeyboardArrowDownIcon />
+              </IconButton>
+              {/* </Tooltip> */}
+              {/* <Tooltip title="Remove Event Action"> */}
+              <IconButton
+                edge="end"
+                onClick={() => modifyEAClick("remove", index)}
+              >
+                <DeleteIcon />
+              </IconButton>
+              {/* </Tooltip> */}
             </div>
           </div>
         ))}

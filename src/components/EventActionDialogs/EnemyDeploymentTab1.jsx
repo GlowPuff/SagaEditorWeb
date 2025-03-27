@@ -19,7 +19,7 @@ export default function EnemyDeploymentTab1({
   selectedTabIndex,
   tabIndex,
 }) {
-  const [mod, setMod] = useState(eventAction.modification);
+  const [mod, setMod] = useState(eventAction.modification || "");
 
   function onKeyUp(ev) {
     if (ev.key === "Enter" || ev.keyCode === 13) ev.target.blur();
