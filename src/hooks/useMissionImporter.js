@@ -111,7 +111,39 @@ const useMissionImporter = (onClearData) => {
     }
   };
 
-  return { loadMission, loadMissionFromLocalStorage };
+  const loadMissionFromLocalStorageArray = (key) => {
+    try {
+      const savedMissions =
+        JSON.parse(localStorage.getItem("savedMissions")) || [];
+      // Check if the key exists in savedMissions first
+      if (savedMissions.length > 0) {
+        // If the key doesn't exist, use the first mission from savedMissions
+        const mission = savedMissions.find(
+          (mission) => mission.missionGUID === key
+        );
+        if (mission) {
+          console.log("Using saved mission:", mission);
+          processMissionData(mission);
+          return true;
+        } else {
+          console.error(`No mission found with GUID: ${key}`);
+          return false;
+        }
+      } else {
+        console.error("No saved missions found.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error loading mission from localStorage:", error);
+      return false;
+    }
+  };
+
+  return {
+    loadMission,
+    loadMissionFromLocalStorage,
+    loadMissionFromLocalStorageArray,
+  };
 };
 
 export default useMissionImporter;

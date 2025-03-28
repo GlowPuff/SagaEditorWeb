@@ -100,6 +100,20 @@ const useMissionExporter = (languageID) => {
     try {
       const missionData = generateMissionData();
       localStorage.setItem(key, JSON.stringify(missionData));
+
+      //also save it to the savedMissions array in localStorage in a new key if it doesn't exist, or update it if it does
+      const savedMissions =
+        JSON.parse(localStorage.getItem("savedMissions")) || [];
+      //check if the mission already exists in savedMissions
+      const existingMissionIndex = savedMissions.findIndex(
+        (mission) => mission.missionGUID === rootMissionProps.missionGUID
+      );
+      if (existingMissionIndex === -1) {
+        savedMissions.push(missionData);
+      } else {
+        savedMissions[existingMissionIndex] = missionData;
+      }
+      localStorage.setItem("savedMissions", JSON.stringify(savedMissions));
       return true;
     } catch (error) {
       console.error("Failed to save mission to localStorage:", error);

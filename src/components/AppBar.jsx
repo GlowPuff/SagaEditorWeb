@@ -28,13 +28,12 @@ import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import SaveIcon from "@mui/icons-material/Save";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
-import { Delete } from "@mui/icons-material";
+import Delete from "@mui/icons-material/Delete";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 //dialogs
 import NewTriggerDialog from "./Dialogs/NewTriggerDialog";
 import NewEventDialog from "./Dialogs/NewEventDialog";
-//components
-// import MissionSaveButton from "./SubComponents/MissionSaveButton";
-// import MissionLoadButton from "./SubComponents/MissionLoadButton";
+import SavedMissionChooser from "./Dialogs/SavedMissionChooser";
 //data
 import { createGUID } from "../lib/core";
 import { MissionEvent, MissionTrigger } from "../data/Mission";
@@ -55,6 +54,7 @@ import useMissionImporter from "../hooks/useMissionImporter";
 import useMissionExporter from "../hooks/useMissionExporter";
 
 export default function AppBar({ languageID, onClearMap }) {
+  const [chooserOpen, setChooserOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const addEvent = useEventsStore((state) => state.addEvent);
   const addTrigger = useTriggerStore((state) => state.addTrigger);
@@ -174,13 +174,13 @@ export default function AppBar({ languageID, onClearMap }) {
 
   function handleQuickSave() {
     handleCloseMenu();
-    exportMission.saveMissionToLocalStorage("quickSaveMission"); //rootMissionGUID);
+    exportMission.saveMissionToLocalStorage("quickSaveMission");
   }
 
   function handleQuickLoad() {
     handleCloseMenu();
     const success =
-      importMission.loadMissionFromLocalStorage("quickSaveMission"); //rootMissionGUID);
+      importMission.loadMissionFromLocalStorage("quickSaveMission");
     if (success) {
       // console.log("Mission loaded from local storage successfully");
     } else {
@@ -190,7 +190,29 @@ export default function AppBar({ languageID, onClearMap }) {
 
   function clearLocalStorage() {
     handleCloseMenu();
-    localStorage.clear();
+		localStorage.removeItem("quickSaveMission");
+  }
+
+  function showChooser() {
+    handleCloseMenu();
+    setChooserOpen(true);
+  }
+
+  //data = {isOK: bool, missionGUID: GUID}
+  function closeChooser(data) {
+    setChooserOpen(false);
+    if (data.isOK) {
+      //clear the map and load the selected mission
+      onClearMap();
+      const success = importMission.loadMissionFromLocalStorageArray(
+        data.missionGUID
+      );
+      if (success) {
+        console.log("Mission loaded successfully");
+      } else {
+        console.error("Failed to load mission");
+      }
+    }
   }
 
   return (
@@ -281,21 +303,33 @@ export default function AppBar({ languageID, onClearMap }) {
 
             {/* CLEAR DATA */}
             <Tooltip
-              title="Clear all ICE data from your browser's local storage"
+              title="Clear the Quick Save Mission from your browser's local storage"
               placement="right"
             >
-              <MenuItem onClick={clearLocalStorage}>
+              <MenuItem
+                onClick={clearLocalStorage}
+                disabled={!localStorage.getItem("quickSaveMission")}
+              >
                 <ListItemIcon>
                   <Delete fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Clear Local Storage</ListItemText>
+                <ListItemText>Delete Quick Save</ListItemText>
+              </MenuItem>
+            </Tooltip>
+
+            <Divider />
+
+            <Tooltip title="Open the Saved Mission Chooser" placement="right">
+              <MenuItem onClick={showChooser}>
+                <ListItemIcon>
+                  <ListAltIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Saved Mission Chooser...</ListItemText>
               </MenuItem>
             </Tooltip>
           </Menu>
 
           <Typography variant="h6">ICE Mission Editor</Typography>
-
-          {/* <FiberManualRecordIcon sx={{ marginLeft:"auto", transform: "scale(.5)" }} /> */}
 
           <Tooltip title="Add a new Trigger">
             <Button
@@ -349,6 +383,9 @@ export default function AppBar({ languageID, onClearMap }) {
 
       <NewTriggerDialog />
       <NewEventDialog />
+      <SavedMissionChooser open={chooserOpen} onClose={closeChooser} />
+
+      {/* Dialog for creating a new mission */}
       <Fragment>
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle id="alert-dialog-title">
@@ -378,7 +415,6 @@ export default function AppBar({ languageID, onClearMap }) {
           </DialogActions>
         </Dialog>
       </Fragment>
-      {/* <MyComponent /> */}
     </div>
   );
 }
