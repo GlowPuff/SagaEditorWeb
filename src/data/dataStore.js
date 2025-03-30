@@ -136,7 +136,7 @@ export const useMapSectionsStore = create((set) => ({
     set((state) => {
       var s = new MapSection();
       s.name = name;
-      s.GUID = createGUID();
+      // s.GUID = createGUID();
       return {
         activeMapSectionGUID: s.GUID,
         mapSections: [...state.mapSections, s],
@@ -161,6 +161,7 @@ export const useMapSectionsStore = create((set) => ({
       return {
         mapSections: state.mapSections.map((item) => {
           if (item.GUID === state.activeMapSectionGUID) {
+            tile.mapSectionOwner = state.activeMapSectionGUID;
             item.mapTiles.push(tile);
           }
           return item;
@@ -189,6 +190,18 @@ export const useMapSectionsStore = create((set) => ({
               (x) => x.GUID !== tile.GUID
             );
           }
+          return section;
+        }),
+      };
+    }),
+  //regardless of active section
+  removeTile: (tile) =>
+    set((state) => {
+      return {
+        mapSections: state.mapSections.map((section) => {
+          section.mapTiles = section.mapTiles.filter(
+            (x) => x.GUID !== tile.GUID
+          );
           return section;
         }),
       };
@@ -399,7 +412,8 @@ export const useMapEntitiesStore = create((set) => ({
 
 export const useToonsStore = create((set) => ({
   customCharacters: [],
-  importMission: (mission) => set(() => ({ customCharacters: mission.customCharacters })),
+  importMission: (mission) =>
+    set(() => ({ customCharacters: mission.customCharacters })),
   addToon: (toon) =>
     set((state) => ({ customCharacters: [...state.customCharacters, toon] })),
   updateToon: (toon) =>

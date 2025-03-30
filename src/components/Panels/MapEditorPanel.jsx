@@ -52,9 +52,10 @@ const MapEditorPanel = forwardRef(({ value, index }, ref) => {
   const updateTileEntity = useMapSectionsStore(
     (state) => state.updateTileEntity
   );
-  const removeTileFromActiveSection = useMapSectionsStore(
-    (state) => state.removeTileFromActiveSection
-  );
+  // const removeTileFromActiveSection = useMapSectionsStore(
+  //   (state) => state.removeTileFromActiveSection
+  // );
+  const removeTile = useMapSectionsStore((state) => state.removeTile);
   const updateTilePosition = useMapSectionsStore(
     (state) => state.updateTilePosition
   );
@@ -312,16 +313,11 @@ const MapEditorPanel = forwardRef(({ value, index }, ref) => {
       mapRef.current.removeMapEntity(selectedEntity.GUID);
       if (selectedEntity.entityType !== EntityType.Tile)
         removeMapEntity(selectedEntity.GUID);
-      else removeTileFromActiveSection(selectedEntity);
+      else removeTile(selectedEntity);
 
       handleEntitySelect(null);
     }
-  }, [
-    handleEntitySelect,
-    removeMapEntity,
-    removeTileFromActiveSection,
-    selectedEntity,
-  ]);
+  }, [handleEntitySelect, removeMapEntity, removeTile, selectedEntity]);
 
   //setup keyboard handler
   useEffect(() => {
@@ -439,7 +435,7 @@ const MapEditorPanel = forwardRef(({ value, index }, ref) => {
     handleEntitySelect,
     handleDuplicateEntity,
     handleRemoveEntity,
-    removeTileFromActiveSection,
+    removeTile,
     addMapEntity,
     rotateMapEntity,
     removeMapEntity,
