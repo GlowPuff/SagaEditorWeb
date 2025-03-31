@@ -32,9 +32,15 @@ export default function SectionsPanel({ value, index }) {
   const activeMapSectionGUID = useMapSectionsStore(
     (state) => state.activeMapSectionGUID
   );
+  const changeTileOwnerBulk = useMapSectionsStore(
+    (state) => state.changeTileOwnerBulk
+  );
   //entities store
   const mapEntities = useMapEntitiesStore((state) => state.mapEntities);
   const updateEntity = useMapEntitiesStore((state) => state.updateEntity);
+  const removeBulkEntities = useMapEntitiesStore(
+    (state) => state.removeEntitiesBulk
+  );
 
   const [selectedSectionIndex, setSelectedSectionIndex] = useState(0);
   const [checked, setChecked] = useState(
@@ -83,7 +89,38 @@ export default function SectionsPanel({ value, index }) {
   function onRemoveSection() {
     ConfirmSectionRemoveDialog.ShowDialog(
       mapSections[selectedSectionIndex].name,
-      () => {
+      (alsoRemoveEntities) => {
+        if (alsoRemoveEntities) {
+          // remove all entities in the removed section
+          removeBulkEntities(
+            mapEntities
+              .filter(
+                (entity) =>
+                  entity.mapSectionOwner ===
+                  mapSections[selectedSectionIndex].GUID
+              )
+              .map((entity) => entity.GUID)
+          );
+          //tiles are removed automatically when the section is removed, no need to do anything here
+        } else {
+          //otherwise, if any map entities are in the removed section, set their owner to the start section
+          mapEntities.forEach((entity) => {
+            if (
+              entity.mapSectionOwner === mapSections[selectedSectionIndex].GUID
+            ) {
+              let updated = { ...entity };
+              updated.mapSectionOwner = mapSections[0].GUID;
+              // console.log("🚀 ~ mapEntities.forEach ~ updated:", updated)
+              updateEntity(updated);
+            }
+          });
+          //do the same for tiles
+          changeTileOwnerBulk(
+            mapSections[selectedSectionIndex].GUID,
+            mapSections[0].GUID
+          );
+        }
+        //finally, remove the section from the list
         removeSection(mapSections[selectedSectionIndex].GUID);
         //reset to default data
         setSelectedSectionIndex(0);
@@ -94,17 +131,6 @@ export default function SectionsPanel({ value, index }) {
           // console.log("🚀 ~ onRemoveSection ~ UPDATING ACTIVE SECTION");
           setActiveMapSectionGUID(mapSections[0].GUID);
         }
-        //if any map entities are in the removed section, set their owner to the start section
-        mapEntities.forEach((entity) => {
-          if (
-            entity.mapSectionOwner === mapSections[selectedSectionIndex].GUID
-          ) {
-            let updated = { ...entity };
-            updated.mapSectionOwner = mapSections[0].GUID;
-            // console.log("🚀 ~ mapEntities.forEach ~ updated:", updated)
-            updateEntity(updated);
-          }
-        });
       }
     );
   }

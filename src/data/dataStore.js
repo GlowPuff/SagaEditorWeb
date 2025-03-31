@@ -206,6 +206,37 @@ export const useMapSectionsStore = create((set) => ({
         }),
       };
     }),
+  changeTileOwnerBulk: (oldGuid, newSectionGUID) =>
+    set((state) => {
+      //first get a flattened list of all tiles across all sections that match the guid
+      let tilesToMove = [];
+      state.mapSections.forEach((section) => {
+        section.mapTiles.forEach((tile) => {
+          if (tile.mapSectionOwner === oldGuid) {
+            tilesToMove.push(tile);
+          }
+        });
+      });
+      //then update the owner of those tiles to the new section
+      return {
+        mapSections: state.mapSections.map((section) => {
+          if (section.GUID === newSectionGUID) {
+            //add the tiles to the new section
+            tilesToMove.forEach((tile) => {
+              tile.mapSectionOwner = newSectionGUID;
+              section.mapTiles.push(tile);
+            });
+          } else {
+            //remove the tiles from their original sections
+						//not really necessary since they are removed with the section
+            section.mapTiles = section.mapTiles.filter(
+              (x) => !tilesToMove.includes(x)
+            );
+          }
+          return section;
+        }),
+      };
+    }),
   rotateTile: (guid, direction, drawPosition) =>
     set((state) => {
       return {
@@ -360,6 +391,10 @@ export const useMapEntitiesStore = create((set) => ({
   removeEntity: (guid) =>
     set((state) => ({
       mapEntities: state.mapEntities.filter((x) => x.GUID !== guid),
+    })),
+  removeEntitiesBulk: (guids) =>
+    set((state) => ({
+      mapEntities: state.mapEntities.filter((x) => !guids.includes(x.GUID)),
     })),
   updateEntityPosition: (
     guid,
