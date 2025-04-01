@@ -33,8 +33,18 @@ export default function Footer({ languageID, onSetLanguage }) {
           <div style={{ justifySelf: "left", paddingLeft: ".5rem" }}>
             ICEditor Version: 1.0 (Beta 6)
           </div>
-          {/* <div>Mission Format Version: 22</div> */}
-          <div></div>
+
+          <div style={{ color: "orange" }}>
+            Report any issues{" "}
+            <a
+              style={{ color: "red" }}
+              href="https://github.com/GlowPuff/SagaEditorWeb/issues"
+            >
+              here
+            </a>
+            .
+          </div>
+
           <Select
             sx={{ justifySelf: "right", marginRight: ".5rem" }}
             value={languageID}
