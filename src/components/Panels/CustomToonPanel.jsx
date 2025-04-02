@@ -61,8 +61,10 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
   //refs
   const nameRef = useRef(null);
   const subNameRef = useRef(null);
+
   useEffect(() => {
     if (toons.length > 0 && customToon !== "") {
+      // console.log("🚀 ~ useEffect ~ customToon:", customToon);
       if (nameRef.current) nameRef.current.value = customToon.cardName;
       if (subNameRef.current) subNameRef.current.value = customToon.cardSubName;
     } else {

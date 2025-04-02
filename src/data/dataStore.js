@@ -452,7 +452,7 @@ export const useToonsStore = create((set) => ({
   addToon: (toon) =>
     set((state) => ({ customCharacters: [...state.customCharacters, toon] })),
   updateToon: (toon) => {
-		console.log("❗ :: useToonsStore :: toon::", toon);
+    // console.log("❗ :: useToonsStore :: toon::", toon);
     set((state) => ({
       customCharacters: state.customCharacters.map((item) => {
         if (item.cardID === toon.cardID) return toon;

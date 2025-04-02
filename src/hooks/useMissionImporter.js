@@ -79,6 +79,9 @@ const useMissionImporter = (onClearData) => {
           const importedMission = JSON.parse(content);
           console.log(importedMission);
           processMissionData(importedMission);
+          //send a global event to notify that the mission has been loaded
+          const event = new CustomEvent("missionLoaded");
+          window.dispatchEvent(event);
         };
         reader.readAsText(file);
       }
@@ -104,6 +107,9 @@ const useMissionImporter = (onClearData) => {
       const importedMission = JSON.parse(storedData);
       console.log("Loaded mission from localStorage:", importedMission);
       processMissionData(importedMission);
+      //send a global event to notify that the mission has been loaded
+      const event = new CustomEvent("missionLoaded");
+      window.dispatchEvent(event);
       return true;
     } catch (error) {
       console.error("Error loading mission from localStorage:", error);
@@ -124,6 +130,9 @@ const useMissionImporter = (onClearData) => {
         if (mission) {
           console.log("Using saved mission:", mission);
           processMissionData(mission);
+          //send a global event to notify that the mission has been loaded
+          const event = new CustomEvent("missionLoaded");
+          window.dispatchEvent(event);
           return true;
         } else {
           console.error(`No mission found with GUID: ${key}`);

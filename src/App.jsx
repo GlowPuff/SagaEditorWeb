@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
 //my components
@@ -45,6 +45,24 @@ export default function App() {
   const mapPanelRef = useRef(null);
   const leftPanelRef = useRef(null);
 
+  //subscribe to an event to set the tab index to the first tab
+  useEffect(() => {
+    let abortController = new AbortController();
+
+    window.addEventListener(
+      "missionLoaded",
+      (event) => {
+        console.log("❗ :: useEffect :: event::", event);
+        setTabIndex(0);
+      },
+      { signal: abortController.signal }
+    );
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+
   function onSetMissionProps(name, value) {
     //console.log("🚀 ~ onSetMissionProps ~ text:", value);
     updateMissionProp(name, value);
@@ -72,9 +90,9 @@ export default function App() {
     if (mapPanelRef.current) {
       mapPanelRef.current.clearMap();
     }
-		if(leftPanelRef.current){
-			leftPanelRef.current.resetData();
-		}
+    if (leftPanelRef.current) {
+      leftPanelRef.current.resetData();
+    }
   }
 
   return (

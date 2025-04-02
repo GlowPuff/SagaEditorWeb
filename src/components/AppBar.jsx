@@ -143,6 +143,10 @@ export default function AppBar({ languageID, onClearMap }) {
       importTriggers(emptyMission);
       importMapEntities(emptyMission);
       importCustomToons(emptyMission);
+
+      //send a global event to notify that the mission has been loaded
+      const event = new CustomEvent("missionLoaded");
+      window.dispatchEvent(event);
     }
   }
 
