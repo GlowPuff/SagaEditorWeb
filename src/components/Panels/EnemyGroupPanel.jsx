@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import PropTypes from "prop-types";
 //mui
 import Paper from "@mui/material/Paper";
@@ -17,8 +18,8 @@ import EnemyFilterList from "../SubComponents/EnemyFilterList";
 import * as Mission from "../../data/Mission";
 import { enemyData, villainData } from "../../data/carddata";
 import { useReservedGroupsStore } from "../../data/dataStore";
-
-let enemyGroupData = [...enemyData, ...villainData];
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
 export default function EnemyGroupPanel({
   value,
@@ -26,12 +27,25 @@ export default function EnemyGroupPanel({
   initialGroups,
   onModifyEnemyGroups,
 }) {
+  const toons = useToonsStore((state) => state.customCharacters);
   //reserved group store
   const reservedGroups = useReservedGroupsStore(
     (state) => state.reservedGroups
   );
   const addResGroup = useReservedGroupsStore((state) => state.addGroup);
   const removeResGroup = useReservedGroupsStore((state) => state.removeGroup);
+
+  const enemyGroupData = useMemo(() => {
+    const baseGroups = [...enemyData, ...villainData];
+    const customGroups = toons
+      .filter(
+        (t) =>
+          t.deploymentCard.characterType === CharacterType.Imperial ||
+          t.deploymentCard.characterType === CharacterType.Villain
+      )
+      .map((toon) => toon.deploymentCard);
+    return [...baseGroups, ...customGroups];
+  }, [toons]);
 
   function onAddInitial(g) {
     let group = new Mission.EnemyGroupData();
@@ -152,9 +166,7 @@ export default function EnemyGroupPanel({
                     <Tooltip title="Remove Group">
                       <IconButton
                         edge="end"
-                        onClick={
-                          () => removeResGroup(index)
-                        }
+                        onClick={() => removeResGroup(index)}
                       >
                         <DeleteIcon />
                       </IconButton>

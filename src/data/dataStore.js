@@ -7,7 +7,10 @@ import {
   emptyTrigger,
   MissionProperties,
 } from "./Mission";
-import { createGUID, calculateEntityPosition } from "../lib/core";
+import {
+  createGUID,
+  calculateEntityPosition,
+} from "../lib/core";
 
 export const useRootMissionPropsStore = create((set) => ({
   missionProps: { missionGUID: createGUID() },
@@ -228,7 +231,7 @@ export const useMapSectionsStore = create((set) => ({
             });
           } else {
             //remove the tiles from their original sections
-						//not really necessary since they are removed with the section
+            //not really necessary since they are removed with the section
             section.mapTiles = section.mapTiles.filter(
               (x) => !tilesToMove.includes(x)
             );

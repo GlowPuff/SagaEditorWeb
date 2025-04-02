@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 //mui
 import TextField from "@mui/material/TextField";
@@ -13,6 +13,8 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 //data
 import { enemyData, villainData } from "../../data/carddata";
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
 export default function EnemyFilterList({
   title,
@@ -22,6 +24,7 @@ export default function EnemyFilterList({
   onAddInitial,
   onAddReserved,
 }) {
+  const toons = useToonsStore((state) => state.customCharacters);
   const [filterTerm, setFilterTerm] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("Stormtrooper [DG001]");
   const [addedGroups, setAddedGroups] = useState(initialAddedGroups);
@@ -39,17 +42,41 @@ export default function EnemyFilterList({
     }
   }, [initialAddedGroups]);
 
+  // build groupData ("Name [ID]") based on dependencies
+  const originalGroupData = useMemo(() => {
+    const baseGroups = [...enemyData, ...villainData].map(
+      (item) => `${item.name} [${item.id}]`
+    );
+    const customGroups = toons
+      .filter(
+        (t) =>
+          t.deploymentCard.characterType === CharacterType.Imperial ||
+          t.deploymentCard.characterType === CharacterType.Villain
+      )
+      .map((toon) => toon.deploymentCard)
+      .map((item) => `${item.name} [${item.id}]`);
+    return [...baseGroups, ...customGroups];
+  }, [toons]);
+
   const transformedEnemies = enemyData.map(
     (item) => `${item.name} [${item.id}]`
   );
   const transformedVillains = villainData.map(
     (item) => `${item.name} [${item.id}]`
   );
-  const originalGroupData = [...transformedEnemies, ...transformedVillains];
+  const transformedCustomToons = toons
+    .filter(
+      (t) =>
+        t.deploymentCard.characterType === CharacterType.Imperial ||
+        t.deploymentCard.characterType === CharacterType.Villain
+    )
+    .map((toon) => toon.deploymentCard)
+    .map((item) => `${item.name} [${item.id}]`);
 
   const [groupData, setGroupData] = useState([
     ...transformedEnemies,
     ...transformedVillains,
+    ...transformedCustomToons,
   ]);
 
   function onAddInitialGroup() {
@@ -58,7 +85,11 @@ export default function EnemyFilterList({
     const match = selectedGroup.match(regex);
     onAddInitial([selectedGroup.slice(0, idx).trim(), match[1]]);
     setFilterTerm("");
-    setGroupData([...transformedEnemies, ...transformedVillains]);
+    setGroupData([
+      ...transformedEnemies,
+      ...transformedVillains,
+      ...transformedCustomToons,
+    ]);
   }
 
   function onAddReservedGroup() {
@@ -67,7 +98,11 @@ export default function EnemyFilterList({
     const match = selectedGroup.match(regex);
     onAddReserved([selectedGroup.slice(0, idx).trim(), match[1]]);
     setFilterTerm("");
-    setGroupData([...transformedEnemies, ...transformedVillains]);
+    setGroupData([
+      ...transformedEnemies,
+      ...transformedVillains,
+      ...transformedCustomToons,
+    ]);
   }
 
   function onKeyUp(ev) {
@@ -75,7 +110,11 @@ export default function EnemyFilterList({
       ev.target.blur();
       if (filterTerm.trim() !== "") onAddGroupClick();
       setSelectedGroup("Stormtrooper [DG001]");
-      setGroupData([...transformedEnemies, ...transformedVillains]);
+      setGroupData([
+        ...transformedEnemies,
+        ...transformedVillains,
+        ...transformedCustomToons,
+      ]);
     }
   }
 
@@ -95,7 +134,11 @@ export default function EnemyFilterList({
       }
     } else {
       setSelectedGroup("Stormtrooper [DG001]");
-      setGroupData([...transformedEnemies, ...transformedVillains]);
+      setGroupData([
+        ...transformedEnemies,
+        ...transformedVillains,
+        ...transformedCustomToons,
+      ]);
     }
   }
 
@@ -104,7 +147,11 @@ export default function EnemyFilterList({
       setAddedGroups([...addedGroups, selectedGroup]);
       setSelectedRemoveGroup(selectedGroup);
       setFilterTerm("");
-      setGroupData([...transformedEnemies, ...transformedVillains]);
+      setGroupData([
+        ...transformedEnemies,
+        ...transformedVillains,
+        ...transformedCustomToons,
+      ]);
       //transform groups back into just the id, text between []
       let propgroups = [];
       const regex = /\[(.*?)\]/;

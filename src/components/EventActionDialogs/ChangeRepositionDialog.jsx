@@ -105,12 +105,9 @@ export default function ChangeRepositionDialog() {
             </Accordion>
 
             <Paper sx={{ padding: ".5rem" }}>
-              <div
-                className="two-column-grid align-center"
-                style={{ justifyItems: "center" }}
-              >
+              <div style={{ justifyContent: "center", display: "flex" }}>
                 <div>
-                  <Typography>Affected Groups:</Typography>
+                  <Typography>Affected Groups: &nbsp;</Typography>
                 </div>
                 <div>
                   <Typography

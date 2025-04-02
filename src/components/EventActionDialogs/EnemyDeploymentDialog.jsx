@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 //mui
 import Button from "@mui/material/Button";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -30,21 +30,39 @@ import EnemyDeploymentTab2 from "./EnemyDeploymentTab2";
 import EnemyDeploymentTab3 from "./EnemyDeploymentTab3";
 import EnemyDeploymentTab4 from "./EnemyDeploymentTab4";
 //data
+import { CharacterType } from "../../lib/core";
 import { enemyData, villainData } from "../../data/carddata";
 import { useReservedGroupsStore } from "../../data/dataStore";
 import { ActiveDeploymentPoint, NoneThumb } from "../../data/Mission";
-
-//can these be optimized? Use a state, but pass a function to set the state instead of rebuilding the initial state on each render
-let groupData = [...enemyData, ...villainData].map(
-  (item) => `${item.name} [${item.id}]`
-);
+import { useToonsStore } from "../../data/dataStore";
 
 let cardList = [...enemyData, ...villainData];
 
 export default function EnemyDeploymentDialog() {
+  const toons = useToonsStore((state) => state.customCharacters);
   const reservedGroups = useReservedGroupsStore(
     (state) => state.reservedGroups
   );
+  const [filter, setFilter] = useState(false);
+
+  // build groupData ("Name [ID]") based on dependencies
+  const groupData = useMemo(() => {
+    if (filter) {
+      return reservedGroups.map((item) => `${item.cardName} [${item.cardID}]`);
+    } else {
+      const baseGroups = [...enemyData, ...villainData].map(
+        (item) => `${item.name} [${item.id}]`
+      );
+      const customGroups = toons
+        .filter(
+          (t) =>
+            t.deploymentCard.characterType === CharacterType.Imperial ||
+            t.deploymentCard.characterType === CharacterType.Villain
+        )
+        .map((toon) => `${toon.cardName} [${toon.cardID}]`);
+      return [...baseGroups, ...customGroups];
+    }
+  }, [toons, reservedGroups, filter]);
 
   const [open, setOpen] = useState(false);
   const [eventAction, setEventAction] = useState();
@@ -52,7 +70,6 @@ export default function EnemyDeploymentDialog() {
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [selectedGroup, setSelectedGroup] = useState("Stormtrooper [DG001]");
-  const [filter, setFilter] = useState(false);
 
   //refs
   const handleRef = (ref) => {
@@ -69,9 +86,10 @@ export default function EnemyDeploymentDialog() {
 
   function showDialog(ea, callback) {
     console.log("🚀 ~ showDialog ~ ea:", ea);
-    groupData = [...enemyData, ...villainData].map(
-      (item) => `${item.name} [${item.id}]`
-    );
+    // groupData = [...enemyData, ...villainData].map(
+    //   (item) => `${item.name} [${item.id}]`
+    // );
+    setFilter(false);
     callbackFunc.current = callback;
     setEventAction(ea);
     setSelectedGroup(
@@ -95,17 +113,28 @@ export default function EnemyDeploymentDialog() {
 
   function toggleFilter(checked) {
     setFilter(checked);
-    if (checked) {
-      groupData = reservedGroups.map(
-        (item) => `${item.cardName} [${item.cardID}]`
-      );
-      if (!groupData.includes(selectedGroup)) setSelectedGroup("");
-    } else {
-      groupData = [...enemyData, ...villainData].map(
+
+    if (
+      checked &&
+      !reservedGroups.some(
+        (item) => `${item.cardName} [${item.cardID}]` === selectedGroup
+      )
+    ) {
+      setSelectedGroup("");
+    } else if (!checked) {
+      const baseGroups = [...enemyData, ...villainData].map(
         (item) => `${item.name} [${item.id}]`
       );
+      const customGroups = toons
+        .filter(
+          (t) =>
+            t.deploymentCard.characterType === CharacterType.Imperial ||
+            t.deploymentCard.characterType === CharacterType.Villain
+        )
+        .map((toon) => `${toon.cardName} [${toon.cardID}]`);
+      let g = [...baseGroups, ...customGroups];
       setSelectedGroup(
-        groupData.find((x) => x.includes(`[${eventAction.deploymentGroup}]`))
+        g.find((x) => x.includes(`[${eventAction.deploymentGroup}]`))
       );
     }
   }
@@ -115,13 +144,21 @@ export default function EnemyDeploymentDialog() {
     const match = value.match(regex);
 
     //update the enemyGroupData
-    let newcard = cardList.find((x) => x.id === match[1]);
+    let size = 0;
+    //custom toon selected
+    if (match[1].startsWith("TC")) {
+      let newcard = toons.find((x) => x.cardID === match[1]);
+      size = newcard.deploymentCard.size;
+    } else {
+      let newcard = cardList.find((x) => x.id === match[1]);
+      size = newcard.size;
+    }
     let card = { ...eventAction.enemyGroupData };
     card.cardName = value.slice(0, value.indexOf("[")).trim();
     card.cardID = match[1];
     let oldPoints = [...card.pointList];
     let newPoints = [];
-    for (let index = 0; index < newcard.size; index++) {
+    for (let index = 0; index < size; index++) {
       if (index < oldPoints.length) newPoints.push(oldPoints[index]);
       else newPoints.push(new ActiveDeploymentPoint());
     }

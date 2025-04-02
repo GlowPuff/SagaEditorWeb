@@ -42,7 +42,7 @@ import SetNextMissionDialog from "../components/EventActionDialogs/SetNextMissio
 import AddCampaignRewardDialog from "../components/EventActionDialogs/AddCampaignRewardDialog";
 
 export function EAFactoryActions(eaType, eventAction, callback) {
-  console.log("🚀 ~ EAFactoryActions ~ eaType:", eaType);
+  // console.log("🚀 ~ EAFactoryActions ~ eaType:", eaType);
   switch (eaType) {
     case EventActionType.G1: {
       eventAction =

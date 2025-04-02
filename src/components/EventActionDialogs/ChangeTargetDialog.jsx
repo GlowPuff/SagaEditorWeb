@@ -21,15 +21,33 @@ import PriorityTargetDialog from "../Dialogs/PriorityTargetDialog";
 import EnemyFilter from "../SubComponents/GroupFilter";
 //data
 import { heroData, allyData } from "../../data/carddata";
-import { GroupType, PriorityTargetType } from "../../lib/core";
+import { CharacterType, GroupType, PriorityTargetType } from "../../lib/core";
+import { useToonsStore } from "../../data/dataStore";
 
 export default function ChangeTargetDialog() {
   const [open, setOpen] = useState(false);
   const [eventAction, setEventAction] = useState();
   const callbackFunc = useRef(null);
+  const customHeroes = useToonsStore((state) =>
+    state.customCharacters
+      .filter((x) => x.deploymentCard.characterType === CharacterType.Hero)
+      .map((x) => x.deploymentCard)
+  );
+  const customAlliesRebels = useToonsStore((state) =>
+    state.customCharacters
+      .filter(
+        (x) =>
+          x.deploymentCard.characterType === CharacterType.Ally ||
+          x.deploymentCard.characterType === CharacterType.Rebel
+      )
+      .map((x) => x.deploymentCard)
+  );
 
   const [hero, setHero] = useState();
   const [ally, setAlly] = useState();
+
+  const heroArray = [...heroData, ...customHeroes];
+  const allyArray = [...allyData, ...customAlliesRebels];
 
   function onAddGroup(group) {
     setEAValue("groupsToAdd", [
@@ -71,8 +89,8 @@ export default function ChangeTargetDialog() {
     console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
-    setHero(heroData.find((x) => x.id === ea.specificHero));
-    setAlly(allyData.find((x) => x.id === ea.specificAlly));
+    setHero(heroArray.find((x) => x.id === ea.specificHero));
+    setAlly(allyArray.find((x) => x.id === ea.specificAlly));
     setOpen(true);
   }
   ChangeTargetDialog.ShowDialog = showDialog;
@@ -156,7 +174,7 @@ export default function ChangeTargetDialog() {
                           changeHero(ev.target.value);
                         }}
                       >
-                        {heroData.map((item, index) => (
+                        {heroArray.map((item, index) => (
                           <MenuItem key={index} value={item}>
                             {item.name}
                           </MenuItem>
@@ -193,7 +211,7 @@ export default function ChangeTargetDialog() {
                           changeAlly(ev.target.value);
                         }}
                       >
-                        {allyData.map((item, index) => (
+                        {allyArray.map((item, index) => (
                           <MenuItem key={index} value={item}>
                             {item.name}
                           </MenuItem>

@@ -167,7 +167,7 @@ export default function RemoveGroupDialog() {
                       onRemove={(index) =>
                         onRemoveGroup(index, "allyGroupsToRemove")
                       }
-                      dataType="ally"
+                      dataType="allyrebel"
                       title="Ally Groups"
                     />
                   </AccordionDetails>

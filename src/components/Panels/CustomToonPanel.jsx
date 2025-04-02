@@ -78,15 +78,6 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
     }
   }
 
-  const setToonProp = useCallback(
-    (name, value) => {
-      let update = { ...customToon, [name]: value };
-      updateToon(update);
-      setCustomToon(update);
-    },
-    [customToon, updateToon]
-  );
-
   const setToonCardProp = useCallback(
     (name, value) => {
       let update = {
@@ -133,17 +124,28 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
     setCustomToon(update);
   }
 
-  const changeText = useCallback(
-    (name, value) => {
-      let update = { ...customToon };
-      update[name] = value;
-      //also set the deployment card property
-      //necessary for cardName, cardID, faction, cardSubName
-      update.deploymentCard[name] = value;
-      setToonProp(name, value);
-    },
-    [customToon, setToonProp]
-  );
+  //when changing: cardName, cardID, faction, cardSubName
+  //also modify values for the deployment card:
+  // cardName => name
+  // cardSubName = subname
+  // cardID => id (not modified here)
+  // faction => spelled out word in deployment card
+
+  function changeName(name) {
+    let update = { ...customToon };
+    update.cardName = name;
+    update.deploymentCard.name = name;
+    updateToon(update);
+    setCustomToon(update);
+  }
+
+  function changeSubName(name) {
+    let update = { ...customToon };
+    update.cardSubName = name;
+    update.deploymentCard.subname = name;
+    updateToon(update);
+    setCustomToon(update);
+  }
 
   const changeToonType = useCallback(
     (value) => {
@@ -153,6 +155,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
   );
 
   const changeFaction = useCallback(
+    //string, number
     (factionName, factionID) => {
       let update = { ...customToon };
       update.faction = factionID;
@@ -239,7 +242,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
                       onBlur={(e) => {
                         if (e.target.value.trim() === "")
                           e.target.value = "New Character";
-                        changeText(e.target.name, e.target.value);
+                        changeName(e.target.value);
                       }}
                       onFocus={(e) => e.target.select()}
                       onKeyUp={onKeyUp}
@@ -252,7 +255,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
                       label={"Character SubName (Optional)"}
                       variant="filled"
                       // value={customToon.cardSubName}
-                      onBlur={(e) => setToonProp(e.target.name, e.target.value)}
+                      onBlur={(e) => changeSubName(e.target.value)}
                       onFocus={(e) => e.target.select()}
                       onKeyUp={onKeyUp}
                       fullWidth

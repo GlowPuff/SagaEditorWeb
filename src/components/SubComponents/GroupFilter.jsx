@@ -22,14 +22,17 @@ import {
   allyData,
   heroData,
 } from "../../data/carddata";
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
 export default function GroupFilter({
   title = "Enemy Groups",
-  dataType = "enemy", //ally, hero, heroally
+  dataType = "enemy", //ally, hero, heroally, allyrebel, heroallyrebel
   onAdd = () => {}, //returns group {name,id}
   onRemove = () => {}, //returns index
   groupList = [], //array of {name,id}
 }) {
+  const toons = useToonsStore((state) => state.customCharacters);
   const [unfiltered, setUnfiltered] = useState([]);
   const [filterTerm, setFilterTerm] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -38,20 +41,87 @@ export default function GroupFilter({
 
   useEffect(() => {
     const filterFunc = () => {
+      const customGroups = toons.map((toon) => toon.deploymentCard);
+      // console.log("❗ :: filterFunc :: customGroups::", customGroups);
       if (dataType === "enemy") {
-        return [...enemyData, ...villainData];
+        return [
+          ...enemyData,
+          ...villainData,
+          ...customGroups.filter(
+            (t) =>
+              t.characterType === CharacterType.Imperial ||
+              t.characterType === CharacterType.Villain
+          ),
+        ];
       } else if (dataType === "ally") {
-        return [...allyData];
+        return [
+          ...allyData,
+          ...customGroups.filter((t) => t.characterType === CharacterType.Ally),
+        ];
       } else if (dataType === "hero") {
-        return [...heroData];
+        return [
+          ...heroData,
+          ...customGroups.filter((t) => t.characterType === CharacterType.Hero),
+        ];
       } else if (dataType === "heroally") {
-        return [...heroData, ...allyData];
+        return [
+          ...heroData,
+          ...allyData,
+          ...customGroups.filter(
+            (t) =>
+              t.characterType === CharacterType.Hero ||
+              t.characterType === CharacterType.Ally
+          ),
+        ];
+      } else if (dataType === "allyrebel") {
+        return [
+          ...allyData,
+          ...customGroups.filter(
+            (t) =>
+              t.characterType === CharacterType.Ally ||
+              t.characterType === CharacterType.Rebel
+          ),
+        ];
       }
+			else if (dataType === "heroallyrebel") {
+				return [
+					...heroData,
+					...allyData,
+					...customGroups.filter(
+						(t) =>
+							t.characterType === CharacterType.Hero ||
+							t.characterType === CharacterType.Ally ||
+							t.characterType === CharacterType.Rebel
+					),
+				];
+			}
     };
     setUnfiltered(filterFunc());
     setSelectedGroup(filterFunc()[0]);
     setGroupData(filterFunc());
-  }, [dataType]);
+  }, [dataType, toons]);
+
+  //return core groups, filter out custom toons that no longer exist
+  // function verifyCustomToons(groupsToVerify) {
+  //   if (groupsToVerify.length === 0) return groupsToVerify;
+  //   //first get only the core groups whose id does not start with TC
+  //   const coreGroups = groupsToVerify.filter(
+  //     (group) => !group.id.startsWith("TC")
+  //   );
+  //   //then get only the custom groups
+  //   const customGroups = groupsToVerify.filter((group) =>
+  //     group.id.startsWith("TC")
+  //   );
+  //   //then filter out the custom toons that are no longer in "toons"
+  //   const filteredCustomGroups = customGroups.filter((group) =>
+  //     toons.some((t) => t.deploymentCard.id === group.id)
+  //   );
+  //   //then return the core groups and the filtered custom groups
+  //   return [...coreGroups, ...filteredCustomGroups];
+  //   // return groupsToVerify.filter(group =>
+  //   //   toons.some((t) => t.deploymentCard.id === group.id)
+  //   // );
+  // }
 
   function onKeyUp(ev) {
     if (ev.key === "Enter" || ev.keyCode === 13) {

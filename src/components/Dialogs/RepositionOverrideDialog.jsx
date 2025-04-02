@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 //mui
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -14,10 +14,11 @@ import EnemyFilterList from "../SubComponents/EnemyFilterList";
 //data
 import * as Mission from "../../data/Mission";
 import { enemyData, villainData } from "../../data/carddata";
-
-let groupData = [...enemyData, ...villainData];
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
 export default function RepositionOverrideDialog() {
+  const toons = useToonsStore((state) => state.customCharacters);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [applyAll, setApplyAll] = useState(true);
@@ -25,6 +26,18 @@ export default function RepositionOverrideDialog() {
   const [initialAddedGroups, setInitialAddedGroups] = useState([]);
   const callbackFunc = useRef(null);
   const GUID = useRef("");
+
+  const groupData = useMemo(() => {
+    const baseGroups = [...enemyData, ...villainData];
+    const customGroups = toons
+      .filter(
+        (t) =>
+          t.deploymentCard.characterType === CharacterType.Imperial ||
+          t.deploymentCard.characterType === CharacterType.Villain
+      )
+      .map((toon) => toon.deploymentCard);
+    return [...baseGroups, ...customGroups];
+  }, [toons]);
 
   function onCheckAll(checked) {
     if (checked) setSpecificGroups([]);

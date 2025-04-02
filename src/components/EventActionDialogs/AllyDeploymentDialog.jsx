@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 //mui
 import Button from "@mui/material/Button";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -21,15 +21,17 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import EventSelectAdd from "../SubComponents/EventSelectAdd";
 import TriggerSelectAdd from "../SubComponents/TriggerSelectAdd";
 //data
+import { CharacterType } from "../../lib/core";
 import { allyData } from "../../data/carddata";
 import { DeploymentSpot } from "../../lib/core";
 import { useMapEntitiesStore } from "../../data/dataStore";
 import { EntityType } from "../../lib/core";
+import { useToonsStore } from "../../data/dataStore";
 
-const transformedData = allyData.map((item) => ({
-  name: item.name,
-  id: item.id,
-}));
+// const transformedData = allyData.map((item) => ({
+//   name: item.name,
+//   id: item.id,
+// }));
 
 const defaultDP = [
   {
@@ -43,6 +45,7 @@ const defaultDP = [
 ];
 
 export default function AllyDeploymentDialog() {
+  const toons = useToonsStore((state) => state.customCharacters);
   const [open, setOpen] = useState(false);
   const [eventAction, setEventAction] = useState();
   const callbackFunc = useRef(null);
@@ -51,6 +54,24 @@ export default function AllyDeploymentDialog() {
   const [selectedDP, setSelectedDP] = useState();
   const [dPoints, setdDPoints] = useState();
   const mapEntities = useMapEntitiesStore((store) => store.mapEntities);
+
+  const transformedData = useMemo(() => {
+    const baseGroups = allyData.map((item) => ({
+      name: item.name,
+      id: item.id,
+    }));
+    const customGroups = toons
+      .filter(
+        (t) =>
+          t.deploymentCard.characterType === CharacterType.Ally ||
+          t.deploymentCard.characterType === CharacterType.Rebel
+      )
+      .map((toon) => ({
+        name: toon.deploymentCard.name,
+        id: toon.deploymentCard.id,
+      }));
+    return [...baseGroups, ...customGroups];
+  }, [toons]);
 
   function changeDP(dp) {
     setSelectedDP(dp);

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 //mui
 import Button from "@mui/material/Button";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -24,10 +24,13 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 //data
 import { enemyData, villainData } from "../../data/carddata";
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
-const groupData = [...enemyData, ...villainData];
+// const groupData = [...enemyData, ...villainData];
 
 export default function AddToHandDialog() {
+  const toons = useToonsStore((state) => state.customCharacters);
   const [open, setOpen] = useState(false);
   const [eventAction, setEventAction] = useState();
   const callbackFunc = useRef(null);
@@ -35,6 +38,18 @@ export default function AddToHandDialog() {
   const [selectedGroup, setSelectedGroup] = useState();
   const [filter, setFilter] = useState("");
   const [filteredGroups, setFilteredGroups] = useState([]);
+
+  const groupData = useMemo(() => {
+    const baseGroups = [...enemyData, ...villainData];
+    const customGroups = toons
+      .filter(
+        (t) =>
+          t.deploymentCard.characterType === CharacterType.Imperial ||
+          t.deploymentCard.characterType === CharacterType.Villain
+      )
+      .map((toon) => toon.deploymentCard);
+    return [...baseGroups, ...customGroups];
+  }, [toons]);
 
   function addGroupClick() {
     setEAValue("groupsToAdd", [...eventAction.groupsToAdd, selectedGroup]);
@@ -91,7 +106,7 @@ export default function AddToHandDialog() {
       if (filteredGroups.length > 0) addGroupClick();
       setFilter("");
       setFilteredGroups([...groupData]);
-			setSelectedGroup(groupData[0])
+      setSelectedGroup(groupData[0]);
       ev.target.blur();
     }
   }

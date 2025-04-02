@@ -162,7 +162,7 @@ export default function QueryGroupDialog() {
                       onRemove={(index) =>
                         onRemoveGroup(index, "groupRebelToQuery")
                       }
-                      dataType="heroally"
+                      dataType="heroallyrebel"
                       title="Hero/Ally/Rebel Groups"
                     />
                   </AccordionDetails>
