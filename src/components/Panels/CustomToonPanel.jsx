@@ -126,7 +126,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
 
   //when changing: cardName, cardID, faction, cardSubName
   //also modify values for the deployment card:
-  // cardName => name
+  // cardName => name (also update card instruction name)
   // cardSubName = subname
   // cardID => id (not modified here)
   // faction => spelled out word in deployment card
@@ -135,6 +135,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
     let update = { ...customToon };
     update.cardName = name;
     update.deploymentCard.name = name;
+    update.cardInstruction.instName = name;
     updateToon(update);
     setCustomToon(update);
   }

@@ -7,10 +7,7 @@ import {
   emptyTrigger,
   MissionProperties,
 } from "./Mission";
-import {
-  createGUID,
-  calculateEntityPosition,
-} from "../lib/core";
+import { createGUID, calculateEntityPosition } from "../lib/core";
 
 export const useRootMissionPropsStore = create((set) => ({
   missionProps: { missionGUID: createGUID() },
@@ -454,13 +451,15 @@ export const useToonsStore = create((set) => ({
     set(() => ({ customCharacters: mission.customCharacters })),
   addToon: (toon) =>
     set((state) => ({ customCharacters: [...state.customCharacters, toon] })),
-  updateToon: (toon) =>
+  updateToon: (toon) => {
+		console.log("❗ :: useToonsStore :: toon::", toon);
     set((state) => ({
       customCharacters: state.customCharacters.map((item) => {
         if (item.cardID === toon.cardID) return toon;
         else return item;
       }),
-    })),
+    }));
+  },
   removeToon: (guid) =>
     set((state) => ({
       customCharacters: state.customCharacters.filter(

@@ -71,10 +71,7 @@ const useMissionExporter = (languageID) => {
    */
   const saveMission = () => {
     const missionData = generateMissionData();
-    console.log(
-      "🚀 ~ saveMission ~ rootMissionProps.missionGUID:",
-      rootMissionProps.missionGUID
-    );
+    // console.log("❗ :: saveMission :: missionData::", missionData);
 
     //format the json in a human readable way
     const missionDataStr = JSON.stringify(missionData, null, 2);
