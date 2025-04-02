@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import PropTypes from "prop-types";
 //mui
 import Accordion from "@mui/material/Accordion";
@@ -13,8 +14,10 @@ import SetDPDialog from "../Dialogs/SetDPDialog";
 //data
 import { DeploymentSpot } from "../../lib/core";
 import { enemyData, villainData } from "../../data/carddata";
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
-let groupData = [...enemyData, ...villainData];
+// let groupData = [...enemyData, ...villainData];
 
 export default function EnemyDeploymentTab2({
   eventAction,
@@ -22,6 +25,20 @@ export default function EnemyDeploymentTab2({
   selectedTabIndex,
   tabIndex,
 }) {
+  const toons = useToonsStore((state) => state.customCharacters);
+
+  const groupData = useMemo(() => {
+    const baseGroups = [...enemyData, ...villainData];
+    const customGroups = toons
+      .filter(
+        (t) =>
+          t.deploymentCard.characterType === CharacterType.Imperial ||
+          t.deploymentCard.characterType === CharacterType.Villain
+      )
+      .map((toon) => toon.deploymentCard);
+    return [...baseGroups, ...customGroups];
+  }, [toons]);
+
   function setDPClick() {
     let dpTitle = groupData.find(
       (x) => x.id === eventAction.enemyGroupData.cardID
