@@ -49,14 +49,9 @@ export default function App() {
   useEffect(() => {
     let abortController = new AbortController();
 
-    window.addEventListener(
-      "missionLoaded",
-      (event) => {
-        console.log("❗ :: useEffect :: event::", event);
-        setTabIndex(0);
-      },
-      { signal: abortController.signal }
-    );
+    window.addEventListener("missionLoaded", () => setTabIndex(0), {
+      signal: abortController.signal,
+    });
 
     return () => {
       abortController.abort();

@@ -17,6 +17,7 @@ import InputLabel from "@mui/material/InputLabel";
 import { useMapSectionsStore } from "../../data/dataStore";
 //data
 import { DeploymentColors, EntityType } from "../../lib/core";
+import { MarkerType } from "../../lib/core";
 
 const entityNames = [
   "Tile",
@@ -82,7 +83,14 @@ const EntityProps = ({
     let updated = { ...entity };
     updated.tileSide = value;
     //update the texture name
-    updated.textureName = updated.textureName.substring(0, updated.textureName.length - 1) + value;
+    updated.textureName =
+      updated.textureName.substring(0, updated.textureName.length - 1) + value;
+    onUpdateEntity(updated);
+  }
+
+  function updaterMarkerType(value) {
+    let updated = { ...entity };
+    updated.markerType = value;
     onUpdateEntity(updated);
   }
 
@@ -194,23 +202,43 @@ const EntityProps = ({
       {/* COLOR */}
       {entity.entityType !== EntityType.Door &&
         entity.entityType !== EntityType.Tile && (
-          <FormControl sx={{ marginTop: ".5rem" }}>
-            <InputLabel>Entity Color</InputLabel>
-            <Select
-              name="mapSections"
-              value={entity.entityProperties.entityColor || ""}
-              displayEmpty
-              sx={{ width: "100%" }}
-              onChange={(e) => updateColor(e.target.value)}
-            >
-              {DeploymentColors.map((item, index) => (
-                <MenuItem key={index} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Paper sx={{ padding: ".5rem", backgroundColor: "#472c61" }}>
+            <FormControl sx={{ marginTop: ".5rem", width: "100%" }}>
+              <InputLabel>Entity Color</InputLabel>
+              <Select
+                name="mapSections"
+                value={entity.entityProperties.entityColor || ""}
+                displayEmpty
+                sx={{ width: "100%" }}
+                onChange={(e) => updateColor(e.target.value)}
+              >
+                {DeploymentColors.map((item, index) => (
+                  <MenuItem key={index} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
         )}
+
+      {/* MARKER */}
+      {entity.entityType === EntityType.Token && (
+        <Paper sx={{ padding: ".5rem", backgroundColor: "#472c61" }}>
+          <Typography>Marker Type</Typography>
+          <Select
+            fullWidth
+            value={entity.markerType }
+            displayEmpty
+            sx={{ width: "100%" }}
+            onChange={(e) => updaterMarkerType(e.target.value)}
+          >
+            <MenuItem value={MarkerType.Neutral}>Neutral</MenuItem>
+            <MenuItem value={MarkerType.Rebel}>Rebel</MenuItem>
+            <MenuItem value={MarkerType.Imperial}>Imperial</MenuItem>
+          </Select>
+        </Paper>
+      )}
 
       {/* HIGHLIGHT */}
       {entity.entityType === EntityType.Highlight && (
