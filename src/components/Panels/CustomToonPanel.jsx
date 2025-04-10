@@ -41,8 +41,11 @@ import CustomToonTab5 from "./CustomToonTab5";
 import { CustomToon } from "../../data/Mission";
 import { useToonsStore } from "../../data/dataStore";
 import { createGUID, DeploymentColors, Factions } from "../../lib/core";
+//hooks
+import useLogger from "../../hooks/useLogger";
 
 const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
+  const logger = useLogger();
   const toonTypes = [
     { name: "Hero", id: 0 },
     { name: "Ally", id: 1 },
@@ -64,13 +67,13 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
 
   useEffect(() => {
     if (toons.length > 0 && customToon !== "") {
-      // console.log("🚀 ~ useEffect ~ customToon:", customToon);
+      logger.debug("useEffect ~ customToon:", customToon);
       if (nameRef.current) nameRef.current.value = customToon.cardName;
       if (subNameRef.current) subNameRef.current.value = customToon.cardSubName;
     } else {
       setCustomToon("");
     }
-  }, [toons, customToon]);
+  }, [toons, customToon, logger]);
 
   function getUnusedID() {
     if (toons.length === 0) return "TC1";
@@ -103,7 +106,7 @@ const CustomToonPanel = memo(function CustomToonPanel({ value, index }) {
     newToon.deploymentCard.id = newToon.cardID;
     addToon(newToon);
     setCustomToon(newToon);
-    console.log("🚀 ~ newToonClick ~ newToon:", newToon);
+    logger.debug("newToonClick ~ newToon:", newToon);
   }
 
   function removeToonClick() {
