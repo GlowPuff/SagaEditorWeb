@@ -15,21 +15,48 @@ import {
   enemyData,
   villainData,
 } from "../../data/carddata";
+import { useToonsStore } from "../../data/dataStore";
+import { CharacterType } from "../../lib/core";
 
 export default function TriggeredByTriggers({ missionEvent, modifyEvent }) {
+  const customHeroes = useToonsStore((state) =>
+    state.customCharacters
+      .filter((x) => x.deploymentCard.characterType === CharacterType.Hero)
+      .map((x) => x.deploymentCard)
+  );
+  const customAlliesRebels = useToonsStore((state) =>
+    state.customCharacters
+      .filter(
+        (x) =>
+          x.deploymentCard.characterType === CharacterType.Ally ||
+          x.deploymentCard.characterType === CharacterType.Rebel
+      )
+      .map((x) => x.deploymentCard)
+  );
+  const customEnemies = useToonsStore((state) =>
+    state.customCharacters
+      .filter(
+        (x) =>
+          x.deploymentCard.characterType === CharacterType.Imperial ||
+          x.deploymentCard.characterType === CharacterType.Villain
+      )
+      .map((x) => x.deploymentCard)
+  );
+  const heroArray = [...heroData, ...customHeroes];
+  const allyArray = [...allyData, ...customAlliesRebels];
+  const enemyArray = [...enemyData, ...villainData, ...customEnemies];
+
   const [allyDefeated, setAllyDefeated] = useState(
-    allyData.find((x) => x.id === missionEvent.allyDefeated)
+    allyData.find((x) => x.id === missionEvent.allyDefeated) || allyData[0]
   );
   const [heroWounded, setHeroWounded] = useState(
-    heroData.find((x) => x.id === missionEvent.heroWounded)
+    heroArray.find((x) => x.id === missionEvent.heroWounded) || heroArray[0]
   );
   const [heroWithdraws, setHeroWithdraws] = useState(
-    heroData.find((x) => x.id === missionEvent.heroWithdraws)
+    heroArray.find((x) => x.id === missionEvent.heroWithdraws) || heroArray[0]
   );
   const [enemyActivate, setEnemyActivate] = useState(
-    [...enemyData, ...villainData].find(
-      (x) => x.id === missionEvent.activationOf
-    )
+    enemyArray.find((x) => x.id === missionEvent.activationOf) || enemyArray[0]
   );
 
   function changeAllyDefeated(value) {
@@ -58,46 +85,71 @@ export default function TriggeredByTriggers({ missionEvent, modifyEvent }) {
 
   return (
     <div className="mission-panel">
-      <TextField
-        type="number"
-        label="Start of Round"
-        name="startOfRound"
-        variant="filled"
-        value={missionEvent.startOfRound}
-        onChange={(e) => modifyEvent(e.target.name, e.target.value)}
-        onFocus={(e) => e.target.select()}
-        fullWidth
-        onKeyUp={onKeyUp}
-        sx={{ marginBottom: "1rem" }}
-      />
+      <div className="label-text">
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="useStartOfRound"
+              checked={missionEvent.useStartOfRound}
+              onChange={(e) => modifyEvent(e.target.name, e.target.checked)}
+            />
+          }
+          label="Start of Round"
+        />
+
+        <TextField
+          type="number"
+          label="Start of Round"
+          name="startOfRound"
+          variant="filled"
+          value={missionEvent.startOfRound}
+          onChange={(e) => modifyEvent(e.target.name, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          fullWidth
+          onKeyUp={onKeyUp}
+          sx={{ marginBottom: "1rem" }}
+        />
+      </div>
       <FormControlLabel
         control={
           <Checkbox
-            name="useStartOfRound"
-            checked={missionEvent.useStartOfRound}
+            name="useStartOfEachRound"
+            checked={missionEvent.useStartOfEachRound}
             onChange={(e) => modifyEvent(e.target.name, e.target.checked)}
           />
         }
         label="Start of Each Round"
       />
       {/* === */}
-      <TextField
-        type="number"
-        label="End of Round"
-        name="endOfRound"
-        variant="filled"
-        value={missionEvent.endOfRound}
-        onChange={(e) => modifyEvent(e.target.name, e.target.value)}
-        onFocus={(e) => e.target.select()}
-        fullWidth
-        onKeyUp={onKeyUp}
-        sx={{ marginBottom: "1rem" }}
-      />
+      <div className="label-text">
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="useEndOfRound"
+              checked={missionEvent.useEndOfRound}
+              onChange={(e) => modifyEvent(e.target.name, e.target.checked)}
+            />
+          }
+          label="End of Round"
+        />
+        <TextField
+          type="number"
+          label="End of Round"
+          name="endOfRound"
+          variant="filled"
+          value={missionEvent.endOfRound}
+          onChange={(e) => modifyEvent(e.target.name, e.target.value)}
+          onFocus={(e) => e.target.select()}
+          fullWidth
+          onKeyUp={onKeyUp}
+          sx={{ marginBottom: "1rem" }}
+        />
+      </div>
       <FormControlLabel
         control={
           <Checkbox
-            name="useEndOfRound"
-            checked={missionEvent.useEndOfRound}
+            name="useEndOfEachRound"
+            checked={missionEvent.useEndOfEachRound}
             onChange={(e) => modifyEvent(e.target.name, e.target.checked)}
           />
         }
@@ -165,7 +217,7 @@ export default function TriggeredByTriggers({ missionEvent, modifyEvent }) {
           displayEmpty
           disabled={!missionEvent.useAllyDefeated}
         >
-          {allyData.map((item, index) => (
+          {allyArray.map((item, index) => (
             <MenuItem key={index} value={item}>
               {item.name}
             </MenuItem>
@@ -192,7 +244,7 @@ export default function TriggeredByTriggers({ missionEvent, modifyEvent }) {
           displayEmpty
           disabled={!missionEvent.useHeroWounded}
         >
-          {heroData.map((item, index) => (
+          {heroArray.map((item, index) => (
             <MenuItem key={index} value={item}>
               {item.name}
             </MenuItem>
@@ -219,7 +271,7 @@ export default function TriggeredByTriggers({ missionEvent, modifyEvent }) {
           displayEmpty
           disabled={!missionEvent.useHeroWithdraws}
         >
-          {heroData.map((item, index) => (
+          {heroArray.map((item, index) => (
             <MenuItem key={index} value={item}>
               {item.name}
             </MenuItem>
@@ -246,9 +298,9 @@ export default function TriggeredByTriggers({ missionEvent, modifyEvent }) {
           displayEmpty
           disabled={!missionEvent.useActivation}
         >
-          {[...enemyData, ...villainData].map((item, index) => (
+          {enemyArray.map((item, index) => (
             <MenuItem key={index} value={item}>
-              {item.name}
+              {item.name}: {item.id}
             </MenuItem>
           ))}
         </Select>
