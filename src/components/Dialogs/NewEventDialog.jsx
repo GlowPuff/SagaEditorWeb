@@ -34,8 +34,8 @@ export default function NewEventDialog() {
   }
 
   function modifyEA(command, value) {
-    console.log("🚀 ~ modifyEA ~ eventAction:", value);
-    console.log("🚀 ~ modifyEA ~ command:", command);
+    // console.log("🚀 ~ modifyEA ~ eventAction:", value);
+    // console.log("🚀 ~ modifyEA ~ command:", command);
     switch (command) {
       case "add": {
         //value = event action
@@ -84,7 +84,7 @@ export default function NewEventDialog() {
   }
 
   function modifyEvent(name, value) {
-    console.log("🚀 ~ modifyEvent ~ value:", value);
+    // console.log("🚀 ~ modifyEvent ~ value:", value);
     setMissionEvent({ ...missionEvent, [name]: value });
   }
 
@@ -110,7 +110,7 @@ export default function NewEventDialog() {
   NewEventDialog.ShowDialog = showDialog;
 
   function onOK() {
-    console.log("🚀 ~ onOK ~ missionEvent:", missionEvent);
+    // console.log("🚀 ~ onOK ~ missionEvent:", missionEvent);
     callbackFunc.current(missionEvent);
     setOpen(false);
   }

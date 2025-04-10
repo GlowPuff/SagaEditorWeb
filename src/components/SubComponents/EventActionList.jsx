@@ -52,7 +52,7 @@ export default function EventActionList({ eventActions, modifyEA }) {
     switch (command) {
       case "add":
         NewEADialog.ShowDialog((eaType) => {
-          console.log("🚀 ~ NewEADialog.ShowDialog ~ eaType:", eaType);
+          // console.log("🚀 ~ NewEADialog.ShowDialog ~ eaType:", eaType);
           EAFactoryActions(eaType, undefined, (eA) => modifyEA("add", eA));
         });
         break;
