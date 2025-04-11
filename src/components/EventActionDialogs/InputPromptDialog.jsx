@@ -49,7 +49,7 @@ export default function InputPromptDialog() {
   }
 
   function setEAValue(name, value) {
-    console.log("🚀 ~ setEAValue ~ name, value:", name, value);
+    // console.log("🚀 ~ setEAValue ~ name, value:", name, value);
     setEventAction({ ...eventAction, [name]: value });
   }
 
@@ -89,7 +89,7 @@ export default function InputPromptDialog() {
   }
 
   function showDialog(ea, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+    // console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
     setOpen(true);

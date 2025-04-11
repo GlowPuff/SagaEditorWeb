@@ -87,7 +87,7 @@ export default function AllyDeploymentDialog() {
   }
 
   function showDialog(ea, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+    // console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
     setSelectedAlly(transformedData.find((x) => x.id === ea.allyID) || "");

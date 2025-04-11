@@ -437,21 +437,21 @@ const MapEditor = forwardRef(
         twoRef.current.update();
       };
 
-      container.addEventListener("dblclick", handleDoubleClick);
-      container.addEventListener("mousedown", handleMouseDown);
-      container.addEventListener("mouseup", handleMouseUp);
-      container.addEventListener("mousemove", handleMouseMove);
-      container.addEventListener("wheel", handleWheel);
-      container.addEventListener("contextmenu", (e) => e.preventDefault());
+      const controller = new AbortController();
+      const { signal } = controller;
+
+      container.addEventListener("dblclick", handleDoubleClick, { signal });
+      container.addEventListener("mousedown", handleMouseDown, { signal });
+      container.addEventListener("mouseup", handleMouseUp, { signal });
+      container.addEventListener("mousemove", handleMouseMove, { signal });
+      container.addEventListener("wheel", handleWheel, { signal });
+      container.addEventListener("contextmenu", (e) => e.preventDefault(), {
+        signal,
+      });
 
       //cleanup
       return () => {
-        container.removeEventListener("dblclick", handleDoubleClick);
-        container.removeEventListener("mousedown", handleMouseDown);
-        container.removeEventListener("mouseup", handleMouseUp);
-        container.removeEventListener("mousemove", handleMouseMove);
-        container.removeEventListener("wheel", handleWheel);
-        container.removeEventListener("contextmenu", (e) => e.preventDefault());
+        controller.abort();
       };
     });
 

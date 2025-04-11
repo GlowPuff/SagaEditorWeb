@@ -26,10 +26,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { enemyData, villainData } from "../../data/carddata";
 import { useToonsStore } from "../../data/dataStore";
 import { CharacterType } from "../../lib/core";
+//hooks
+import useLogger from "../../hooks/useLogger";
 
 // const groupData = [...enemyData, ...villainData];
 
 export default function AddToHandDialog() {
+	const logger = useLogger();
   const toons = useToonsStore((state) => state.customCharacters);
   const [open, setOpen] = useState(false);
   const [eventAction, setEventAction] = useState();
@@ -82,7 +85,7 @@ export default function AddToHandDialog() {
   }
 
   function showDialog(ea, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+		logger.debug("showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
     setSelectedGroup(groupData[0]);

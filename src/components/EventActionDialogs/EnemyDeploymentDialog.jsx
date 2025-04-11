@@ -174,7 +174,7 @@ export default function EnemyDeploymentDialog() {
   }
 
   function onIconChanged(icon) {
-    console.log("🚀 ~ onIconChanged ~ icon:", icon);
+    // console.log("🚀 ~ onIconChanged ~ icon:", icon);
     setEAValue("thumbnail", icon);
   }
 

@@ -17,7 +17,7 @@ export default function ChangeObjectiveDialog() {
   const callbackFunc = useRef(null);
 
   function showDialog(ea, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+    // console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
     setFPanelOpen(false);

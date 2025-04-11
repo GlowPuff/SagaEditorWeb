@@ -63,7 +63,7 @@ const MissionSaveButton = ({ languageID }) => {
       entityGroups: entityGroups,
       customCharacters: customCharacters,
     };
-    console.log("🚀 ~ onSave ~ rootMissionProps.missionGUID:", rootMissionProps.missionGUID)
+    // console.log("🚀 ~ onSave ~ rootMissionProps.missionGUID:", rootMissionProps.missionGUID)
 
     //format the json in a human readable way
     const missionDataStr = JSON.stringify(missionData, null, 2);

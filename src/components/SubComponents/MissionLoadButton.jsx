@@ -54,7 +54,7 @@ const MissionLoadButton = ({ onClearData }) => {
         reader.onload = (e) => {
           const content = e.target.result;
           const importedMission = JSON.parse(content);
-          console.log(importedMission);
+          // console.log(importedMission);
 
           onClearData();
 

@@ -37,7 +37,7 @@ export default function ModifyMapEntityDialog() {
   }
 
   function updateEntityModifier(em) {
-    console.log("🚀 ~ updateEntityModifier ~ em:", em);
+    // console.log("🚀 ~ updateEntityModifier ~ em:", em);
     setEAValue(
       "entitiesToModify",
       eventAction.entitiesToModify.map((x) => (x.GUID === em.GUID ? em : x))
@@ -59,8 +59,8 @@ export default function ModifyMapEntityDialog() {
 
   function addEntityClick() {
     let modifier = EntityModifier.fromEntity(selectedEntity);
-    console.log("🚀 ~ addEntityClick ~ selectedEntity:", selectedEntity);
-    console.log("🚀 ~ addEntityClick ~ modifier:", modifier);
+    // console.log("🚀 ~ addEntityClick ~ selectedEntity:", selectedEntity);
+    // console.log("🚀 ~ addEntityClick ~ modifier:", modifier);
     setEAValue("entitiesToModify", [...eventAction.entitiesToModify, modifier]);
   }
 

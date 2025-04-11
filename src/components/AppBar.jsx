@@ -52,8 +52,11 @@ import {
 } from "../data/dataStore";
 import useMissionImporter from "../hooks/useMissionImporter";
 import useMissionExporter from "../hooks/useMissionExporter";
+//hooks
+import useLogger from "../hooks/useLogger";
 
 export default function AppBar({ languageID, onClearMap }) {
+  const logger = useLogger();
   const [chooserOpen, setChooserOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const addEvent = useEventsStore((state) => state.addEvent);
@@ -129,7 +132,7 @@ export default function AppBar({ languageID, onClearMap }) {
       const newGUID = createGUID();
       emptyMission.missionGUID = newGUID;
       updateRootMissionProp("missionGUID", newGUID);
-      console.log("🚀 ~ handleClose ~ emptyMission:", emptyMission);
+      logger.debug("~ handleClose ~ emptyMission:", emptyMission);
 
       onClearMap();
 
@@ -186,15 +189,15 @@ export default function AppBar({ languageID, onClearMap }) {
     const success =
       importMission.loadMissionFromLocalStorage("quickSaveMission");
     if (success) {
-      // console.log("Mission loaded from local storage successfully");
+      logger.info("Mission loaded from local storage successfully");
     } else {
-      console.error("Failed to load mission from local storage");
+      logger.error("Failed to load mission from local storage");
     }
   }
 
   function clearLocalStorage() {
     handleCloseMenu();
-		localStorage.removeItem("quickSaveMission");
+    localStorage.removeItem("quickSaveMission");
   }
 
   function showChooser() {
@@ -212,9 +215,9 @@ export default function AppBar({ languageID, onClearMap }) {
         data.missionGUID
       );
       if (success) {
-        console.log("Mission loaded successfully");
+        logger.info("Mission loaded successfully");
       } else {
-        console.error("Failed to load mission");
+        logger.error("Failed to load mission");
       }
     }
   }

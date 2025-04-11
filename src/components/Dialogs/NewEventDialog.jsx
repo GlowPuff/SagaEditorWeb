@@ -22,8 +22,11 @@ import GenericTextDialog from "./GenericTextDialog";
 import TriggeredByTriggers from "../SubComponents/TriggeredByTriggers";
 import EventActionList from "../SubComponents/EventActionList";
 import AdditionalTriggersList from "../SubComponents/AdditionalTriggersList";
+//hooks
+import useLogger from "../../hooks/useLogger";
 
 export default function NewEventDialog() {
+  const logger = useLogger();
   const [open, setOpen] = useState(false);
   const [missionEvent, setMissionEvent] = useState();
   const callbackFunc = useRef(null);
@@ -34,8 +37,8 @@ export default function NewEventDialog() {
   }
 
   function modifyEA(command, value) {
-    // console.log("🚀 ~ modifyEA ~ eventAction:", value);
-    // console.log("🚀 ~ modifyEA ~ command:", command);
+    logger.debug("modifyEA ~ command:", command);
+    logger.debug("modifyEA ~ eventAction:", value);
     switch (command) {
       case "add": {
         //value = event action
@@ -84,7 +87,7 @@ export default function NewEventDialog() {
   }
 
   function modifyEvent(name, value) {
-    // console.log("🚀 ~ modifyEvent ~ value:", value);
+    logger.debug("modifyEvent ~ value:", value);
     setMissionEvent({ ...missionEvent, [name]: value });
   }
 
@@ -110,7 +113,7 @@ export default function NewEventDialog() {
   NewEventDialog.ShowDialog = showDialog;
 
   function onOK() {
-    // console.log("🚀 ~ onOK ~ missionEvent:", missionEvent);
+    logger.debug("onOK ~ missionEvent:", missionEvent);
     callbackFunc.current(missionEvent);
     setOpen(false);
   }

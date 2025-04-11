@@ -59,12 +59,10 @@ export default function App() {
   }, []);
 
   function onSetMissionProps(name, value) {
-    //console.log("🚀 ~ onSetMissionProps ~ text:", value);
     updateMissionProp(name, value);
   }
 
   function onModifyEnemyGroups(action) {
-    // console.log("🚀 ~ onModifyEnemyGroups ~ action:", action);
     if (action.type === "initial") {
       if (action.command === "add") {
         if (
@@ -94,13 +92,7 @@ export default function App() {
     <>
       <div className="surface-layout">
         {/* menu */}
-        <AppBar
-          languageID={languageID}
-          onClearMap={clearMap}
-          onChangeSelectedSection={(value) =>
-            console.log("changed section: ", value)
-          }
-        />
+        <AppBar languageID={languageID} onClearMap={clearMap} />
 
         {/* left panel */}
         <LeftPanel ref={leftPanelRef} />

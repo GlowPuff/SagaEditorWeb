@@ -43,7 +43,7 @@ export default function OptionalDeploymentDialog() {
   const mapEntities = useMapEntitiesStore((store) => store.mapEntities);
 
   function showDialog(ea, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+    // console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
     let deploymentPoints = [

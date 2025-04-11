@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import PropTypes from "prop-types";
 //data
 import { emptyGUID } from "../../lib/core";
-// import { useEventDispatch } from "../../data/MissionProvider";
 import { useEventsStore, useTriggerStore } from "../../data/dataStore";
+//hooks
+import useLogger from "../../hooks/useLogger";
 
 export default function TriggerValidator({ dataChanged }) {
+  const logger = useLogger();
   let missionEvents = useEventsStore((state) => state.missionEvents); //useEvents();
   const replaceAllEvents = useEventsStore((state) => state.replaceAll);
   let missionTriggers = useTriggerStore((state) => state.missionTriggers);
@@ -21,7 +23,7 @@ export default function TriggerValidator({ dataChanged }) {
       return;
     }
 
-    console.log("***VALIDATING***");
+    logger.debug("***VALIDATING***");
     // console.log("🚀 ~ TriggerValidator ~ missionEvents:", missionEvents);
 
     let dirty = false;
@@ -56,7 +58,7 @@ export default function TriggerValidator({ dataChanged }) {
                 `${mEvent.name}: Trigger '${t.name}' no longer exists, removing from Event's Additional Triggers`
               );
             } else {
-              console.log(
+              logger.error(
                 `Error removing Trigger. Trigger with GUID [${item.GUID}] not found in the Mission`
               );
               removedTriggers.push(
@@ -83,7 +85,7 @@ export default function TriggerValidator({ dataChanged }) {
       //eventDispatch({ command: "replaceAll", replacements: mEvents });
       replaceAllEvents(mEvents);
       //report
-      console.log("🚀 ~ removedTriggers:", removedTriggers);
+      logger.debug("removedTriggers:", removedTriggers);
     }
   }
 

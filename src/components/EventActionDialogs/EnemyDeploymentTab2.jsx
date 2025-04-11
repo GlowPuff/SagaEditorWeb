@@ -47,7 +47,7 @@ export default function EnemyDeploymentTab2({
       `${dpTitle.name}: ${dpTitle.id}`,
       eventAction.enemyGroupData.pointList,
       (value) => {
-        console.log("🚀 ~ setDPClick ~ value:", value);
+        // console.log("🚀 ~ setDPClick ~ value:", value);
         modifyEA("enemyGroupData", {
           ...eventAction.enemyGroupData,
           pointList: value,

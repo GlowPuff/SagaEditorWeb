@@ -11,6 +11,8 @@ import {
   useToonsStore,
   useRootMissionPropsStore,
 } from "../data/dataStore";
+//hooks
+import useLogger from "./useLogger";
 
 /**
  * Custom hook for loading mission data from a JSON file or localStorage
@@ -18,6 +20,7 @@ import {
  * @returns {Object} Object containing loadMission and loadMissionFromLocalStorage functions
  */
 const useMissionImporter = (onClearData) => {
+  const logger = useLogger();
   // Get state update methods from stores
   const updateRootMissionProp = useRootMissionPropsStore(
     (state) => state.updateMissionProp
@@ -77,7 +80,7 @@ const useMissionImporter = (onClearData) => {
         reader.onload = (e) => {
           const content = e.target.result;
           const importedMission = JSON.parse(content);
-          console.log(importedMission);
+          logger.debug("Imported mission data:", importedMission);
           processMissionData(importedMission);
           //send a global event to notify that the mission has been loaded
           const event = new CustomEvent("missionLoaded");
@@ -100,19 +103,19 @@ const useMissionImporter = (onClearData) => {
     try {
       const storedData = localStorage.getItem(key);
       if (!storedData) {
-        console.error(`No mission data found in localStorage with key: ${key}`);
+        logger.error(`No mission data found in localStorage with key: ${key}`);
         return false;
       }
 
       const importedMission = JSON.parse(storedData);
-      console.log("Loaded mission from localStorage:", importedMission);
+      logger.debug("Loaded mission from localStorage:", importedMission);
       processMissionData(importedMission);
       //send a global event to notify that the mission has been loaded
       const event = new CustomEvent("missionLoaded");
       window.dispatchEvent(event);
       return true;
     } catch (error) {
-      console.error("Error loading mission from localStorage:", error);
+      logger.error("Error loading mission from localStorage:", error);
       return false;
     }
   };
@@ -128,22 +131,22 @@ const useMissionImporter = (onClearData) => {
           (mission) => mission.missionGUID === key
         );
         if (mission) {
-          console.log("Using saved mission:", mission);
+          logger.debug("Using saved mission:", mission);
           processMissionData(mission);
           //send a global event to notify that the mission has been loaded
           const event = new CustomEvent("missionLoaded");
           window.dispatchEvent(event);
           return true;
         } else {
-          console.error(`No mission found with GUID: ${key}`);
+          logger.error(`No mission found with GUID: ${key}`);
           return false;
         }
       } else {
-        console.error("No saved missions found.");
+        logger.error("No saved missions found.");
         return false;
       }
     } catch (error) {
-      console.error("Error loading mission from localStorage:", error);
+      logger.error("Error loading mission from localStorage:", error);
       return false;
     }
   };

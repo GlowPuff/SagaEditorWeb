@@ -29,7 +29,7 @@ export default function ChangeInstructionsDialog() {
   }
 
   function showDialog(ea, callback) {
-    console.log("🚀 ~ showDialog ~ ea:", ea);
+    // console.log("🚀 ~ showDialog ~ ea:", ea);
     callbackFunc.current = callback;
     setEventAction(ea);
     setOpen(true);

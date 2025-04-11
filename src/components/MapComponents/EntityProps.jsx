@@ -56,7 +56,7 @@ const EntityProps = ({
     let updated = { ...entity };
     updated.entityProperties.entityColor = value;
     updated.deploymentColor = value;
-    console.log("🚀 ~ updateColor ~ updated:", updated);
+    // console.log("🚀 ~ updateColor ~ updated:", updated);
     onUpdateEntity(updated);
   }
 
