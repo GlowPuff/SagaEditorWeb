@@ -510,14 +510,9 @@ export class EntityModifier {
   static fromEntity(entity) {
     // console.log("🚀 ~ EntityModifier ~ fromEntity ~ entity:", entity);
     let modifier = new EntityModifier();
-    let entityProperties = new EntityProperties();
-    entityProperties.name = entity.name;
-    entityProperties.isActive = entity.entityProperties.isActive;
-    entityProperties.theText = entity.entityProperties.theText;
-    entityProperties.entityColor = entity.entityProperties.entityColor;
-    entityProperties.ownerGUID = entity.entityProperties.ownerGUID;
-    entityProperties.buttonActions = [...entity.entityProperties.buttonActions];
-    modifier.entityProperties = entityProperties;
+    modifier.entityProperties = JSON.parse(
+      JSON.stringify(entity.entityProperties)
+    );
     modifier.hasColor = entity.hasColor;
     modifier.hasProperties = entity.hasProperties;
     modifier.sourceGUID = entity.GUID;

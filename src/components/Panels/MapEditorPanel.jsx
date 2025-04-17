@@ -278,7 +278,8 @@ const MapEditorPanel = forwardRef(({ value, index }, ref) => {
   }
 
   const handleDuplicateEntity = useCallback(() => {
-    let newEntity = { ...selectedEntity };
+		// Create a deep copy to prevent property references
+		let newEntity = JSON.parse(JSON.stringify(selectedEntity));
     newEntity.GUID = createGUID();
     if (!newEntity.name.includes("Duplicate"))
       newEntity.name = `${selectedEntity.name} (Duplicate)`;
