@@ -10,6 +10,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 //routes
 import ErrorPage from "./components/ErrorPage";
+import CampaignManagerPanel from "./components/CampaignManager/CampaignManagerPanel.jsx";
 // fonts
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -24,10 +25,10 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
   },
-  // {
-  //   path: "userinterface",
-  //   element: <UserInterface />,
-  // },
+  {
+    path: "/campaign-manager",
+    element: <CampaignManagerPanel />,
+  },
 ]);
 
 const darkTheme = createTheme(createTranslatorTheme);

@@ -217,6 +217,40 @@ export function calculateEntityPosition(entity, drawingPosition) {
   }
 }
 
+//convert a Blob to a Base64 string with data:/image/png;base64, prefix
+export async function convertToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () =>
+      resolve("data:image/png;base64," + reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+//load an image and convert to base64
+export async function loadImageAsBase64(imagePath) {
+  try {
+    const response = await fetch(imagePath);
+    const blob = await response.blob();
+    const base64String = await convertToBase64(blob);
+    return base64String;
+  } catch (error) {
+    console.error(`Error loading image from ${imagePath}:`, error);
+    return null;
+  }
+}
+
+//convert a Base64 string to a Blob
+export function base64ToBlob(base64, contentType = "image/png") {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Uint8Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  return new Blob([byteNumbers], { type: contentType });
+}
+
 export const PriorityTraits = [
   { name: "Brawler", propName: "incBrawler" },
   { name: "Creature", propName: "incCreature" },

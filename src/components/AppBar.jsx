@@ -1,13 +1,12 @@
-// import { useState, useEffect } from "react";
 import { Fragment, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 //mui
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-// import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
@@ -30,7 +29,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import Delete from "@mui/icons-material/Delete";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-//dialogs
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks"; //dialogs
 import NewTriggerDialog from "./Dialogs/NewTriggerDialog";
 import NewEventDialog from "./Dialogs/NewEventDialog";
 import SavedMissionChooser from "./Dialogs/SavedMissionChooser";
@@ -195,6 +194,11 @@ export default function AppBar({ languageID, onClearMap }) {
     }
   }
 
+  function goCM() {
+    handleCloseMenu();
+    window.location.href = "/campaign-manager";
+  }
+
   function clearLocalStorage() {
     handleCloseMenu();
     localStorage.removeItem("quickSaveMission");
@@ -226,6 +230,7 @@ export default function AppBar({ languageID, onClearMap }) {
     <div className="menu">
       <Paper>
         <div className="menubar">
+          {/* HAMBURGER MENU */}
           <IconButton
             variant="contained"
             onClick={handleClickMenu}
@@ -326,12 +331,25 @@ export default function AppBar({ languageID, onClearMap }) {
 
             <Divider />
 
+            {/* MISSION CHOOSER */}
             <Tooltip title="Open the Saved Mission Chooser" placement="right">
               <MenuItem onClick={showChooser}>
                 <ListItemIcon>
                   <ListAltIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Saved Mission Chooser...</ListItemText>
+              </MenuItem>
+            </Tooltip>
+
+            <Divider />
+
+            {/* OPEN CAMPAIGN MANAGER */}
+            <Tooltip title="Go To Campaign Manager" placement="right">
+              <MenuItem onClick={goCM} component={Link} to="/">
+                <ListItemIcon>
+                  <LibraryBooksIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Campaign Manager...</ListItemText>
               </MenuItem>
             </Tooltip>
           </Menu>

@@ -1,0 +1,54 @@
+.metadata-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5em;
+}
+
+.campaign-thumbnail {
+  border: 2px solid violet;
+  border-radius: 50%;
+}
+
+.structure-layout {
+  display: grid;
+  grid-template-columns: minmax(5rem, 20rem) auto 1fr;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.structure-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.structure-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.structure-item-row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  width: fit-content;
+  min-width: 225px;
+}
+
+.flexible-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5rem, max-content));
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.instructions-layout{
+	display: grid;
+	grid-template-columns: 2fr auto;
+	gap: 0.5rem;
+	height: 100%;
+}

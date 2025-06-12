@@ -15,6 +15,7 @@ export default function GenericTextDialog() {
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [fPanelOpen, setFPanelOpen] = useState(false);
+  const [showFormatting, setShowFormatting] = useState(true);
   const callbackFunc = useRef(null);
 
   function showDialog(dialogTitle, textValue, callback) {
@@ -25,6 +26,16 @@ export default function GenericTextDialog() {
     setOpen(true);
   }
   GenericTextDialog.ShowDialog = showDialog;
+
+  function showDialogNoFormatting(dialogTitle, textValue, callback) {
+    callbackFunc.current = callback;
+    setText(textValue);
+    setTitle(dialogTitle);
+    setFPanelOpen(false);
+    setShowFormatting(false);
+    setOpen(true);
+  }
+  GenericTextDialog.ShowDialogNoFormatting = showDialogNoFormatting;
 
   function onOK() {
     callbackFunc.current(text ? text.trim() : "");
@@ -69,14 +80,16 @@ export default function GenericTextDialog() {
               paddingBottom: "1rem",
             }}
           >
-            <Button
-              variant="contained"
-              sx={{ marginRight: "auto" }}
-              color={fPanelOpen ? "success" : "primary"}
-              onClick={() => setFPanelOpen(!fPanelOpen)}
-            >
-              text formatting
-            </Button>
+            {showFormatting && (
+              <Button
+                variant="contained"
+                sx={{ marginRight: "auto" }}
+                color={fPanelOpen ? "success" : "primary"}
+                onClick={() => setFPanelOpen(!fPanelOpen)}
+              >
+                text formatting
+              </Button>
+            )}
 
             <Button variant="contained" onClick={() => onOK()}>
               continue

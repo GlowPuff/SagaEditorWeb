@@ -198,7 +198,7 @@ const MapPropsPanel = ({
             Entities
           </AccordionSummary>
           <AccordionDetails>
-            <div className="simple-column .scrollbar">
+            <div className="simple-column">
               <List
                 sx={{
                   maxHeight: "15rem",
