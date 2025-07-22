@@ -9,6 +9,7 @@ export const useCampaignState = create((set) => ({
   campaignImageData: null, // Base64 image data
   instructionTranslations: [], //array of TranslationItem
   campaignSlots: [], //array of CampaignSlot
+  missionPool: [], //array of MissionPoolItem
   packageGUID: createGUID(),
 
   resetCampaignState: () =>
@@ -19,6 +20,7 @@ export const useCampaignState = create((set) => ({
       campaignImageData: null,
       instructionTranslations: [],
       campaignSlots: [],
+      missionPool: [],
       packageGUID: createGUID(),
     }),
 
@@ -68,6 +70,11 @@ export const useCampaignState = create((set) => ({
       campaignSlots: state.campaignSlots.filter((_, i) => i !== index),
     })),
 
+  // removeCampaignSlotsBulk: (indices) =>
+  //   set((state) => ({
+  //     campaignSlots: state.campaignSlots.filter((_, i) => !indices.includes(i)),
+  //   })),
+
   updateSlotStructure: (index, updatedStructure) =>
     set((state) => {
       const newSlots = [...state.campaignSlots];
@@ -79,6 +86,8 @@ export const useCampaignState = create((set) => ({
     set((state) => {
       const newSlots = [...state.campaignSlots];
       newSlots[index].campaignMissionItem = updatedMissionItem;
+      newSlots[index].structure.projectItem.Title =
+        updatedMissionItem.missionName;
       return { campaignSlots: newSlots };
     }),
 
@@ -127,12 +136,73 @@ export const useCampaignState = create((set) => ({
     set((state) => {
       const newSlots = [...state.campaignSlots];
       if (index !== -1) {
-        {
+        newSlots[index].structure = new CampaignStructure();
+        newSlots[index].translationItems = [];
+        newSlots[index].campaignMissionItem = new MissionItem();
+      }
+      return { campaignSlots: newSlots };
+    }),
+
+  resetCampaignSlotsBulk: (indices) =>
+    set((state) => {
+      const newSlots = [...state.campaignSlots];
+      indices.forEach((index) => {
+        if (index >= 0 && index < newSlots.length) {
           newSlots[index].structure = new CampaignStructure();
           newSlots[index].translationItems = [];
           newSlots[index].campaignMissionItem = new MissionItem();
         }
-      }
+      });
       return { campaignSlots: newSlots };
+    }),
+
+  // Mission Pool
+  addMissionPoolItem: (poolItem) =>
+    set((state) => ({
+      missionPool: [...state.missionPool, poolItem],
+    })),
+  removeMissionPoolItem: (missionGUID) =>
+    set((state) => ({
+      missionPool: state.missionPool.filter(
+        (item) => item.missionGUID !== missionGUID
+      ),
+    })),
+  updateMissionPoolItem(index, updatedItem) {
+    set((state) => {
+      const newPool = [...state.missionPool];
+      if (newPool[index]) {
+        newPool[index] = { ...newPool[index], ...updatedItem };
+      }
+      return { missionPool: newPool };
+    });
+  },
+  //translation is TranslationItem
+  addPoolTranslation: (index, translation) =>
+    set((state) => {
+      const newPool = [...state.missionPool];
+      if (newPool[index]) {
+        newPool[index].translationItems.push(translation);
+      }
+      return { missionPool: newPool };
+    }),
+  removePoolTranslation: (missionPoolIndex, translationItem) =>
+    set((state) => {
+      const newPool = [...state.missionPool];
+      console.log("❗ :: set :: newPool::", newPool);
+      if (
+        newPool[missionPoolIndex] &&
+        newPool[missionPoolIndex].missionItem.missionGUID ===
+          translationItem.assignedMissionGUID
+      ) {
+        newPool[missionPoolIndex].translationItems = newPool[
+          missionPoolIndex
+        ].translationItems.filter(
+          (item) => item.fileName !== translationItem.fileName
+        );
+      } else
+        console.warn(
+          `Mission Pool Item at index ${missionPoolIndex} does not match the translation's assigned mission GUID (${translationItem.assignedMissionGUID}).`
+        );
+      return { missionPool: newPool };
     }),
 }));

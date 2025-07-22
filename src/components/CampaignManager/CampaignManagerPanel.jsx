@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "../../App.css";
 import "../../cm-css.css";
 //mui
@@ -9,12 +9,14 @@ import Alert from "@mui/material/Alert";
 import AppBar from "./AppBar";
 import MetaDataLayout from "./MetaDataLayout";
 import StructureLayout from "./StructureLayout";
+import MissionPool from "./MissionPool";
 // import useZip from "./UseZip";
 import UseCampaignImporter from "./UseCampaignImporter";
 import { useCampaignState } from "./CampaignState";
 import { useRawCampaignDataState } from "./RawCampaignDataState";
 
 const CampaignManagerPanel = () => {
+  const missionPoolRef = useRef();
   const [selectedMissionIndex, setSelectedMissionIndex] = useState(-1);
   const [isDragging, setIsDragging] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
@@ -110,6 +112,9 @@ const CampaignManagerPanel = () => {
   }, [campaignImporter]);
 
   const handleResetCampaign = () => {
+    if (missionPoolRef.current) {
+      missionPoolRef.current.onReset();
+    }
     resetCampaignState();
     resetRawCampaignData();
     setSelectedMissionIndex(-1);
@@ -157,6 +162,7 @@ const CampaignManagerPanel = () => {
         )}
         <AppBar resetCampaign={handleResetCampaign} onSnackBar={onSnackBar} />
         <MetaDataLayout onSnackBar={onSnackBar} />
+        <MissionPool ref={missionPoolRef} onSnackBar={onSnackBar} />
         <StructureLayout
           onSnackBar={onSnackBar}
           selectedMissionIndex={selectedMissionIndex}

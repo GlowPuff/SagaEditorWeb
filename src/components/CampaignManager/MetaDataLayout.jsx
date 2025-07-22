@@ -53,18 +53,29 @@ const MetaDataLayout = ({ onSnackBar }) => {
           const img = new Image();
           img.src = e.target.result;
           img.onload = async function () {
-            // Check image dimensions
-            const validDimensions =
-              (img.width === 64 && img.height === 64) ||
-              (img.width === 128 && img.height === 128);
+            try {
+              // Check image dimensions
+              const validDimensions =
+                (img.width === 64 && img.height === 64) ||
+                (img.width === 128 && img.height === 128);
 
-            if (!validDimensions) {
-              throw new Error("Image must be exactly 64x64 or 128x128 pixels.");
+              if (!validDimensions) {
+                throw new Error(
+                  "Image must be exactly 64x64 or 128x128 pixels."
+                );
+              }
+
+              // If validation passes, set the image
+              setCampaignImageFilename(file.name);
+              setCampaignImageData(e.target.result);
+            } catch (error) {
+              onSnackBar(`${error}`, "error");
+            } finally {
+              // Reset the input after processing
+              if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+              }
             }
-
-            // If validation passes, set the image
-            setCampaignImageFilename(file.name);
-            setCampaignImageData(e.target.result);
           };
         } catch (error) {
           onSnackBar(`Error: ${error}`, "error");

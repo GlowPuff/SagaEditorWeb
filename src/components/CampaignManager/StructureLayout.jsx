@@ -16,11 +16,15 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MainPanel from "./MainPanel";
 //state
 import { useCampaignState } from "./CampaignState";
-import { useRawCampaignDataState } from "./RawCampaignDataState";
+// import { useRawCampaignDataState } from "./RawCampaignDataState";
 //data
 import { MissionType } from "./CampaignData";
 
-const StructureLayout = ({ onSnackBar, selectedMissionIndex, setSelectedMissionIndex }) => {
+const StructureLayout = ({
+  onSnackBar,
+  selectedMissionIndex,
+  setSelectedMissionIndex,
+}) => {
   //state
   const campaignSlots = useCampaignState((state) => state.campaignSlots);
   const addCampaignSlot = useCampaignState((state) => state.addCampaignSlot);
@@ -29,12 +33,6 @@ const StructureLayout = ({ onSnackBar, selectedMissionIndex, setSelectedMissionI
   );
   const moveSlotUp = useCampaignState((state) => state.moveSlotUp);
   const moveSlotDown = useCampaignState((state) => state.moveSlotDown);
-  const removeImportedMission = useRawCampaignDataState(
-    (state) => state.removeImportedMission
-  );
-  const removeTranslationDataBulk = useRawCampaignDataState(
-    (state) => state.removeTranslationDataBulk
-  );
 
   const handleAddSlot = () => {
     addCampaignSlot();
@@ -49,17 +47,7 @@ const StructureLayout = ({ onSnackBar, selectedMissionIndex, setSelectedMissionI
       return; // Invalid index, do nothing
     }
 
-    //remove imported mission if it exists
-    const missionGUID = campaignSlots[selectedMissionIndex].structure.missionID;
-    if (missionGUID !== "00000000-0000-0000-0000-000000000000") {
-      removeImportedMission(missionGUID);
-    }
-    //remove translations for this slot
-    removeTranslationDataBulk(
-      campaignSlots[selectedMissionIndex].translationItems
-    );
-
-    //last, remove the campaign slot
+    //remove the campaign slot
     removeCampaignSlot(selectedMissionIndex);
 
     if (selectedMissionIndex === 0 && campaignSlots.length - 1 > 0) {
@@ -101,7 +89,7 @@ const StructureLayout = ({ onSnackBar, selectedMissionIndex, setSelectedMissionI
   return (
     <div
       style={{
-        overflow: "hidden",
+        // overflow: "hidden",
         paddingTop: "1rem",
         paddingBottom: "1rem",
       }}

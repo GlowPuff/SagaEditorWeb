@@ -13,6 +13,7 @@ import {
   RawTranslationData,
   TranslationType,
   MissionItem,
+  MissionPoolItem,
 } from "./CampaignData";
 
 export default function UseCampaignImporter(onSnackBar) {
@@ -34,6 +35,8 @@ export default function UseCampaignImporter(onSnackBar) {
     campaignImageFilename,
     campaignImageData,
     instructionTranslations,
+    missionPool,
+    addMissionPoolItem,
   } = useCampaignState();
   const {
     translations,
@@ -45,6 +48,12 @@ export default function UseCampaignImporter(onSnackBar) {
 
   const importData = async (zipFile) => {
     //reset app state
+    // Notify any listeners that we're resetting the campaign
+    if (typeof window !== "undefined") {
+			console.log("❗ :: UseCampaignImporter :: importData :: resetEvent::");
+      const resetEvent = new CustomEvent("campaign-reset", {});
+      window.dispatchEvent(resetEvent);
+    }
     resetCampaignState();
     resetRawCampaignData();
 
@@ -119,13 +128,52 @@ export default function UseCampaignImporter(onSnackBar) {
           `Missions/${item.missionGUID}.json`
         );
 
-        const missionData = new RawTranslationData(
-          `${item.missionGUID}.json`,
-          fileContent,
-          TranslationType.Mission
-        );
+        // const missionData = new RawTranslationData(
+        //   `${item.missionGUID}.json`,
+        //   fileContent,
+        //   TranslationType.Mission
+        // );
 
-        addImportedMission(missionData);
+        //create mission pool item
+        let missionPoolItem = new MissionPoolItem(
+          item.missionGUID,
+          item.missionName,
+          item.customMissionIdentifier
+        );
+        missionPoolItem.GUID = item.GUID;
+
+        //set the mission pool translations
+        const missionTranslations =
+          campaignPackage.campaignTranslationItems.filter(
+            (item) =>
+              !item.isInstruction &&
+              item.assignedMissionGUID ===
+                missionPoolItem.missionItem.missionGUID
+          );
+        missionPoolItem.translationItems = missionTranslations;
+
+        //add the mission pool item to the state
+        addMissionPoolItem(missionPoolItem);
+
+        //add the mission translation raw data
+        missionTranslations.forEach(async (translationItem) => {
+          //unzip data from Translations/filename
+          const fileContent = await readFileFromZip(
+            zipFile,
+            `Translations/${translationItem.fileName}`
+          );
+
+          const translationData = new RawTranslationData(
+            translationItem.fileName,
+            fileContent,
+            TranslationType.Mission
+          );
+
+          addTranslationData(translationData);
+        });
+
+        //add raw mission data
+        addImportedMission(fileContent);
       });
 
       //next, set the campaign slots
@@ -133,14 +181,6 @@ export default function UseCampaignImporter(onSnackBar) {
         // console.log("❗ :: campaignStructure :: slot::", slot);
         const newSlot = new CampaignSlot();
         newSlot.structure = slot;
-        //then set the mission translations for the slot
-        //gather only Mission translation items with assignedMissionGUID = slot.missionID
-        const missionTranslations =
-          campaignPackage.campaignTranslationItems.filter(
-            (item) =>
-              !item.isInstruction && item.assignedMissionGUID === slot.missionID
-          );
-        newSlot.translationItems = missionTranslations;
         newSlot.campaignMissionItem =
           campaignPackage.campaignMissionItems.find(
             (mission) => mission.missionGUID === slot.missionID
@@ -152,25 +192,6 @@ export default function UseCampaignImporter(onSnackBar) {
         // );
         // console.log("❗ ::  newSlot::", newSlot);
         addCampaignSlotWithStructure(newSlot);
-
-        //add the mission translation raw data
-        missionTranslations.forEach(async (item) => {
-          // console.log("❗ :: missionTranslations.forEach :: item::", item);
-          //unzip data from Translations/filename
-          const fileContent = await readFileFromZip(
-            zipFile,
-            `Translations/${item.fileName}`
-          );
-
-          const translationData = new RawTranslationData(
-            item.fileName,
-            fileContent,
-            TranslationType.Mission
-          );
-          // console.log("❗ :: missionTranslations.forEach :: translationData::", translationData);
-
-          addTranslationData(translationData);
-        });
       });
 
       onSnackBar("Campaign data loaded successfully", "success");
@@ -219,16 +240,9 @@ export default function UseCampaignImporter(onSnackBar) {
       GUID: packageGUID,
       campaignName: campaignName || "Default Campaign Name",
       campaignStructure: campaignSlots.map((slot) => slot.structure),
-      campaignMissionItems: campaignSlots //MissionItem
-        .filter(
-          (slot) =>
-            slot.structure.missionID != "00000000-0000-0000-0000-000000000000"
-        )
-        .map((slot) => slot.campaignMissionItem),
+      campaignMissionItems: missionPool.map((slot) => slot.missionItem),
       campaignTranslationItems: [
-        ...campaignSlots.flatMap((slot) =>
-          slot.translationItems.filter((item) => !item.isInstruction)
-        ),
+        ...missionPool.flatMap((poolItem) => poolItem.translationItems),
         ...instructionTranslations,
       ], //TranslationItem
       campaignInstructions: campaignInstructions || "",
@@ -262,12 +276,8 @@ export default function UseCampaignImporter(onSnackBar) {
 
     // Add mission files
     importedMissions.forEach((mission) => {
-      const missionFileName = `Missions/${mission.translationData.missionGUID}.json`;
-      packageContents[missionFileName] = JSON.stringify(
-        mission.translationData,
-        null,
-        2
-      );
+      const missionFileName = `Missions/${mission.missionGUID}.json`;
+      packageContents[missionFileName] = JSON.stringify(mission, null, 2);
     });
 
     // Add translation files

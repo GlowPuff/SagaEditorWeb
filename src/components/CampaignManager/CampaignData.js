@@ -63,7 +63,6 @@ export class CampaignSlot {
     this.GUID = createGUID();
     this.campaignMissionItem = new MissionItem();
     this.structure = new CampaignStructure();
-    this.translationItems = []; //TranslationItem (Missions)
   }
 }
 
@@ -98,6 +97,16 @@ export class RawTranslationData {
     //the actual translation text (instructions translations) or JSON (mission translations)
     this.translationData = data;
     this.dataType = type; //TranslationType
+  }
+}
+
+export class MissionPoolItem {
+  constructor(missionGUID, missionName, customMissionIdentifier) {
+    this.missionItem = new MissionItem();
+    this.missionItem.missionGUID = missionGUID;
+    this.missionItem.customMissionIdentifier = customMissionIdentifier;
+    this.missionItem.missionName = missionName;
+    this.translationItems = []; //array of TranslationItem
   }
 }
 

@@ -1,10 +1,10 @@
 import { create } from "zustand";
 
 export const useRawCampaignDataState = create((set) => ({
-  translations: [], //array of RawTranslationData (Instruction and Mission translations)
-  translationIDs: [], //array of identifiers for quick access
-  importedMissions: [], //array of imported missions (JSON objects with mission data)
-  missionGUIDs: [], //array of mission GUIDs for quick access
+  translations: [], //array of RawTranslationData (TODO make into Instruction translations ONLY)
+  translationIDs: [], //TODO: remove
+  importedMissions: [], //array of actual mission JSON data
+  missionGUIDs: [], //array of mission GUIDs for quick access, TODO: remove
 
   resetRawCampaignData: () =>
     set({
@@ -14,7 +14,7 @@ export const useRawCampaignDataState = create((set) => ({
       missionGUIDs: [],
     }),
 
-  //data is RawTranslationData
+  //data is RawTranslationData (TODO make this for translated campaign Instructions only)
   addTranslationData: (data) =>
     set((state) => {
       // Check if data with the same identifier already exists
@@ -94,13 +94,13 @@ export const useRawCampaignDataState = create((set) => ({
   updateImportedMissionNextEventAction: (missionGUID, updatedEA) =>
     set((state) => {
       const missionIndex = state.importedMissions.findIndex(
-        (m) => m.translationData.missionGUID === missionGUID
+        (m) => m.missionGUID === missionGUID
       );
 
       if (missionIndex !== -1) {
         // console.log("Updating mission event action:", updatedEA);
         const updatedMissions = [...state.importedMissions];
-        const mission = updatedMissions[missionIndex].translationData;
+        const mission = updatedMissions[missionIndex];
         const missionEvent = mission.globalEvents.findIndex((event) =>
           event.eventActions.some((action) => action.eventActionType === 27)
         );
@@ -111,7 +111,7 @@ export const useRawCampaignDataState = create((set) => ({
           ].eventActions.findIndex((action) => action.eventActionType === 27);
           if (missionEA !== -1) {
             // console.log("Found mission event action:", missionEA);
-            updatedMissions[missionIndex].translationData.globalEvents[
+            updatedMissions[missionIndex].globalEvents[
               missionEvent
             ].eventActions[missionEA] = updatedEA;
           }

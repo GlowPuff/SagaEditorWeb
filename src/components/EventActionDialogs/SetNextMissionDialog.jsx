@@ -56,7 +56,7 @@ export default function SetNextMissionDialog() {
           fullWidth={true}
           scroll={"paper"}
         >
-          <DialogTitle>Modify Fame And Awards Event Action</DialogTitle>
+          <DialogTitle>Set Next Story Mission Event Action</DialogTitle>
           <DialogContent>
             <Paper sx={{ padding: "1rem" }}>
               <Select

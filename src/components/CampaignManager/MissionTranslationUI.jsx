@@ -23,14 +23,14 @@ import { useCampaignState } from "./CampaignState";
 
 //campaignSlot is CampaignStructure
 const MissionTranslationUI = ({
-  campaignSlot,
-  slotIndex,
+  missionPoolItem,
+  missionPoolIndex,
   missionTitle,
   onSnackBar,
 }) => {
   const fileInputRef = useRef(null); // Add this line
   const [selectedTranslation, setSelectedTranslation] = useState(null);
-  //state
+  //raw data state
   const addTranslationData = useRawCampaignDataState(
     (state) => state.addTranslationData
   );
@@ -40,11 +40,12 @@ const MissionTranslationUI = ({
   const translationIDs = useRawCampaignDataState(
     (state) => state.translationIDs
   );
-  const addSlotTranslation = useCampaignState(
-    (state) => state.addSlotTranslation
+  //campaign data state
+  const addPoolTranslation = useCampaignState(
+    (state) => state.addPoolTranslation
   );
-  const removeSlotTranslation = useCampaignState(
-    (state) => state.removeSlotTranslation
+  const removePoolTranslation = useCampaignState(
+    (state) => state.removePoolTranslation
   );
 
   const handleImportTranslation = (event) => {
@@ -93,10 +94,10 @@ const MissionTranslationUI = ({
           newTranslation.fileName = file.name;
           newTranslation.assignedMissionName = missionTitle;
           newTranslation.isInstruction = false;
-          newTranslation.assignedMissionGUID = campaignSlot.structure.missionID;
-          //newTranslation.languageID = importedData.languageID || "English (EN)";
+          newTranslation.assignedMissionGUID =
+            missionPoolItem.missionItem.missionGUID;
 
-          addSlotTranslation(slotIndex, newTranslation);
+          addPoolTranslation(missionPoolIndex, newTranslation);
           setSelectedTranslation(newTranslation);
 
           const data = new RawTranslationData(
@@ -106,7 +107,6 @@ const MissionTranslationUI = ({
           );
           addTranslationData(data);
         } catch (error) {
-          // setAlertMessage(`Invalid JSON format in the file: ${error}`);
           onSnackBar(error.toString(), "error");
         } finally {
           // Reset the input even when there's an error
@@ -120,8 +120,9 @@ const MissionTranslationUI = ({
   };
 
   const handleRemoveTranslation = () => {
+		console.log("❗ :: handleRemoveTranslation :: selectedTranslation::", selectedTranslation);
     if (selectedTranslation) {
-      removeSlotTranslation(slotIndex, selectedTranslation.fileName);
+      removePoolTranslation(missionPoolIndex, selectedTranslation);
       removeTranslationData(selectedTranslation.fileName);
       setSelectedTranslation(null);
     }
@@ -143,7 +144,7 @@ const MissionTranslationUI = ({
             width: "min-fit",
           }}
         >
-          {campaignSlot.translationItems.map((translation, index) => (
+          {missionPoolItem.translationItems.map((translation, index) => (
             <ListItem
               key={index}
               disablePadding
@@ -160,14 +161,11 @@ const MissionTranslationUI = ({
                   <Typography variant="caption" className="pink">
                     {translation.assignedMissionName}
                   </Typography>
-                  {/* <Typography variant="caption" className="pink">
-                    {translation.languageID}
-                  </Typography> */}
                 </div>
               </ListItemButton>
             </ListItem>
           ))}
-          {campaignSlot.translationItems.length === 0 && (
+          {missionPoolItem.translationItems.length === 0 && (
             <Typography className="pink" align="center">
               No translations added.
             </Typography>
@@ -218,8 +216,8 @@ const MissionTranslationUI = ({
 export default MissionTranslationUI;
 
 MissionTranslationUI.propTypes = {
-  campaignSlot: PropTypes.object.isRequired,
-  slotIndex: PropTypes.number.isRequired,
+  missionPoolItem: PropTypes.object.isRequired,
+  missionPoolIndex: PropTypes.number.isRequired,
   missionTitle: PropTypes.string.isRequired,
   onSnackBar: PropTypes.func.isRequired,
 };
