@@ -5,7 +5,7 @@ import { create } from "zustand";
  */
 const useLoggerStore = create((set) => ({
   isEnabled: true,
-  logLevel: "debug", // 'debug', 'info', 'warn', 'error'
+  logLevel: "warn", // 'debug', 'info', 'warn', 'error'
 
   setEnabled: (enabled) => set({ isEnabled: enabled }),
   setLogLevel: (level) => set({ logLevel: level }),

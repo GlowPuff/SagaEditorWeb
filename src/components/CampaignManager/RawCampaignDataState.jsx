@@ -91,7 +91,7 @@ export const useRawCampaignDataState = create((set) => ({
       missionGUIDs: state.missionGUIDs.filter((id) => id !== missionGUID),
     })),
 
-  updateImportedMissionNextEventAction: (missionGUID, updatedEA) =>
+  updateImportedMissionNextEventAction: (missionGUID, eventGUID, updatedEA) =>
     set((state) => {
       const missionIndex = state.importedMissions.findIndex(
         (m) => m.missionGUID === missionGUID
@@ -101,14 +101,14 @@ export const useRawCampaignDataState = create((set) => ({
         // console.log("Updating mission event action:", updatedEA);
         const updatedMissions = [...state.importedMissions];
         const mission = updatedMissions[missionIndex];
-        const missionEvent = mission.globalEvents.findIndex((event) =>
-          event.eventActions.some((action) => action.eventActionType === 27)
+        const missionEvent = mission.globalEvents.findIndex(
+          (event) => event.GUID === eventGUID
         );
         if (missionEvent !== -1) {
           // console.log("Found mission event:", missionEvent);
           const missionEA = mission.globalEvents[
             missionEvent
-          ].eventActions.findIndex((action) => action.eventActionType === 27);
+          ].eventActions.findIndex((action) => action.GUID === updatedEA.GUID);
           if (missionEA !== -1) {
             // console.log("Found mission event action:", missionEA);
             updatedMissions[missionIndex].globalEvents[

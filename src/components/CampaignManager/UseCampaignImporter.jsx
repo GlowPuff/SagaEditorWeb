@@ -50,7 +50,6 @@ export default function UseCampaignImporter(onSnackBar) {
     //reset app state
     // Notify any listeners that we're resetting the campaign
     if (typeof window !== "undefined") {
-			console.log("❗ :: UseCampaignImporter :: importData :: resetEvent::");
       const resetEvent = new CustomEvent("campaign-reset", {});
       window.dispatchEvent(resetEvent);
     }

@@ -23,6 +23,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 //components
 import SetNextMissionDialog from "../EventActionDialogs/SetNextMissionDialog";
+import NextMissionEAChooserDialog from "./NextMissionEAChooserDialog";
 //data
 import { Tier, MissionType } from "./CampaignData";
 //state
@@ -78,7 +79,7 @@ const MainPanel = ({ selectedSlotIndex, onSnackBar }) => {
       return; // Invalid index, do nothing
     }
 
-		//TODO change this to grab it from the mission pool item
+    //TODO change this to grab it from the mission pool item
     const identifier = campaignSlot.structure.customMissionIdentifier;
 
     if (identifier) {
@@ -100,49 +101,42 @@ const MainPanel = ({ selectedSlotIndex, onSnackBar }) => {
 
     try {
       const slotMission = importedMissions.find(
-        (raw) =>
-          raw.translationData.missionGUID === campaignSlot.structure.missionID
-      )?.translationData;
-      // console.log(
-      //   "❗ :: handleSetNextMissionEventAction :: slotMission::",
-      //   slotMission
-      // );
+        (raw) => raw.missionGUID === campaignSlot.structure.missionID
+      );
 
       if (slotMission) {
-        const missionEvent = slotMission.globalEvents.find((event) =>
+        const eventsWithEA27 = slotMission.globalEvents.filter((event) =>
           event.eventActions.some((action) => action.eventActionType === 27)
         );
-        // console.log(
-        //   "❗ :: handleSetNextMissionEventAction :: missionEvent::",
-        //   missionEvent
-        // );
 
-        if (missionEvent) {
-          const missionEA = missionEvent.eventActions.find(
-            (action) => action.eventActionType === 27
-          );
-          // console.log(
-          //   "❗ :: handleSetNextMissionEventAction :: missionEA::",
-          //   missionEA
-          // );
-
-          if (missionEA) {
-            SetNextMissionDialog.ShowDialog(missionEA, (ea) => {
-              // console.log("❗ :: handleSetNextMissionEventAction :: ea::", ea);
-              updateImportedMissionNextEventAction(slotMission.missionGUID, ea);
-              onSnackBar(
-                "Set Next Mission Event Action updated successfully.",
-                "success"
+        if (eventsWithEA27.length > 0) {
+          NextMissionEAChooserDialog.ShowDialog(
+            eventsWithEA27,
+            (updateBlock) => {
+              SetNextMissionDialog.ShowDialog(
+                updateBlock.eventAction,
+                (updatedEA) => {
+                  // console.log("❗ :: updated EA :: ea::", updatedEA);
+                  updateImportedMissionNextEventAction(
+                    slotMission.missionGUID,
+                    updateBlock.eventGUID,
+                    updatedEA
+                  );
+                  onSnackBar(
+                    "Set Next Mission Event Action updated successfully.",
+                    "success"
+                  );
+                }
               );
-            });
-          }
+            }
+          );
         } else
           throw new Error(
             "No 'Set Next Mission' Event Action found in this Mission."
           );
-      } else throw new Error("No Mission assigned to this slot");
+      } else throw new Error("No Mission attached to this Campaign Slot.");
     } catch (error) {
-      onSnackBar(error, "success");
+      onSnackBar(`Error: ${error}`, "error");
     }
   };
 
@@ -438,6 +432,7 @@ const MainPanel = ({ selectedSlotIndex, onSnackBar }) => {
       </Paper>
 
       <SetNextMissionDialog />
+      <NextMissionEAChooserDialog />
     </>
   );
 };
