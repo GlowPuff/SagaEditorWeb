@@ -37,7 +37,6 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
   const importedMissions = useRawCampaignDataState(
     (state) => state.importedMissions
   );
-  console.log("❗ :: MissionPool :: importedMissions::", importedMissions);
   const addImportedMission = useRawCampaignDataState(
     (state) => state.addImportedMission
   );
@@ -50,7 +49,6 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
   const missionGUIDs = useRawCampaignDataState((state) => state.missionGUIDs);
   // CampaignState
   const missionPool = useCampaignState((state) => state.missionPool);
-  console.log("❗ :: MissionPool :: missionPool::", missionPool);
   const campaignSlots = useCampaignState((state) => state.campaignSlots);
   const addMissionPoolItem = useCampaignState(
     (state) => state.addMissionPoolItem
@@ -137,8 +135,6 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
               );
               setSelectedMissionIndex(newIndex);
             }
-            console.log("❗ :: handleAddMission :: missionPool::", missionPool);
-            console.log("❗ :: handleAddMission :: newIndex::", newIndex);
 
             // Update the mission pool item
             let poolItem = missionPool[newIndex];
@@ -232,8 +228,6 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
 
     const identifier =
       missionPool[selectedMissionIndex].missionItem.customMissionIdentifier;
-    // importedMissions[selectedMissionIndex].missionProperties
-    //   .customMissionIdentifier;
 
     if (identifier) {
       navigator.clipboard
