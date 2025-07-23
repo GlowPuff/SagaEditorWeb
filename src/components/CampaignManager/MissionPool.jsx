@@ -37,6 +37,7 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
   const importedMissions = useRawCampaignDataState(
     (state) => state.importedMissions
   );
+  console.log("❗ :: MissionPool :: importedMissions::", importedMissions);
   const addImportedMission = useRawCampaignDataState(
     (state) => state.addImportedMission
   );
@@ -49,6 +50,7 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
   const missionGUIDs = useRawCampaignDataState((state) => state.missionGUIDs);
   // CampaignState
   const missionPool = useCampaignState((state) => state.missionPool);
+  console.log("❗ :: MissionPool :: missionPool::", missionPool);
   const campaignSlots = useCampaignState((state) => state.campaignSlots);
   const addMissionPoolItem = useCampaignState(
     (state) => state.addMissionPoolItem
@@ -125,8 +127,22 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
           if (missionGUIDs.includes(importedMission.missionGUID)) {
             // it exists, so we replace it
             replaceImportedMission(importedMission);
+
+            let newIndex = selectedMissionIndex;
+            if (selectedMissionIndex === -1) {
+              //figure out the index of the mission in the mission pool
+              newIndex = missionPool.findIndex(
+                (item) =>
+                  item.missionItem.missionGUID === importedMission.missionGUID
+              );
+              setSelectedMissionIndex(newIndex);
+            }
+            console.log("❗ :: handleAddMission :: missionPool::", missionPool);
+            console.log("❗ :: handleAddMission :: newIndex::", newIndex);
+
             // Update the mission pool item
-            let poolItem = missionPool[selectedMissionIndex];
+            let poolItem = missionPool[newIndex];
+            poolItem.fileName = file.name;
             poolItem.missionItem.missionName =
               importedMission.missionProperties.missionName;
             poolItem.missionItem.customMissionIdentifier =
@@ -137,7 +153,7 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
                   (action) => action.eventActionType === 27
                 )
               ).length > 0;
-            updateMissionPoolItem(selectedMissionIndex, poolItem);
+            updateMissionPoolItem(newIndex, poolItem);
             //update any slots that use this mission
             campaignSlots.forEach((slot, index) => {
               if (
@@ -156,13 +172,14 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
             // it doesn't exist, so we add it
             addImportedMission(importedMission);
 
-            addMissionPoolItem(
-              new MissionPoolItem(
-                importedMission.missionGUID,
-                importedMission.missionProperties.missionName,
-                importedMission.missionProperties.customMissionIdentifier
-              )
+            const newMissionPoolItem = new MissionPoolItem(
+              importedMission.missionGUID,
+              importedMission.missionProperties.missionName,
+              importedMission.missionProperties.customMissionIdentifier
             );
+            newMissionPoolItem.fileName = file.name;
+
+            addMissionPoolItem(newMissionPoolItem);
             setSelectedMissionIndex(importedMissions.length); // Select the newly added mission
             onSnackBar("Imported Mission added successfully.", "success");
           }
@@ -188,7 +205,8 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
       return; // Invalid index, do nothing
     }
     //reset any campaign slot that is using this mission
-    const missionGUID = importedMissions[selectedMissionIndex].missionGUID;
+    const missionGUID =
+      missionPool[selectedMissionIndex].missionItem.missionGUID;
     // Find all campaign slots that use this mission and reset them
     const slotsToRemove = campaignSlots
       .map((slot, index) =>
@@ -198,8 +216,12 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
     resetCampaignSlotsBulk(slotsToRemove);
 
     //remove the mission from the mission pool
-    removeImportedMission(importedMissions[selectedMissionIndex].missionGUID);
-    removeMissionPoolItem(importedMissions[selectedMissionIndex].missionGUID);
+    removeImportedMission(
+      missionPool[selectedMissionIndex].missionItem.missionGUID
+    );
+    removeMissionPoolItem(
+      missionPool[selectedMissionIndex].missionItem.missionGUID
+    );
     setSelectedMissionIndex(-1);
   }
 
@@ -273,7 +295,7 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
                   scrollbarWidth: "thin",
                 }}
               >
-                {importedMissions.map((mission, index) => (
+                {missionPool.map((mission, index) => (
                   <ListItem key={index} disablePadding>
                     <ListItemButton
                       selected={selectedMissionIndex === index}
@@ -289,10 +311,10 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
                     >
                       <div className="structure-item">
                         <div className="structure-item-row">
-                          {mission.missionProperties.missionName}
+                          {mission.missionItem.missionName}
                         </div>
                         <div className="structure-item-row">
-                          <Typography variant="subtitle2">
+                          <Typography variant="subtitle2" className={"pink"}>
                             {mission.fileName}
                           </Typography>
                         </div>

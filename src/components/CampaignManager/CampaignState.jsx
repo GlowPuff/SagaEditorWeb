@@ -166,7 +166,7 @@ export const useCampaignState = create((set) => ({
   removeMissionPoolItem: (missionGUID) =>
     set((state) => ({
       missionPool: state.missionPool.filter(
-        (item) => item.missionGUID !== missionGUID
+        (item) => item.missionItem.missionGUID !== missionGUID
       ),
     })),
   updateMissionPoolItem(index, updatedItem) {
