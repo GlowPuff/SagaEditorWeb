@@ -88,6 +88,8 @@ export const useCampaignState = create((set) => ({
       newSlots[index].campaignMissionItem = updatedMissionItem;
       newSlots[index].structure.projectItem.Title =
         updatedMissionItem.missionName;
+      newSlots[index].structure.customMissionIdentifier =
+        updatedMissionItem.customMissionIdentifier;
       return { campaignSlots: newSlots };
     }),
 

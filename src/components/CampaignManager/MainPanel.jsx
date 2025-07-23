@@ -34,9 +34,6 @@ const MainPanel = ({ selectedSlotIndex, onSnackBar }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const popupOpen = Boolean(anchorEl);
   //state
-  // const removeImportedMission = useRawCampaignDataState(
-  //   (state) => state.removeImportedMission
-  // );
   const campaignSlots = useCampaignState((state) => state.campaignSlots);
   const resetCampaignSlot = useCampaignState(
     (state) => state.resetCampaignSlot
@@ -79,7 +76,6 @@ const MainPanel = ({ selectedSlotIndex, onSnackBar }) => {
       return; // Invalid index, do nothing
     }
 
-    //TODO change this to grab it from the mission pool item
     const identifier = campaignSlot.structure.customMissionIdentifier;
 
     if (identifier) {

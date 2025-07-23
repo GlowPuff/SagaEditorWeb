@@ -106,6 +106,7 @@ export class MissionPoolItem {
     this.missionItem.missionGUID = missionGUID;
     this.missionItem.customMissionIdentifier = customMissionIdentifier;
     this.missionItem.missionName = missionName;
+
     this.translationItems = []; //array of TranslationItem
   }
 }

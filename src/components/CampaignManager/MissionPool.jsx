@@ -17,6 +17,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
 //icons
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
@@ -64,24 +65,9 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
   const updateSlotMissionItem = useCampaignState(
     (state) => state.updateSlotMissionItem
   );
-
-  //event listener
-  useEffect(() => {
-    const handleReset = (event) => {
-      if (event.type === "campaign-reset") {
-        setSelectedMissionIndex(-1);
-      }
-    };
-
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    window.addEventListener("campaign-reset", handleReset, { signal });
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
+  const updateSlotStructure = useCampaignState(
+    (state) => state.updateSlotStructure
+  );
 
   function handleAddMission(event) {
     if (
@@ -141,13 +127,27 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
             replaceImportedMission(importedMission);
             // Update the mission pool item
             let poolItem = missionPool[selectedMissionIndex];
-            poolItem.missionName =
+            poolItem.missionItem.missionName =
               importedMission.missionProperties.missionName;
+            poolItem.missionItem.customMissionIdentifier =
+              importedMission.missionProperties.customMissionIdentifier;
+            let hasCustomSetNextEventActions =
+              importedMission.globalEvents.filter((event) =>
+                event.eventActions.some(
+                  (action) => action.eventActionType === 27
+                )
+              ).length > 0;
             updateMissionPoolItem(selectedMissionIndex, poolItem);
             //update any slots that use this mission
             campaignSlots.forEach((slot, index) => {
-              if (slot.structure.missionID === poolItem.missionGUID) {
-                updateSlotMissionItem(index, poolItem);
+              if (
+                slot.structure.missionID === poolItem.missionItem.missionGUID
+              ) {
+                updateSlotMissionItem(index, poolItem.missionItem);
+                updateSlotStructure(index, {
+                  ...slot.structure,
+                  hasCustomSetNextEventActions: hasCustomSetNextEventActions,
+                });
               }
             });
 
@@ -203,11 +203,51 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
     setSelectedMissionIndex(-1);
   }
 
+  const handleCopyCustomMissionIdentifier = () => {
+    if (selectedMissionIndex === -1) {
+      return; // Invalid index, do nothing
+    }
+
+    const identifier =
+      missionPool[selectedMissionIndex].missionItem.customMissionIdentifier;
+    // importedMissions[selectedMissionIndex].missionProperties
+    //   .customMissionIdentifier;
+
+    if (identifier) {
+      navigator.clipboard
+        .writeText(identifier)
+        .then(() => {
+          onSnackBar(`Copied: ${identifier}`, "success");
+        })
+        .catch(() => {
+          onSnackBar("Failed to copy identifier.", "error");
+        });
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     onReset: () => {
       setSelectedMissionIndex(-1);
     },
   }));
+
+  //event listener
+  useEffect(() => {
+    const handleReset = (event) => {
+      if (event.type === "campaign-reset") {
+        setSelectedMissionIndex(-1);
+      }
+    };
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    window.addEventListener("campaign-reset", handleReset, { signal });
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   return (
     <div style={{ marginTop: "1rem" }}>
@@ -316,15 +356,50 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
               ) : (
                 <>
                   <Typography>
-                    {missionPool[selectedMissionIndex].missionName}
+                    {missionPool[selectedMissionIndex].missionItem.missionName}
                   </Typography>
+                  <Paper
+                    sx={{
+                      backgroundColor: "#281b40",
+                      padding: "1rem",
+                      marginTop: ".5rem",
+                    }}
+                  >
+                    <div
+                      className="two-column-grid"
+                      style={{ alignItems: "center" }}
+                    >
+                      <div>
+                        <Typography>Custom Mission Identifier:</Typography>
+                        <Typography variant="subtitle2" className="pink">
+                          {
+                            missionPool[selectedMissionIndex].missionItem
+                              .customMissionIdentifier
+                          }
+                        </Typography>
+                      </div>
+                      <div>
+                        <Button
+                          onClick={handleCopyCustomMissionIdentifier}
+                          variant="contained"
+                          disabled={
+                            missionPool[selectedMissionIndex].missionItem
+                              .customMissionIdentifier === ""
+                          }
+                        >
+                          Copy Custom Mission Identifier
+                        </Button>
+                      </div>
+                    </div>
+                  </Paper>
+
                   <div className="simple-row mt-p5">
                     <Accordion
                       sx={{ width: "100%", backgroundColor: "#281b40" }}
                     >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <div className="event-container">
-                          <Typography> Mission Translations </Typography>
+                          <Typography>Mission Translations</Typography>
                         </div>
                       </AccordionSummary>
                       <AccordionDetails>
