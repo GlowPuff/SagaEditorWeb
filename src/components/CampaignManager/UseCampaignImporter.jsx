@@ -150,7 +150,6 @@ export default function UseCampaignImporter(onSnackBar) {
                 missionPoolItem.missionItem.missionGUID
           );
         missionPoolItem.translationItems = missionTranslations;
-        console.log("❗ :: campaignPackage.campaignMissionItems.forEach :: missionPoolItem::", missionPoolItem);
 
         //add the mission pool item to the state
         addMissionPoolItem(missionPoolItem);
