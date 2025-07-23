@@ -138,7 +138,7 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
 
             // Update the mission pool item
             let poolItem = missionPool[newIndex];
-            poolItem.fileName = file.name;
+            poolItem.fileName = importedMission.fileName;
             poolItem.missionItem.missionName =
               importedMission.missionProperties.missionName;
             poolItem.missionItem.customMissionIdentifier =
@@ -173,7 +173,7 @@ const MissionPool = forwardRef(({ onSnackBar }, ref) => {
               importedMission.missionProperties.missionName,
               importedMission.missionProperties.customMissionIdentifier
             );
-            newMissionPoolItem.fileName = file.name;
+            newMissionPoolItem.fileName = importedMission.fileName;
 
             addMissionPoolItem(newMissionPoolItem);
             setSelectedMissionIndex(importedMissions.length); // Select the newly added mission

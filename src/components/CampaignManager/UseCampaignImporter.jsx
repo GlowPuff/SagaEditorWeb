@@ -139,7 +139,7 @@ export default function UseCampaignImporter(onSnackBar) {
           item.missionName,
           item.customMissionIdentifier
         );
-        missionPoolItem.GUID = item.GUID;
+				missionPoolItem.fileName = fileContent.fileName;
 
         //set the mission pool translations
         const missionTranslations =
@@ -150,6 +150,7 @@ export default function UseCampaignImporter(onSnackBar) {
                 missionPoolItem.missionItem.missionGUID
           );
         missionPoolItem.translationItems = missionTranslations;
+        console.log("❗ :: campaignPackage.campaignMissionItems.forEach :: missionPoolItem::", missionPoolItem);
 
         //add the mission pool item to the state
         addMissionPoolItem(missionPoolItem);
